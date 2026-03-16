@@ -4,6 +4,7 @@ import json
 import math
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from collections import Counter
@@ -12,74 +13,107 @@ from pathlib import Path
 from typing import Any, Sequence
 
 
-INPUT_PATH = Path(r"E:\Programming\buildcanada\canadian-laws\processed\documents_en.parquet")
+INPUT_PATH = Path(
+    r"E:\Programming\buildcanada\canadian-laws\processed\document_classifier_inputs_en.parquet"
+)
 OUTPUT_PATH = Path(r"E:\Programming\buildcanada\canadian-laws\processed\document_domains_en.parquet")
 
-# Title-plus-citation embeddings on this corpus cluster lower than 0.78;
-# this default keeps most clear matches on the semantic path while still
-# reserving the LLM for weaker scores. Override via SEMANTIC_ACCEPT_THRESHOLD.
+# Enriched title/citation-plus-sections inputs are longer and may need
+# threshold calibration as the taxonomy or embedding model changes.
+# Override via SEMANTIC_ACCEPT_THRESHOLD and SEMANTIC_MARGIN_THRESHOLD.
 SEMANTIC_ACCEPT_THRESHOLD = 0.55
+SEMANTIC_MARGIN_THRESHOLD = 0.03
 DEFAULT_EMBEDDING_PROVIDER = "fastembed"
 DEFAULT_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 DEFAULT_EMBEDDING_BATCH_SIZE = 128
-DEFAULT_FASTEMBED_THREADS = 1
-DEFAULT_CLAUDE_MODEL = "claude-4-5-haiku-latest"
+DEFAULT_FASTEMBED_THREADS = max(1, min(8, os.cpu_count() or 4))
+EMBEDDING_PROGRESS_EVERY = 256
+CLASSIFICATION_PROGRESS_EVERY = 250
+DEFAULT_CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 DEFAULT_CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_CLAUDE_MAX_TOKENS = 16
-ANTHROPIC_VERSION = "2025-10-01"
+CLAUDE_RATE_LIMIT_MAX_RETRIES = 5
+CLAUDE_RATE_LIMIT_COOLDOWN_SECONDS = 15.0
+CLAUDE_RATE_LIMIT_BACKOFF_MULTIPLIER = 2.0
+ANTHROPIC_VERSION = "2023-06-01"
 
-TAXONOMY_DESCRIPTIONS: dict[str, str] = {
-    "governance_administrative": (
-        "Laws about government institutions, public administration, administrative "
-        "procedure, elections, official government operations, tribunals, agencies, "
-        "public service management, and regulatory governance."
-    ),
-    "criminal_public_safety": (
-        "Laws about criminal offences, policing, investigations, evidence, courts, "
-        "sentencing, corrections, national security, firearms, border enforcement, "
-        "emergency powers, and public safety."
-    ),
-    "labor_employment": (
-        "Laws about employment standards, labour relations, workplace safety, wages, "
-        "collective bargaining, pensions tied to employment, workers compensation, "
-        "and public service employment."
-    ),
-    "business_commerce": (
-        "Laws about corporations, insolvency, bankruptcy, competition, trade, "
-        "intellectual property, commercial transactions, communications businesses, "
-        "consumer commerce, and market regulation."
-    ),
-    "tax_finance": (
-        "Laws about taxation, customs duties, tariffs, public revenue, banking, "
-        "financial institutions, insurance, monetary policy, securities, and federal "
-        "public finance."
-    ),
-    "transport_infrastructure": (
-        "Laws about aviation, rail, shipping, ports, roads, bridges, pipelines, "
-        "transportation safety, infrastructure systems, and movement of passengers or goods."
-    ),
-    "environment_resources": (
-        "Laws about environmental protection, climate, pollution, wildlife, fisheries, "
-        "oceans, parks, forestry, mining, energy, water, agriculture resources, and "
-        "natural resource management."
-    ),
-    "rights_privacy_access": (
-        "Laws about human rights, civil liberties, privacy, data protection, access to "
-        "information, accessibility, language rights, discrimination, and public access rights."
-    ),
-    "indigenous_crown_relations": (
-        "Laws about First Nations, Inuit, Metis, reserves, treaties, land claims, "
-        "self-government, Indigenous governance, Crown-Indigenous relations, and related institutions."
-    ),
-    "health_social_services": (
-        "Laws about public health, health care, medicines, food safety, disability supports, "
-        "income support, social benefits, veterans supports, family services, and other "
-        "social service systems."
-    ),
-    "other": (
-        "Laws that do not clearly fit the other specified domains, including miscellaneous, "
-        "technical, ceremonial, cross-cutting, or hard-to-classify statutes."
-    ),
+CLAUDE_COOLDOWN_UNTIL = 0.0
+
+TAXONOMY_PROTOTYPES: dict[str, list[str]] = {
+    "governance_administrative": [
+        "law about public service administration, civil service, and government employees",
+        "order about oaths of office, official appointments, boards, commissions, or tribunals",
+        "statute about machinery of government, ministries, agencies, and administrative procedure",
+        "publication order, Canada Gazette notice, proclamation, or government record-keeping rule",
+        "territorial administration or federal administration law not primarily about Indigenous rights",
+    ],
+    "criminal_public_safety": [
+        "law about criminal offences, prosecutions, criminal procedure, or sentencing",
+        "statute about policing, investigations, evidence, or courts",
+        "regulation about corrections, prisons, parole, or law enforcement",
+        "law about firearms, national security, emergency powers, or border enforcement",
+    ],
+    "labor_employment": [
+        "law about labour relations, trade unions, and collective bargaining",
+        "statute about employment standards, wages, hours of work, or workplace conditions",
+        "regulation about occupational health and safety or workers compensation",
+        "law about public service employment, workplace pensions, or labour disputes",
+    ],
+    "business_commerce": [
+        "law about corporations, company governance, or commercial entities",
+        "statute about insolvency, bankruptcy, receivership, or secured transactions",
+        "regulation about competition, trade, or market conduct",
+        "law about intellectual property, patents, copyrights, or trademarks",
+        "commercial communications, consumer commerce, or business licensing law",
+    ],
+    "tax_finance": [
+        "law about income tax, excise tax, customs duties, tariffs, or public revenue",
+        "statute about banking, insurance, pensions regulation, or financial institutions",
+        "regulation about federal finance, public money, or fiscal administration",
+        "law about securities, monetary policy, or financial reporting",
+    ],
+    "transport_infrastructure": [
+        "law about airports, aviation safety, air navigation, or aircraft operations",
+        "statute about railways, railway safety, or rail transport infrastructure",
+        "regulation about shipping, marine transport, ports, harbours, or navigation",
+        "law about dangerous goods transportation, transport safety, or transportation systems",
+        "statute about roads, bridges, tunnels, ferries, or transport infrastructure",
+    ],
+    "environment_resources": [
+        "law about toxic substances, chemicals, or hazardous environmental contaminants",
+        "regulation about asbestos, hazardous materials, waste, or pollution control",
+        "statute about emissions, environmental protection, or pollution prevention",
+        "law about wildlife, fisheries, oceans, parks, or conservation",
+        "regulation about mining, energy, water, forestry, or natural resource management",
+    ],
+    "rights_privacy_access": [
+        "law about privacy, personal information, or data protection",
+        "statute about access to information, records access, or government transparency",
+        "law about human rights, discrimination, equality, or civil liberties",
+        "statute about accessibility, disability access, or accommodation rights",
+        "law about language rights or other individual rights to fair treatment and access",
+    ],
+    # Keep this intentionally narrow so general territorial administration,
+    # land/resource regulation, or ordinary government orders do not drift here.
+    "indigenous_crown_relations": [
+        "Indian Act style law about Indian status, registration, bands, and reserve administration",
+        "statute about First Nations bands, reserve lands, or band governance",
+        "law implementing treaty rights, specific claims, or land claims agreements",
+        "statute about Indigenous self-government or Crown-Indigenous relations",
+        "law about Inuit governance, Inuit land claims, or Inuit rights",
+        "law about Metis governance, Metis rights, or Metis self-government",
+    ],
+    "health_social_services": [
+        "law about public health, disease control, or health administration",
+        "statute about medicines, food safety, or medical products",
+        "law about disability supports, income support, or social benefits",
+        "statute about veterans benefits, family services, or social service programs",
+    ],
+    "other": [
+        "miscellaneous statute that does not clearly fit the main legal domains",
+        "technical or cross-cutting law with no dominant subject matter",
+        "ceremonial, transitional, or hard-to-classify regulation",
+    ],
 }
 
 
@@ -107,6 +141,7 @@ class DocumentRow:
     document_id: str
     title_en: str
     citation_en: str | None
+    classifier_input_text: str | None
 
 
 @dataclass(frozen=True)
@@ -114,6 +149,15 @@ class SemanticMatch:
     label: str
     similarity: float
     description: str
+    second_best_label: str
+    second_best_similarity: float
+    score_margin: float
+
+
+@dataclass(frozen=True)
+class PrototypeRow:
+    label: str
+    text: str
 
 
 def load_env_file(path: Path) -> None:
@@ -130,8 +174,27 @@ def load_env_file(path: Path) -> None:
         os.environ.setdefault(key, value)
 
 
-def get_taxonomy_descriptions() -> dict[str, str]:
-    return dict(TAXONOMY_DESCRIPTIONS)
+def get_taxonomy_prototypes() -> dict[str, list[str]]:
+    return {label: list(prototypes) for label, prototypes in TAXONOMY_PROTOTYPES.items()}
+
+
+def build_taxonomy_descriptions(
+    taxonomy_prototypes: dict[str, list[str]],
+) -> dict[str, str]:
+    return {
+        label: "; ".join(prototypes)
+        for label, prototypes in taxonomy_prototypes.items()
+    }
+
+
+def flatten_taxonomy_prototypes(
+    taxonomy_prototypes: dict[str, list[str]],
+) -> list[PrototypeRow]:
+    prototype_rows: list[PrototypeRow] = []
+    for label, prototypes in taxonomy_prototypes.items():
+        for prototype_text in prototypes:
+            prototype_rows.append(PrototypeRow(label=label, text=prototype_text))
+    return prototype_rows
 
 
 def delete_if_exists(path: Path) -> None:
@@ -174,6 +237,16 @@ def build_document_text(title_en: str, citation_en: str | None) -> str:
     return " | ".join(parts)
 
 
+def get_embedding_text(
+    classifier_input_text: str | None,
+    title_en: str,
+    citation_en: str | None,
+) -> str:
+    if classifier_input_text and classifier_input_text.strip():
+        return classifier_input_text.strip()
+    return build_document_text(title_en, citation_en)
+
+
 def generate_embeddings(texts: Sequence[str], config: EmbeddingConfig) -> list[list[float]]:
     if config.provider == "fastembed":
         return generate_fastembed_embeddings(texts, config)
@@ -188,6 +261,9 @@ def generate_fastembed_embeddings(
 ) -> list[list[float]]:
     from fastembed import TextEmbedding
 
+    if not texts:
+        return []
+
     model = TextEmbedding(
         model_name=config.model_name,
         cache_dir=config.cache_dir,
@@ -195,8 +271,13 @@ def generate_fastembed_embeddings(
     )
 
     embeddings: list[list[float]] = []
-    for vector in model.embed(texts, batch_size=config.batch_size):
+    total = len(texts)
+    last_reported = 0
+    for index, vector in enumerate(model.embed(texts, batch_size=config.batch_size), start=1):
         embeddings.append([float(value) for value in vector.tolist()])
+        if index == total or index - last_reported >= EMBEDDING_PROGRESS_EVERY:
+            print(f"Embedded {index}/{total} texts...")
+            last_reported = index
     return embeddings
 
 
@@ -250,24 +331,53 @@ def cosine_similarity(left: Sequence[float], right: Sequence[float]) -> float:
 
 def classify_with_semantic_similarity(
     document_embedding: Sequence[float],
-    taxonomy_labels: Sequence[str],
-    taxonomy_embeddings: Sequence[Sequence[float]],
-    taxonomy_descriptions: dict[str, str],
+    prototype_rows: Sequence[PrototypeRow],
+    prototype_embeddings: Sequence[Sequence[float]],
 ) -> SemanticMatch:
-    best_label = "other"
-    best_score = -1.0
+    domain_scores = aggregate_domain_scores(
+        document_embedding=document_embedding,
+        prototype_rows=prototype_rows,
+        prototype_embeddings=prototype_embeddings,
+    )
+    ranked_scores = sorted(
+        (
+            (label, score, prototype_text)
+            for label, (score, prototype_text) in domain_scores.items()
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )
 
-    for label, embedding in zip(taxonomy_labels, taxonomy_embeddings):
-        score = cosine_similarity(document_embedding, embedding)
-        if score > best_score:
-            best_label = label
-            best_score = score
+    best_label, best_score, best_prototype = ranked_scores[0]
+    if len(ranked_scores) > 1:
+        second_best_label, second_best_score, _ = ranked_scores[1]
+    else:
+        second_best_label = best_label
+        second_best_score = best_score
 
     return SemanticMatch(
         label=best_label,
         similarity=best_score,
-        description=taxonomy_descriptions[best_label],
+        description=best_prototype,
+        second_best_label=second_best_label,
+        second_best_similarity=second_best_score,
+        score_margin=best_score - second_best_score,
     )
+
+
+def aggregate_domain_scores(
+    document_embedding: Sequence[float],
+    prototype_rows: Sequence[PrototypeRow],
+    prototype_embeddings: Sequence[Sequence[float]],
+) -> dict[str, tuple[float, str]]:
+    best_scores: dict[str, tuple[float, str]] = {}
+
+    for prototype_row, prototype_embedding in zip(prototype_rows, prototype_embeddings):
+        score = cosine_similarity(document_embedding, prototype_embedding)
+        current_best = best_scores.get(prototype_row.label)
+        if current_best is None or score > current_best[0]:
+            best_scores[prototype_row.label] = (score, prototype_row.text)
+
+    return best_scores
 
 
 def classify_with_claude_fallback(
@@ -276,6 +386,8 @@ def classify_with_claude_fallback(
     taxonomy_descriptions: dict[str, str],
     config: ClaudeConfig,
 ) -> tuple[str | None, str | None, str | None, bool]:
+    global CLAUDE_COOLDOWN_UNTIL
+
     if not config.api_key:
         return None, None, "missing_claude_api_key", False
 
@@ -315,16 +427,40 @@ def classify_with_claude_fallback(
         method="POST",
     )
 
-    try:
-        with urllib.request.urlopen(request, timeout=120) as response:
-            body = json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
+    body: dict[str, Any] | None = None
+    for attempt in range(CLAUDE_RATE_LIMIT_MAX_RETRIES + 1):
+        remaining_cooldown = CLAUDE_COOLDOWN_UNTIL - time.monotonic()
+        if remaining_cooldown > 0:
+            time.sleep(remaining_cooldown)
+
         try:
-            error_body = exc.read().decode("utf-8", errors="replace")
+            with urllib.request.urlopen(request, timeout=120) as response:
+                body = json.loads(response.read().decode("utf-8"))
+            break
+        except urllib.error.HTTPError as exc:
+            try:
+                error_body = exc.read().decode("utf-8", errors="replace")
+            except Exception:
+                error_body = None
+
+            is_rate_limited = exc.code == 429 or parse_claude_error_type(error_body) == "rate_limit_error"
+            if is_rate_limited and attempt < CLAUDE_RATE_LIMIT_MAX_RETRIES:
+                retry_delay = get_claude_retry_delay_seconds(exc, attempt)
+                CLAUDE_COOLDOWN_UNTIL = max(CLAUDE_COOLDOWN_UNTIL, time.monotonic() + retry_delay)
+                print(
+                    "Claude rate limit hit. "
+                    f"Cooling down for {retry_delay:.1f}s before retry {attempt + 1}/"
+                    f"{CLAUDE_RATE_LIMIT_MAX_RETRIES}."
+                )
+                continue
+
+            if is_rate_limited:
+                return None, error_body, "claude_rate_limited", True
+            return None, error_body, "claude_request_failed", True
         except Exception:
-            error_body = None
-        return None, error_body, "claude_request_failed", True
-    except Exception:
+            return None, None, "claude_request_failed", True
+
+    if body is None:
         return None, None, "claude_request_failed", True
 
     parts = body.get("content", [])
@@ -334,6 +470,41 @@ def classify_with_claude_fallback(
     if raw_text not in taxonomy_descriptions:
         return None, raw_text or None, "claude_invalid_label", True
     return raw_text, raw_text, "semantic_below_threshold", True
+
+
+def parse_claude_error_type(error_body: str | None) -> str | None:
+    if not error_body:
+        return None
+
+    try:
+        payload = json.loads(error_body)
+    except json.JSONDecodeError:
+        return None
+
+    error = payload.get("error")
+    if isinstance(error, dict):
+        error_type = error.get("type")
+        if isinstance(error_type, str):
+            return error_type
+    return None
+
+
+def get_claude_retry_delay_seconds(
+    exc: urllib.error.HTTPError,
+    attempt: int,
+) -> float:
+    retry_after = exc.headers.get("retry-after")
+    if retry_after:
+        try:
+            retry_after_seconds = float(retry_after)
+            if retry_after_seconds > 0:
+                return retry_after_seconds
+        except ValueError:
+            pass
+
+    return CLAUDE_RATE_LIMIT_COOLDOWN_SECONDS * (
+        CLAUDE_RATE_LIMIT_BACKOFF_MULTIPLIER ** attempt
+    )
 
 
 def print_domain_counts(counter: Counter[str]) -> None:
@@ -367,18 +538,24 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    taxonomy_descriptions = get_taxonomy_descriptions()
-    taxonomy_labels = list(taxonomy_descriptions.keys())
+    taxonomy_prototypes = get_taxonomy_prototypes()
+    taxonomy_descriptions = build_taxonomy_descriptions(taxonomy_prototypes)
+    prototype_rows = flatten_taxonomy_prototypes(taxonomy_prototypes)
     embedding_config = get_embedding_config()
     claude_config = get_claude_config()
-    threshold = float(os.getenv("SEMANTIC_ACCEPT_THRESHOLD", str(SEMANTIC_ACCEPT_THRESHOLD)))
+    semantic_accept_threshold = float(
+        os.getenv("SEMANTIC_ACCEPT_THRESHOLD", str(SEMANTIC_ACCEPT_THRESHOLD))
+    )
+    semantic_margin_threshold = float(
+        os.getenv("SEMANTIC_MARGIN_THRESHOLD", str(SEMANTIC_MARGIN_THRESHOLD))
+    )
     temp_output_path = OUTPUT_PATH.with_name(f"{OUTPUT_PATH.stem}.tmp.parquet")
 
     con = duckdb.connect()
     try:
         rows = con.execute(
             """
-            SELECT document_id, title_en, citation_en
+            SELECT document_id, title_en, citation_en, classifier_input_text
             FROM read_parquet(?)
             WHERE title_en IS NOT NULL
               AND trim(title_en) <> ''
@@ -404,6 +581,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     classification_method VARCHAR,
                     classification_confidence DOUBLE,
                     top_similarity_score DOUBLE,
+                    second_best_domain VARCHAR,
+                    second_best_score DOUBLE,
+                    score_margin DOUBLE,
                     matched_taxonomy_description VARCHAR,
                     llm_used BOOLEAN,
                     llm_raw_label VARCHAR,
@@ -421,21 +601,33 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Total documents processed: 0")
         print("Total semantic-only classifications: 0")
         print("Total LLM fallback classifications: 0")
-        print("Total low-confidence other classifications: 0")
+        print("Total semantic_low_margin classifications: 0")
         print("Counts by primary_domain:")
         return 0
 
     document_texts = [
-        build_document_text(document.title_en, document.citation_en)
+        get_embedding_text(
+            classifier_input_text=document.classifier_input_text,
+            title_en=document.title_en,
+            citation_en=document.citation_en,
+        )
         for document in documents
     ]
-    taxonomy_texts = [
-        f"{label}: {description}" for label, description in taxonomy_descriptions.items()
-    ]
+    prototype_texts = [prototype_row.text for prototype_row in prototype_rows]
 
     try:
+        print(
+            "Generating document embeddings "
+            f"({len(document_texts)} texts, provider={embedding_config.provider}, "
+            f"model={embedding_config.model_name}, batch_size={embedding_config.batch_size}, "
+            f"fastembed_threads={embedding_config.fastembed_threads})..."
+        )
         document_embeddings = generate_embeddings(document_texts, embedding_config)
-        taxonomy_embeddings = generate_embeddings(taxonomy_texts, embedding_config)
+        print(
+            "Generating taxonomy prototype embeddings "
+            f"({len(prototype_texts)} prototypes across {len(taxonomy_prototypes)} labels)..."
+        )
+        prototype_embeddings = generate_embeddings(prototype_texts, embedding_config)
     except Exception as exc:
         print(f"Error generating embeddings: {exc}", file=sys.stderr)
         return 1
@@ -444,28 +636,42 @@ def main(argv: Sequence[str] | None = None) -> int:
     domain_counter: Counter[str] = Counter()
     semantic_only_count = 0
     llm_fallback_count = 0
-    low_confidence_other_count = 0
+    semantic_low_margin_count = 0
 
-    for document, embedding in zip(documents, document_embeddings):
+    for index, (document, embedding) in enumerate(zip(documents, document_embeddings), start=1):
         semantic_match = classify_with_semantic_similarity(
             document_embedding=embedding,
-            taxonomy_labels=taxonomy_labels,
-            taxonomy_embeddings=taxonomy_embeddings,
-            taxonomy_descriptions=taxonomy_descriptions,
+            prototype_rows=prototype_rows,
+            prototype_embeddings=prototype_embeddings,
         )
 
         top_similarity_score = float(semantic_match.similarity)
+        second_best_domain = semantic_match.second_best_label
+        second_best_score = float(semantic_match.second_best_similarity)
+        score_margin = float(semantic_match.score_margin)
         confidence = float(top_similarity_score)
         matched_description = semantic_match.description
         llm_used = False
         llm_raw_label: str | None = None
         fallback_reason: str | None = None
 
-        if top_similarity_score >= threshold:
+        semantic_is_confident = (
+            top_similarity_score >= semantic_accept_threshold
+            and score_margin >= semantic_margin_threshold
+        )
+
+        if semantic_is_confident:
             primary_domain = semantic_match.label
             classification_method = "semantic_similarity"
             semantic_only_count += 1
         else:
+            fallback_trigger = []
+            if top_similarity_score < semantic_accept_threshold:
+                fallback_trigger.append("low_score")
+            if score_margin < semantic_margin_threshold:
+                fallback_trigger.append("low_margin")
+            trigger_reason = "semantic_" + "_".join(fallback_trigger)
+
             llm_label, llm_raw_label, fallback_reason, llm_used = classify_with_claude_fallback(
                 title_en=document.title_en,
                 citation_en=document.citation_en,
@@ -476,12 +682,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 primary_domain = llm_label
                 classification_method = "llm_fallback"
                 matched_description = taxonomy_descriptions[primary_domain]
+                fallback_reason = trigger_reason
                 llm_fallback_count += 1
             else:
-                primary_domain = "other"
-                classification_method = "other_low_confidence"
-                matched_description = taxonomy_descriptions[primary_domain]
-                low_confidence_other_count += 1
+                primary_domain = semantic_match.label
+                classification_method = "semantic_low_margin"
+                if fallback_reason is None:
+                    fallback_reason = trigger_reason
+                semantic_low_margin_count += 1
 
         domain_counter[primary_domain] += 1
         results.append(
@@ -492,12 +700,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                 classification_method,
                 confidence,
                 top_similarity_score,
+                second_best_domain,
+                second_best_score,
+                score_margin,
                 matched_description,
                 llm_used,
                 llm_raw_label,
                 fallback_reason,
             )
         )
+
+        if index == total_documents or index % CLASSIFICATION_PROGRESS_EVERY == 0:
+            print(
+                f"Classified {index}/{total_documents} documents "
+                f"(semantic={semantic_only_count}, llm={llm_fallback_count}, "
+                f"low_margin={semantic_low_margin_count})"
+            )
 
     delete_output = duckdb.connect()
     try:
@@ -510,6 +728,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 classification_method VARCHAR,
                 classification_confidence DOUBLE,
                 top_similarity_score DOUBLE,
+                second_best_domain VARCHAR,
+                second_best_score DOUBLE,
+                score_margin DOUBLE,
                 matched_taxonomy_description VARCHAR,
                 llm_used BOOLEAN,
                 llm_raw_label VARCHAR,
@@ -518,7 +739,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             """
         )
         delete_output.executemany(
-            "INSERT INTO classification_results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO classification_results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             results,
         )
         delete_if_exists(temp_output_path)
@@ -532,7 +753,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"Total documents processed: {total_documents}")
     print(f"Total semantic-only classifications: {semantic_only_count}")
     print(f"Total LLM fallback classifications: {llm_fallback_count}")
-    print(f"Total low-confidence other classifications: {low_confidence_other_count}")
+    print(f"Total semantic_low_margin classifications: {semantic_low_margin_count}")
     print_domain_counts(domain_counter)
     print(f"Output written to: {OUTPUT_PATH}")
     return 0

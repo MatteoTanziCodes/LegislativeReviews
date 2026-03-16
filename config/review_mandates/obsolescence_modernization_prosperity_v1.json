@@ -1,0 +1,85 @@
+{
+  "mandate_id": "obsolescence_modernization_prosperity_v1",
+  "mandate_name": "Prosperity-First Obsolescence and Modernization Review",
+  "version": "1.0",
+  "purpose": "Assess whether a federal law should be retained, amended, considered for repeal/consolidation, or escalated for human review, using a prosperity-first lens emphasizing competitiveness, productivity, and government efficiency while managing repeal risk.",
+  "policy_tenets": [
+    "Canada should aim to be the world's most prosperous country.",
+    "Promote economic freedom, ambition, and breaking from bureaucratic inertia (reduce red tape).",
+    "Drive national productivity and global competitiveness.",
+    "Grow exports of Canadian products and resources.",
+    "Encourage investment, innovation, and resource development.",
+    "Deliver better public services at lower cost (government efficiency).",
+    "Reform taxes to incentivize work, risk-taking, and innovation.",
+    "Focus on large-scale prosperity, not incrementalism."
+  ],
+  "decision_labels": [
+    "retain",
+    "amend",
+    "repeal_candidate",
+    "escalate"
+  ],
+  "evaluation_criteria": [
+    "Is the law actively governing an ongoing federal program, institution, regulatory regime, or rights framework?",
+    "Does the law appear narrowly tied to a historical, transitional, implementation, transfer, or restructuring purpose?",
+    "Does the law create administrative burden, duplication, or unclear process that contributes to red tape?",
+    "Does the law appear to hinder investment, innovation, resource development, exports, or productivity without a clear compensating public benefit?",
+    "Does the law enable better public services at lower cost through clearer mandates, streamlined administration, or modernized delivery mechanisms?",
+    "Does the law appear outdated in terminology, structure, technology assumptions, or institutional references while still serving a live purpose?",
+    "Does the law appear high-risk to repeal because it affects rights, benefits, offences, penalties, taxation, core public administration, or major regulatory powers?"
+  ],
+  "scoring_rubric": {
+    "dimensions": [
+      {
+        "name": "operational_relevance",
+        "scale_min": 0,
+        "scale_max": 3,
+        "description": "0=unclear/obsolete, 3=clearly operational today"
+      },
+      {
+        "name": "prosperity_alignment",
+        "scale_min": -2,
+        "scale_max": 2,
+        "description": "-2=material drag on prosperity/productivity, +2=material enabler"
+      },
+      {
+        "name": "administrative_burden",
+        "scale_min": 0,
+        "scale_max": 3,
+        "description": "0=minimal burden, 3=high red tape/duplication/complexity"
+      },
+      {
+        "name": "repeal_risk",
+        "scale_min": 0,
+        "scale_max": 3,
+        "description": "0=low risk, 3=high risk (rights/benefits/offences/tax/core powers)"
+      }
+    ],
+    "mapping_guidance": {
+      "retain": "operational_relevance>=2 AND repeal_risk>=2 OR (administrative_burden<=1 AND prosperity_alignment>=0)",
+      "amend": "operational_relevance>=2 AND (administrative_burden>=2 OR prosperity_alignment<=-1) AND repeal_risk>=1",
+      "repeal_candidate": "operational_relevance<=1 AND repeal_risk<=1 AND (administrative_burden>=1 OR appears_transitional_or_duplicate=true)",
+      "escalate": "repeal_risk>=2 OR insufficient_evidence=true OR ambiguous_case=true"
+    }
+  },
+  "repeal_risk_rules": [
+    "If the law affects rights, benefits, offences/penalties, taxation, public safety, or major regulatory powers, prefer escalate over repeal_candidate.",
+    "If the law appears to be narrow transitional/transfer/implementation/miscellaneous adjustment legislation with low repeal risk, repeal_candidate is allowed.",
+    "If evidence is weak or the classification is ambiguous, prefer escalate.",
+    "If the law is operational but creates red tape or harms prosperity outcomes, prefer amend (streamline/modernize) over repeal."
+  ],
+  "evidence_requirements": {
+    "minimum_sections_to_review": 5,
+    "require_title": true,
+    "require_citation": true,
+    "require_decision_rationale": true,
+    "require_evidence_section_keys": true,
+    "require_prosperity_tenets_trace": true
+  },
+  "default_decision_policy": {
+    "ambiguous_case": "escalate",
+    "insufficient_evidence": "escalate",
+    "high_risk_repeal_case": "escalate",
+    "prosperity_drag_but_high_risk": "amend"
+  }
+}
