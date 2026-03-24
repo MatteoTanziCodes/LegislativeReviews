@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -17,25 +18,21 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import classify_documents as classifier
+import export_frontend_review_data as frontend_export
 
 
-INPUT_PATH = Path(
-    r"E:\Programming\buildcanada\canadian-laws\processed\review_inputs_governance_administrative_prosperity_en.parquet"
-)
-OUTPUT_PATH = Path(
-    r"E:\Programming\buildcanada\canadian-laws\processed\reviews_governance_administrative_prosperity_full_en.parquet"
-)
 MANDATE_PATH = Path(
     r"config/review_mandates/obsolescence_modernization_prosperity_v1.json"
 )
 
-# Set to an integer for a smaller test batch. `None` means review the full dataset.
-SAMPLE_LIMIT: int | None = None
 DEFAULT_REVIEW_MODEL = "claude-sonnet-4-20250514"
 DEFAULT_CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_REVIEW_MAX_TOKENS = 900
 REVIEW_PROGRESS_EVERY = 100
 INITIAL_RESULT_PREVIEW_COUNT = 5
+DEFAULT_FRONTEND_TOTAL_COUNT = 5796
+DEFAULT_FRONTEND_DAILY_CAPACITY = 200
+DEFAULT_FRONTEND_EXPORT_EVERY = 10
 
 ALLOWED_DECISIONS = {"retain", "amend", "repeal_candidate", "escalate"}
 VALIDATION_RANGES = {
@@ -43,6 +40,11 @@ VALIDATION_RANGES = {
     "prosperity_alignment_score": (-2, 2),
     "administrative_burden_score": (0, 3),
     "repeal_risk_score": (0, 3),
+}
+QUALITATIVE_LEVEL_SCORES = {
+    "strong": 1.0,
+    "moderate": 0.6,
+    "weak": 0.2,
 }
 
 CLAUDE_RATE_LIMIT_MAX_RETRIES = 5
@@ -70,6 +72,66 @@ class ReviewInputRow:
     primary_domain: str
     review_text: str
     evidence_section_keys: str
+
+
+@dataclass(frozen=True)
+class FrontendExportConfig:
+    summary_output_path: Path
+    details_output_path: Path
+    total_count: int
+    daily_capacity: int
+    export_every: int
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run prosperity-first review over a reviewer input parquet."
+    )
+    parser.add_argument(
+        "--input-path",
+        required=True,
+        type=Path,
+        help="Path to the review input parquet.",
+    )
+    parser.add_argument(
+        "--output-path",
+        type=Path,
+        help="Optional parquet output path. Defaults beside the input parquet.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Optional maximum number of rows to review after ordering by document_id.",
+    )
+    parser.add_argument(
+        "--frontend-summary-output-path",
+        type=Path,
+        help="Optional frontend summary JSON path for live dashboard updates.",
+    )
+    parser.add_argument(
+        "--frontend-details-output-path",
+        type=Path,
+        help="Optional frontend drilldown JSON path for live dashboard updates.",
+    )
+    parser.add_argument(
+        "--frontend-total-count",
+        type=int,
+        default=DEFAULT_FRONTEND_TOTAL_COUNT,
+        help="Known total corpus size for frontend progress metrics.",
+    )
+    parser.add_argument(
+        "--frontend-daily-capacity",
+        type=int,
+        default=DEFAULT_FRONTEND_DAILY_CAPACITY,
+        help="Daily review capacity to include in frontend summary data.",
+    )
+    parser.add_argument(
+        "--frontend-export-every",
+        type=int,
+        default=DEFAULT_FRONTEND_EXPORT_EVERY,
+        help="How many successful reviews between live frontend exports.",
+    )
+    return parser.parse_args(argv)
 
 
 def delete_if_exists(path: Path) -> None:
@@ -122,6 +184,39 @@ def load_mandate(path: Path) -> dict[str, Any]:
     return mandate
 
 
+def build_default_output_path(input_path: Path) -> Path:
+    filename = input_path.name
+    if filename.startswith("review_inputs_"):
+        output_name = "reviews_" + filename[len("review_inputs_") :]
+    else:
+        output_name = f"reviews_{filename}"
+    return input_path.with_name(output_name)
+
+
+def build_frontend_export_config(args: argparse.Namespace) -> FrontendExportConfig | None:
+    if args.frontend_summary_output_path is None and args.frontend_details_output_path is None:
+        return None
+    if args.frontend_summary_output_path is None or args.frontend_details_output_path is None:
+        raise RuntimeError(
+            "Both --frontend-summary-output-path and --frontend-details-output-path are required "
+            "when live frontend export is enabled."
+        )
+    if args.frontend_total_count <= 0:
+        raise RuntimeError("--frontend-total-count must be a positive integer.")
+    if args.frontend_daily_capacity <= 0:
+        raise RuntimeError("--frontend-daily-capacity must be a positive integer.")
+    if args.frontend_export_every <= 0:
+        raise RuntimeError("--frontend-export-every must be a positive integer.")
+
+    return FrontendExportConfig(
+        summary_output_path=args.frontend_summary_output_path,
+        details_output_path=args.frontend_details_output_path,
+        total_count=args.frontend_total_count,
+        daily_capacity=args.frontend_daily_capacity,
+        export_every=args.frontend_export_every,
+    )
+
+
 def get_review_config() -> ReviewConfig:
     api_key = os.getenv("CLAUDE_API_KEY")
     if not api_key:
@@ -138,18 +233,18 @@ def get_review_config() -> ReviewConfig:
     )
 
 
-def load_review_inputs() -> list[ReviewInputRow]:
+def load_review_inputs(input_path: Path, limit: int | None) -> list[ReviewInputRow]:
     try:
         import duckdb
     except ImportError as exc:
         raise RuntimeError("duckdb is required. Install it with `pip install duckdb`.") from exc
 
-    if not INPUT_PATH.exists():
-        raise RuntimeError(f"Input parquet not found at {INPUT_PATH}")
+    if not input_path.exists():
+        raise RuntimeError(f"Input parquet not found at {input_path}")
 
     con = duckdb.connect()
     try:
-        if SAMPLE_LIMIT is None:
+        if limit is None:
             rows = con.execute(
                 """
                 SELECT
@@ -163,7 +258,7 @@ def load_review_inputs() -> list[ReviewInputRow]:
                 FROM read_parquet(?)
                 ORDER BY document_id
                 """,
-                [str(INPUT_PATH)],
+                [str(input_path)],
             ).fetchall()
         else:
             rows = con.execute(
@@ -180,7 +275,7 @@ def load_review_inputs() -> list[ReviewInputRow]:
                 ORDER BY document_id
                 LIMIT ?
                 """,
-                [str(INPUT_PATH), SAMPLE_LIMIT],
+                [str(input_path), limit],
             ).fetchall()
     finally:
         con.close()
@@ -220,23 +315,37 @@ def build_review_prompt(
         "Use only the provided review_text. Do not rely on outside knowledge.\n"
         "Be conservative with repeal_candidate.\n"
         "Prefer escalate when evidence is weak or repeal risk is high.\n"
+        "Do not return any numeric confidence. Python will compute decision_confidence.\n"
         "You may only use evidence_section_keys from the allowed list below.\n"
         "Do not invent or infer section keys.\n"
         "If none are appropriate, return an empty array.\n"
         "Return valid JSON only with no markdown, preamble, or trailing text.\n\n"
         "Apply this mandate configuration:\n"
         f"{json.dumps(payload, ensure_ascii=False, indent=2)}\n\n"
+        "Use only these qualitative labels for the assessment fields: strong, moderate, weak.\n"
+        "Interpret the qualitative fields as follows:\n"
+        "- operational_status_assessment: strength of evidence that the law is still actively operational today.\n"
+        "- obsolescence_evidence: strength of evidence that the law is obsolete, transitional, spent, duplicated, or no longer needed.\n"
+        "- administrative_burden_evidence: strength of evidence that the law creates red tape, duplication, rigidity, or unnecessary process burden.\n"
+        "- repeal_risk_assessment: strength of evidence that repeal or modification is risky because the law affects rights, benefits, offences, taxation, core administration, major regulatory powers, or constitutional structures.\n"
+        "- evidence_sufficiency: how sufficient the provided title, citation, and sections are to support a recommendation.\n"
+        "- policy_tenet_alignment_clarity: how clearly the recommendation aligns with one or more mandate policy tenets.\n\n"
         "Allowed evidence_section_keys:\n"
         f"{json.dumps(list(allowed_evidence_keys), ensure_ascii=False)}\n\n"
         "Return a JSON object with exactly these keys:\n"
         "{\n"
         '  "decision": "retain|amend|repeal_candidate|escalate",\n'
-        '  "decision_confidence": 0.0,\n'
         '  "rationale": "string",\n'
         '  "operational_relevance_score": 0,\n'
         '  "prosperity_alignment_score": 0,\n'
         '  "administrative_burden_score": 0,\n'
         '  "repeal_risk_score": 0,\n'
+        '  "operational_status_assessment": "strong|moderate|weak",\n'
+        '  "obsolescence_evidence": "strong|moderate|weak",\n'
+        '  "administrative_burden_evidence": "strong|moderate|weak",\n'
+        '  "repeal_risk_assessment": "strong|moderate|weak",\n'
+        '  "evidence_sufficiency": "strong|moderate|weak",\n'
+        '  "policy_tenet_alignment_clarity": "strong|moderate|weak",\n'
         '  "prosperity_tenets_used": ["exact mandate tenet"],\n'
         '  "evidence_section_keys": ["1", "2"]\n'
         "}\n\n"
@@ -255,7 +364,8 @@ def build_evidence_key_repair_prompt(
         "You may only use evidence_section_keys from the allowed list below.\n"
         "Do not invent or infer section keys.\n"
         "If none are appropriate, return an empty array.\n"
-        "Keep the decision, scores, rationale, and prosperity_tenets_used unchanged unless required to make the JSON valid.\n\n"
+        "Do not add any numeric confidence field.\n"
+        "Keep the decision, rationale, rubric scores, qualitative assessments, and prosperity_tenets_used unchanged unless required to make the JSON valid.\n\n"
         "Allowed evidence_section_keys:\n"
         f"{json.dumps(list(allowed_evidence_keys), ensure_ascii=False)}\n\n"
         "Original invalid response:\n"
@@ -294,13 +404,6 @@ def parse_json_response(raw_text: str) -> dict[str, Any]:
     return parsed
 
 
-def coerce_confidence(value: Any) -> float:
-    confidence = float(value)
-    if confidence < 0.0 or confidence > 1.0:
-        raise ValueError("decision_confidence must be between 0.0 and 1.0")
-    return confidence
-
-
 def coerce_integer_score(field_name: str, value: Any) -> int:
     numeric = int(value)
     minimum, maximum = VALIDATION_RANGES[field_name]
@@ -309,24 +412,96 @@ def coerce_integer_score(field_name: str, value: Any) -> int:
     return numeric
 
 
-def validate_string_list(
-    field_name: str,
-    value: Any,
+def coerce_qualitative_assessment(field_name: str, value: Any) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{field_name} must be one of: strong, moderate, weak")
+
+    normalized = value.strip().casefold()
+    if normalized not in QUALITATIVE_LEVEL_SCORES:
+        raise ValueError(f"{field_name} must be one of: strong, moderate, weak")
+    return normalized
+
+
+def qualitative_score(value: str) -> float:
+    return QUALITATIVE_LEVEL_SCORES[value]
+
+
+def clamp_unit_interval(value: float) -> float:
+    return max(0.0, min(1.0, value))
+
+
+def compute_evidence_sufficiency_score(evidence_sufficiency: str) -> float:
+    return round(qualitative_score(evidence_sufficiency), 3)
+
+
+def compute_amend_prosperity_signal(prosperity_alignment_score: int) -> float:
+    mapped_value = (prosperity_alignment_score + 2) / 4
+    if prosperity_alignment_score <= 0:
+        return 1.0 - mapped_value
+    return 0.3
+
+
+def compute_decision_confidence(
+    validated: dict[str, Any],
     *,
-    allowed_values: set[str] | None = None,
-    require_non_empty: bool = False,
-) -> list[str]:
-    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
-        raise ValueError(f"{field_name} must be a JSON array of strings")
-    if require_non_empty and not value:
-        raise ValueError(f"{field_name} must not be empty")
-    if allowed_values is not None:
-        invalid = [item for item in value if item not in allowed_values]
-        if invalid:
-            raise ValueError(
-                f"{field_name} contains unsupported values: {', '.join(sorted(set(invalid)))}"
-            )
-    return value
+    evidence_sufficiency_score: float,
+) -> float:
+    operational_status_assessment_score = qualitative_score(
+        validated["operational_status_assessment"]
+    )
+    obsolescence_evidence_score = qualitative_score(validated["obsolescence_evidence"])
+    administrative_burden_evidence_score = qualitative_score(
+        validated["administrative_burden_evidence"]
+    )
+    repeal_risk_assessment_score = qualitative_score(
+        validated["repeal_risk_assessment"]
+    )
+    policy_tenet_alignment_clarity_score = qualitative_score(
+        validated["policy_tenet_alignment_clarity"]
+    )
+
+    decision = validated["decision"]
+    if decision == "retain":
+        confidence = (
+            0.30 * operational_status_assessment_score
+            + 0.25 * repeal_risk_assessment_score
+            + 0.20 * evidence_sufficiency_score
+            + 0.15 * policy_tenet_alignment_clarity_score
+            + 0.10 * (1.0 - obsolescence_evidence_score)
+        )
+    elif decision == "amend":
+        prosperity_signal_from_rubric = compute_amend_prosperity_signal(
+            validated["prosperity_alignment_score"]
+        )
+        confidence = (
+            0.25 * operational_status_assessment_score
+            + 0.25 * administrative_burden_evidence_score
+            + 0.20 * evidence_sufficiency_score
+            + 0.20 * policy_tenet_alignment_clarity_score
+            + 0.10 * prosperity_signal_from_rubric
+        )
+    elif decision == "repeal_candidate":
+        confidence = (
+            0.35 * obsolescence_evidence_score
+            + 0.25 * (1.0 - repeal_risk_assessment_score)
+            + 0.20 * evidence_sufficiency_score
+            + 0.20 * administrative_burden_evidence_score
+        )
+    elif decision == "escalate":
+        ambiguity_signal = 1.0 - abs(
+            operational_status_assessment_score - obsolescence_evidence_score
+        )
+        confidence = (
+            0.35 * repeal_risk_assessment_score
+            + 0.25 * (1.0 - evidence_sufficiency_score)
+            + 0.20 * ambiguity_signal
+            + 0.20
+            * max(operational_status_assessment_score, obsolescence_evidence_score)
+        )
+    else:
+        raise ValueError(f"Unsupported decision: {decision}")
+
+    return round(clamp_unit_interval(confidence), 3)
 
 
 def normalize_policy_tenet(value: str) -> str:
@@ -420,7 +595,6 @@ def validate_review_result(
     if not isinstance(rationale, str) or not rationale.strip():
         raise ValueError("rationale must be a non-empty string")
 
-    decision_confidence = coerce_confidence(parsed.get("decision_confidence"))
     operational_relevance_score = coerce_integer_score(
         "operational_relevance_score",
         parsed.get("operational_relevance_score"),
@@ -437,6 +611,30 @@ def validate_review_result(
         "repeal_risk_score",
         parsed.get("repeal_risk_score"),
     )
+    operational_status_assessment = coerce_qualitative_assessment(
+        "operational_status_assessment",
+        parsed.get("operational_status_assessment"),
+    )
+    obsolescence_evidence = coerce_qualitative_assessment(
+        "obsolescence_evidence",
+        parsed.get("obsolescence_evidence"),
+    )
+    administrative_burden_evidence = coerce_qualitative_assessment(
+        "administrative_burden_evidence",
+        parsed.get("administrative_burden_evidence"),
+    )
+    repeal_risk_assessment = coerce_qualitative_assessment(
+        "repeal_risk_assessment",
+        parsed.get("repeal_risk_assessment"),
+    )
+    evidence_sufficiency = coerce_qualitative_assessment(
+        "evidence_sufficiency",
+        parsed.get("evidence_sufficiency"),
+    )
+    policy_tenet_alignment_clarity = coerce_qualitative_assessment(
+        "policy_tenet_alignment_clarity",
+        parsed.get("policy_tenet_alignment_clarity"),
+    )
 
     prosperity_tenets_used = canonicalize_policy_tenets(
         parsed.get("prosperity_tenets_used"),
@@ -449,12 +647,17 @@ def validate_review_result(
 
     return {
         "decision": decision,
-        "decision_confidence": decision_confidence,
         "rationale": rationale.strip(),
         "operational_relevance_score": operational_relevance_score,
         "prosperity_alignment_score": prosperity_alignment_score,
         "administrative_burden_score": administrative_burden_score,
         "repeal_risk_score": repeal_risk_score,
+        "operational_status_assessment": operational_status_assessment,
+        "obsolescence_evidence": obsolescence_evidence,
+        "administrative_burden_evidence": administrative_burden_evidence,
+        "repeal_risk_assessment": repeal_risk_assessment,
+        "evidence_sufficiency": evidence_sufficiency,
+        "policy_tenet_alignment_clarity": policy_tenet_alignment_clarity,
         "prosperity_tenets_used": prosperity_tenets_used,
         "evidence_section_keys": evidence_section_keys,
     }
@@ -552,11 +755,11 @@ def call_claude_review(
     return raw_text, json.dumps(response_body, ensure_ascii=False)
 
 
-def write_output(rows: list[tuple[Any, ...]]) -> None:
+def write_output(rows: list[tuple[Any, ...]], output_path: Path) -> None:
     import duckdb
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temp_output_path = OUTPUT_PATH.with_name(f"{OUTPUT_PATH.stem}.tmp.parquet")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_output_path = output_path.with_name(f"{output_path.stem}.tmp.parquet")
 
     con = duckdb.connect()
     try:
@@ -570,12 +773,19 @@ def write_output(rows: list[tuple[Any, ...]]) -> None:
                 primary_domain VARCHAR,
                 decision VARCHAR,
                 decision_confidence DOUBLE,
+                evidence_sufficiency_score DOUBLE,
                 rationale VARCHAR,
                 evidence_section_keys VARCHAR,
                 operational_relevance_score INTEGER,
                 prosperity_alignment_score INTEGER,
                 administrative_burden_score INTEGER,
                 repeal_risk_score INTEGER,
+                operational_status_assessment VARCHAR,
+                obsolescence_evidence VARCHAR,
+                administrative_burden_evidence VARCHAR,
+                repeal_risk_assessment VARCHAR,
+                evidence_sufficiency VARCHAR,
+                policy_tenet_alignment_clarity VARCHAR,
                 prosperity_tenets_used VARCHAR,
                 review_model VARCHAR,
                 raw_response_json VARCHAR
@@ -584,16 +794,55 @@ def write_output(rows: list[tuple[Any, ...]]) -> None:
         )
         if rows:
             con.executemany(
-                "INSERT INTO reviews VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO reviews VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 rows,
             )
         delete_if_exists(temp_output_path)
-        delete_if_exists(OUTPUT_PATH)
+        delete_if_exists(output_path)
         con.execute("COPY reviews TO ? (FORMAT PARQUET)", [str(temp_output_path)])
-        temp_output_path.replace(OUTPUT_PATH)
+        temp_output_path.replace(output_path)
     finally:
         con.close()
         delete_if_exists(temp_output_path)
+
+
+def build_frontend_review_row(
+    *,
+    row: ReviewInputRow,
+    validated: dict[str, Any],
+    review_model: str,
+) -> frontend_export.ReviewRow:
+    return frontend_export.ReviewRow(
+        document_id=row.document_id,
+        title_en=row.title_en,
+        citation_en=row.citation_en,
+        decision=validated["decision"],
+        decision_confidence=validated["decision_confidence"],
+        rationale=validated["rationale"],
+        evidence_section_keys=list(validated["evidence_section_keys"]),
+        operational_relevance_score=validated["operational_relevance_score"],
+        prosperity_alignment_score=validated["prosperity_alignment_score"],
+        administrative_burden_score=validated["administrative_burden_score"],
+        repeal_risk_score=validated["repeal_risk_score"],
+        review_model=review_model,
+    )
+
+
+def export_frontend_checkpoint(
+    *,
+    frontend_rows: Sequence[frontend_export.ReviewRow],
+    export_config: FrontendExportConfig,
+    pipeline_status: str,
+) -> None:
+    frontend_export.export_frontend_payloads(
+        frontend_rows,
+        summary_output_path=export_config.summary_output_path,
+        details_output_path=export_config.details_output_path,
+        total_count=export_config.total_count,
+        daily_capacity=export_config.daily_capacity,
+        last_updated=frontend_export.get_last_updated_iso(),
+        pipeline_status=pipeline_status,
+    )
 
 
 def print_decision_counts(counter: Counter[str]) -> None:
@@ -615,32 +864,53 @@ def print_average_confidence_by_decision(
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    _ = argv
-
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8")
+
+    args = parse_args(argv)
+    if args.limit is not None and args.limit <= 0:
+        print("Error: --limit must be a positive integer.", file=sys.stderr)
+        return 1
+
+    input_path = args.input_path
+    output_path = args.output_path or build_default_output_path(input_path)
+    limit = args.limit
+    try:
+        frontend_export_config = build_frontend_export_config(args)
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
     classifier.load_env_file(Path(".env"))
 
     try:
         mandate = load_mandate(MANDATE_PATH)
         review_config = get_review_config()
-        review_inputs = load_review_inputs()
+        review_inputs = load_review_inputs(input_path, limit)
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
     total_rows = len(review_inputs)
-    review_scope = "full dataset" if SAMPLE_LIMIT is None else f"limit={SAMPLE_LIMIT}"
+    review_scope = "full dataset" if limit is None else f"limit={limit}"
     print(
         "Review run starting: "
         f"scope={review_scope}, rows={total_rows}, model={review_config.model}",
         flush=True,
     )
-    print(f"Input: {INPUT_PATH}", flush=True)
-    print(f"Output: {OUTPUT_PATH}", flush=True)
+    print(f"Input: {input_path}", flush=True)
+    print(f"Output: {output_path}", flush=True)
+    print(f"Total rows selected for review: {total_rows}", flush=True)
+    if frontend_export_config is not None:
+        print(
+            "Live frontend export: "
+            f"{frontend_export_config.summary_output_path} | "
+            f"{frontend_export_config.details_output_path} | "
+            f"every {frontend_export_config.export_every} successful reviews",
+            flush=True,
+        )
     if review_inputs:
         print(
             f"Document range: {review_inputs[0].document_id} -> {review_inputs[-1].document_id}",
@@ -652,11 +922,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     output_rows: list[tuple[Any, ...]] = []
+    frontend_rows: list[frontend_export.ReviewRow] = []
     decision_counter: Counter[str] = Counter()
     confidence_totals: dict[str, float] = {}
     failure_count = 0
     recovered_by_retry_count = 0
     run_started_at = time.monotonic()
+
+    if frontend_export_config is not None:
+        export_frontend_checkpoint(
+            frontend_rows=[],
+            export_config=frontend_export_config,
+            pipeline_status="in_progress",
+        )
 
     for index, row in enumerate(review_inputs, start=1):
         try:
@@ -700,6 +978,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Review failed for {row.document_id}: {exc}", file=sys.stderr, flush=True)
             continue
 
+        evidence_sufficiency_score = compute_evidence_sufficiency_score(
+            validated["evidence_sufficiency"]
+        )
+        decision_confidence = compute_decision_confidence(
+            validated,
+            evidence_sufficiency_score=evidence_sufficiency_score,
+        )
+        validated["evidence_sufficiency_score"] = evidence_sufficiency_score
+        validated["decision_confidence"] = decision_confidence
+
         decision_counter[validated["decision"]] += 1
         confidence_totals[validated["decision"]] = (
             confidence_totals.get(validated["decision"], 0.0)
@@ -725,15 +1013,29 @@ def main(argv: Sequence[str] | None = None) -> int:
                 row.primary_domain,
                 validated["decision"],
                 validated["decision_confidence"],
+                validated["evidence_sufficiency_score"],
                 validated["rationale"],
                 json.dumps(validated["evidence_section_keys"], ensure_ascii=False),
                 validated["operational_relevance_score"],
                 validated["prosperity_alignment_score"],
                 validated["administrative_burden_score"],
                 validated["repeal_risk_score"],
+                validated["operational_status_assessment"],
+                validated["obsolescence_evidence"],
+                validated["administrative_burden_evidence"],
+                validated["repeal_risk_assessment"],
+                validated["evidence_sufficiency"],
+                validated["policy_tenet_alignment_clarity"],
                 json.dumps(validated["prosperity_tenets_used"], ensure_ascii=False),
                 review_config.model,
                 raw_response_json,
+            )
+        )
+        frontend_rows.append(
+            build_frontend_review_row(
+                row=row,
+                validated=validated,
+                review_model=review_config.model,
             )
         )
 
@@ -741,6 +1043,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         should_print_progress = (
             index == total_rows or index % REVIEW_PROGRESS_EVERY == 0
         )
+        should_checkpoint = (
+            frontend_export_config is not None
+            and (
+                len(output_rows) == 1
+                or len(output_rows) == total_rows
+                or len(output_rows) % frontend_export_config.export_every == 0
+            )
+        )
+
+        if should_checkpoint:
+            write_output(output_rows, output_path)
+            export_frontend_checkpoint(
+                frontend_rows=frontend_rows,
+                export_config=frontend_export_config,
+                pipeline_status="in_progress",
+            )
+            print(
+                f"Live dashboard artifacts refreshed at {len(output_rows)} reviewed rows.",
+                flush=True,
+            )
 
         if should_print_result_preview:
             print(
@@ -770,14 +1092,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                 flush=True,
             )
 
-    write_output(output_rows)
+    write_output(output_rows, output_path)
+    if frontend_export_config is not None:
+        export_frontend_checkpoint(
+            frontend_rows=frontend_rows,
+            export_config=frontend_export_config,
+            pipeline_status="complete" if failure_count == 0 else "error",
+        )
 
     print(f"Total reviewed successfully: {len(output_rows)}")
     print(f"Failures skipped: {failure_count}")
     print(f"Failures recovered by retry: {recovered_by_retry_count}")
     print_decision_counts(decision_counter)
     print_average_confidence_by_decision(confidence_totals, decision_counter)
-    print(f"Output written to: {OUTPUT_PATH}")
+    print(f"Output written to: {output_path}")
     return 0
 
 
