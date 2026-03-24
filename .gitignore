@@ -49,3 +49,7 @@ next-env.d.ts
 .dev.vars*
 
 .tmp/
+
+# python cache
+__pycache__/
+*.pyc

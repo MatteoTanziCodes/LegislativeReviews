@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -11,9 +12,6 @@ DOCUMENTS_PATH = PROCESSED_DIR / "documents_en.parquet"
 SECTIONS_PATH = PROCESSED_DIR / "sections_en.parquet"
 DOCUMENT_DOMAINS_PATH = PROCESSED_DIR / "document_domains_en.parquet"
 DOCUMENT_DOMAIN_SCORES_PATH = PROCESSED_DIR / "document_domain_scores_en.parquet"
-MANDATE_PATH = Path(r"config/review_mandates/obsolescence_modernization_v1.json")
-TARGET_DOMAIN = "governance_administrative"
-OUTPUT_PATH = PROCESSED_DIR / "review_inputs_governance_administrative_en.parquet"
 
 MAX_SECTION_TEXT_CHARS = 1_500
 PREVIEW_COUNT = 3
@@ -57,6 +55,7 @@ def load_mandate(path: Path) -> dict[str, Any]:
         "mandate_id",
         "mandate_name",
         "evidence_requirements",
+        "policy_tenets",
     }
     missing = [field for field in required_fields if field not in mandate]
     if missing:
@@ -67,11 +66,35 @@ def load_mandate(path: Path) -> dict[str, Any]:
     return mandate
 
 
+def build_default_output_path(domain: str, mandate_id: str) -> Path:
+    return PROCESSED_DIR / f"review_inputs_{domain}_{mandate_id}_en.parquet"
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Build reviewer-ready parquet inputs for a classified domain."
+    )
+    parser.add_argument("--domain", required=True, help="Primary domain to export for review.")
+    parser.add_argument(
+        "--mandate-path",
+        required=True,
+        type=Path,
+        help="Path to the mandate config JSON.",
+    )
+    parser.add_argument(
+        "--output-path",
+        type=Path,
+        help="Optional parquet output path. Defaults under the processed directory.",
+    )
+    return parser.parse_args(argv)
+
+
 def build_review_text(
     title_en: str,
     citation_en: str | None,
     primary_domain: str,
     mandate_name: str,
+    policy_tenets: Sequence[str],
     sections: Sequence[tuple[str, str]],
 ) -> tuple[str, list[str], int]:
     lines = [
@@ -79,7 +102,9 @@ def build_review_text(
         f"Citation: {(citation_en or '').strip() or '(none)'}",
         f"Domain: {primary_domain}",
         f"Mandate: {mandate_name}",
+        "Policy Tenets:",
     ]
+    lines.extend(f"- {tenet}" for tenet in policy_tenets)
 
     selected_section_keys: list[str] = []
     for index, (section_key, section_text) in enumerate(sections, start=1):
@@ -91,12 +116,12 @@ def build_review_text(
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    _ = argv
-
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8")
+
+    args = parse_args(argv)
 
     try:
         import duckdb
@@ -118,17 +143,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
     try:
-        mandate = load_mandate(MANDATE_PATH)
+        mandate = load_mandate(args.mandate_path)
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+
+    target_domain = args.domain
+    output_path = args.output_path or build_default_output_path(
+        domain=target_domain,
+        mandate_id=mandate["mandate_id"],
+    )
 
     evidence_requirements = mandate.get("evidence_requirements", {})
     max_sections_per_document = int(
         evidence_requirements.get("minimum_sections_to_review", 5)
     )
 
-    ensure_directory(PROCESSED_DIR)
+    ensure_directory(output_path.parent)
 
     con = duckdb.connect()
     try:
@@ -155,7 +186,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(DOCUMENT_DOMAINS_PATH),
                 str(DOCUMENTS_PATH),
                 str(DOCUMENT_DOMAIN_SCORES_PATH),
-                TARGET_DOMAIN,
+                target_domain,
             ],
         ).fetchall()
 
@@ -188,7 +219,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             [
                 str(SECTIONS_PATH),
                 str(DOCUMENT_DOMAINS_PATH),
-                TARGET_DOMAIN,
+                target_domain,
             ],
         ).fetchall()
 
@@ -215,6 +246,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 citation_en=citation_en,
                 primary_domain=primary_domain,
                 mandate_name=mandate["mandate_name"],
+                policy_tenets=mandate["policy_tenets"],
                 sections=sections_by_document.get(document_id, []),
             )
             output_rows.append(
@@ -234,9 +266,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             total_section_count_used += section_count_used
 
-        temp_output_path = OUTPUT_PATH.with_name(f"{OUTPUT_PATH.stem}.tmp.parquet")
+        temp_output_path = output_path.with_name(f"{output_path.stem}.tmp.parquet")
         delete_if_exists(temp_output_path)
-        delete_if_exists(OUTPUT_PATH)
+        delete_if_exists(output_path)
 
         con.execute(
             """
@@ -261,16 +293,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 output_rows,
             )
         con.execute("COPY review_inputs TO ? (FORMAT PARQUET)", [str(temp_output_path)])
-        temp_output_path.replace(OUTPUT_PATH)
+        temp_output_path.replace(output_path)
     finally:
         con.close()
-        delete_if_exists(OUTPUT_PATH.with_name(f"{OUTPUT_PATH.stem}.tmp.parquet"))
+        delete_if_exists(output_path.with_name(f"{output_path.stem}.tmp.parquet"))
 
     total_rows_written = len(output_rows)
     average_section_count_used = (
         total_section_count_used / total_rows_written if total_rows_written else 0.0
     )
 
+    print(f"Domain: {target_domain}")
+    print(f"Mandate ID: {mandate['mandate_id']}")
+    print(f"Output path: {output_path}")
     print(f"Review input rows written: {total_rows_written}")
     print(f"Average section_count_used: {average_section_count_used:.2f}")
     print("\nSample review_text previews:\n")
@@ -297,7 +332,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"    {line}")
         print()
 
-    print(f"Output written to: {OUTPUT_PATH}")
     return 0
 
 
