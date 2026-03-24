@@ -12,11 +12,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
+from env_utils import get_processed_dir, load_project_env
 
-INPUT_PATH = Path(
-    r"E:\Programming\buildcanada\canadian-laws\processed\document_classifier_inputs_en.parquet"
-)
-OUTPUT_PATH = Path(r"E:\Programming\buildcanada\canadian-laws\processed\document_domains_en.parquet")
+
+load_project_env()
+
+
+PROCESSED_DIR = get_processed_dir()
+INPUT_PATH = PROCESSED_DIR / "document_classifier_inputs_en.parquet"
+OUTPUT_PATH = PROCESSED_DIR / "document_domains_en.parquet"
 
 # Enriched title/citation-plus-sections inputs are longer and may need
 # threshold calibration as the taxonomy or embedding model changes.

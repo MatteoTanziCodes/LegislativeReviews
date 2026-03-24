@@ -4,8 +4,13 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from env_utils import get_processed_dir, load_project_env
 
-PROCESSED_DIR = Path(r"E:\Programming\buildcanada\canadian-laws\processed")
+
+load_project_env()
+
+
+PROCESSED_DIR = get_processed_dir()
 DOCUMENTS_PATH = PROCESSED_DIR / "documents_en.parquet"
 SECTIONS_PATH = PROCESSED_DIR / "sections_en.parquet"
 OUTPUT_PATH = PROCESSED_DIR / "document_classifier_inputs_en.parquet"

@@ -11,11 +11,10 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import classify_documents as classifier
+from env_utils import get_processed_dir
 
 
-OUTPUT_PATH = Path(
-    r"E:\Programming\buildcanada\canadian-laws\processed\document_domain_scores_en.parquet"
-)
+OUTPUT_PATH = get_processed_dir() / "document_domain_scores_en.parquet"
 AMBIGUOUS_SAMPLE_SIZE = 20
 TOP_DOMAIN_COUNT = 5
 

@@ -9,6 +9,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
+from env_utils import load_project_env
+
+
+load_project_env()
+
 
 DEFAULT_SUMMARY_OUTPUT_PATH = Path(r"src/data/review-summary.json")
 DEFAULT_DETAILS_OUTPUT_PATH = Path(r"src/data/review-details.json")
@@ -16,6 +21,8 @@ DEFAULT_TOTAL_COUNT = 5796
 DEFAULT_DAILY_CAPACITY = 200
 DEFAULT_PIPELINE_STATUS = "complete"
 DECISION_LABELS = ("retain", "amend", "repeal_candidate", "escalate")
+DEFAULT_R2_SUMMARY_OBJECT_KEY = "review-summary.json"
+DEFAULT_R2_DETAILS_OBJECT_KEY = "review-details.json"
 
 
 @dataclass(frozen=True)
@@ -34,8 +41,80 @@ class ReviewRow:
 	review_model: str
 
 
+@dataclass(frozen=True)
+class R2PublishConfig:
+	bucket_name: str
+	endpoint_url: str
+	access_key_id: str
+	secret_access_key: str
+	summary_object_key: str
+	details_object_key: str
+
+
 def ensure_directory(path: Path) -> None:
 	path.mkdir(parents=True, exist_ok=True)
+
+
+def build_r2_publish_config(
+	args: argparse.Namespace | None = None,
+) -> R2PublishConfig | None:
+	bucket_name = (
+		getattr(args, "r2_bucket_name", None)
+		or os.getenv("CLOUDFLARE_R2_BUCKET")
+	)
+	if not bucket_name:
+		return None
+
+	endpoint_url = (
+		getattr(args, "r2_endpoint_url", None)
+		or os.getenv("CLOUDFLARE_R2_ENDPOINT")
+	)
+	access_key_id = (
+		getattr(args, "r2_access_key_id", None)
+		or os.getenv("CLOUDFLARE_R2_ACCESS_KEY_ID")
+	)
+	secret_access_key = (
+		getattr(args, "r2_secret_access_key", None)
+		or os.getenv("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+	)
+	summary_object_key = (
+		getattr(args, "r2_summary_object_key", None)
+		or os.getenv("CLOUDFLARE_R2_SUMMARY_KEY")
+		or DEFAULT_R2_SUMMARY_OBJECT_KEY
+	)
+	details_object_key = (
+		getattr(args, "r2_details_object_key", None)
+		or os.getenv("CLOUDFLARE_R2_DETAILS_KEY")
+		or DEFAULT_R2_DETAILS_OBJECT_KEY
+	)
+
+	if not endpoint_url:
+		account_id = os.getenv("CLOUDFLARE_R2_ACCOUNT_ID")
+		if account_id:
+			endpoint_url = f"https://{account_id}.r2.cloudflarestorage.com"
+
+	missing = []
+	if not endpoint_url:
+		missing.append("endpoint")
+	if not access_key_id:
+		missing.append("access key id")
+	if not secret_access_key:
+		missing.append("secret access key")
+	if missing:
+		raise RuntimeError(
+			"Cloudflare R2 publishing is enabled but missing: "
+			+ ", ".join(missing)
+			+ ". Set CLOUDFLARE_R2_* environment variables or pass the --r2-* flags."
+		)
+
+	return R2PublishConfig(
+		bucket_name=bucket_name,
+		endpoint_url=endpoint_url,
+		access_key_id=access_key_id,
+		secret_access_key=secret_access_key,
+		summary_object_key=summary_object_key,
+		details_object_key=details_object_key,
+	)
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -84,6 +163,32 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 	parser.add_argument(
 		"--last-updated",
 		help="Optional ISO timestamp to include in the summary JSON.",
+	)
+	parser.add_argument(
+		"--r2-bucket-name",
+		help="Optional Cloudflare R2 bucket name for remote dashboard publishing.",
+	)
+	parser.add_argument(
+		"--r2-endpoint-url",
+		help="Optional Cloudflare R2 S3 endpoint URL.",
+	)
+	parser.add_argument(
+		"--r2-access-key-id",
+		help="Optional Cloudflare R2 access key ID.",
+	)
+	parser.add_argument(
+		"--r2-secret-access-key",
+		help="Optional Cloudflare R2 secret access key.",
+	)
+	parser.add_argument(
+		"--r2-summary-object-key",
+		default=DEFAULT_R2_SUMMARY_OBJECT_KEY,
+		help="Object key for the summary JSON in Cloudflare R2.",
+	)
+	parser.add_argument(
+		"--r2-details-object-key",
+		default=DEFAULT_R2_DETAILS_OBJECT_KEY,
+		help="Object key for the drilldown JSON in Cloudflare R2.",
 	)
 	return parser.parse_args(argv)
 
@@ -221,6 +326,40 @@ def write_json(path: Path, payload: Any) -> None:
 	temp_path.replace(path)
 
 
+def render_json_bytes(payload: Any) -> bytes:
+	return (json.dumps(payload, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def upload_json_to_r2(
+	*,
+	config: R2PublishConfig,
+	object_key: str,
+	payload: Any,
+) -> None:
+	try:
+		import boto3
+	except ImportError as exc:
+		raise RuntimeError(
+			"boto3 is required for Cloudflare R2 publishing. "
+			"Install it with `pip install boto3`."
+		) from exc
+
+	client = boto3.client(
+		"s3",
+		endpoint_url=config.endpoint_url,
+		aws_access_key_id=config.access_key_id,
+		aws_secret_access_key=config.secret_access_key,
+		region_name="auto",
+	)
+	client.put_object(
+		Bucket=config.bucket_name,
+		Key=object_key,
+		Body=render_json_bytes(payload),
+		ContentType="application/json; charset=utf-8",
+		CacheControl="no-store, no-cache, must-revalidate, max-age=0",
+	)
+
+
 def get_last_updated_iso(
 	*,
 	review_output_path: Path | None = None,
@@ -249,6 +388,7 @@ def export_frontend_payloads(
 	daily_capacity: int,
 	last_updated: str,
 	pipeline_status: str,
+	r2_publish_config: R2PublishConfig | None = None,
 ) -> dict[str, Any]:
 	summary_payload = build_summary_payload(
 		review_rows,
@@ -259,8 +399,20 @@ def export_frontend_payloads(
 	)
 	details_payload = build_details_payload(review_rows)
 
-	write_json(summary_output_path, summary_payload)
 	write_json(details_output_path, details_payload)
+	write_json(summary_output_path, summary_payload)
+
+	if r2_publish_config is not None:
+		upload_json_to_r2(
+			config=r2_publish_config,
+			object_key=r2_publish_config.details_object_key,
+			payload=details_payload,
+		)
+		upload_json_to_r2(
+			config=r2_publish_config,
+			object_key=r2_publish_config.summary_object_key,
+			payload=summary_payload,
+		)
 	return summary_payload
 
 
@@ -276,6 +428,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 		return 1
 	if args.daily_capacity <= 0:
 		print("Error: --daily-capacity must be a positive integer.", file=sys.stderr)
+		return 1
+
+	try:
+		r2_publish_config = build_r2_publish_config(args)
+	except RuntimeError as exc:
+		print(f"Error: {exc}", file=sys.stderr)
 		return 1
 
 	review_output_path: Path = args.review_output_path
@@ -300,11 +458,17 @@ def main(argv: Sequence[str] | None = None) -> int:
 			override=args.last_updated,
 		),
 		pipeline_status=args.pipeline_status,
+		r2_publish_config=r2_publish_config,
 	)
 
 	print(f"Reviewed rows exported: {len(review_rows)}")
 	print(f"Summary output: {args.summary_output_path}")
 	print(f"Details output: {args.details_output_path}")
+	if r2_publish_config is not None:
+		print(
+			f"R2 publish target: {r2_publish_config.bucket_name} "
+			f"({r2_publish_config.summary_object_key}, {r2_publish_config.details_object_key})"
+		)
 	print("Decision counts:")
 	for decision in DECISION_LABELS:
 		print(f"  {decision}: {summary_payload['decisionCounts'][decision]}")
