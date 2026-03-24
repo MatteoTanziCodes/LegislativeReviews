@@ -7,6 +7,11 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from env_utils import get_processed_dir, load_project_env
+
+
+load_project_env()
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUILD_REVIEW_INPUTS_SCRIPT = SCRIPT_DIR / "build_review_inputs.py"
@@ -15,6 +20,7 @@ EXPORT_FRONTEND_REVIEW_DATA_SCRIPT = SCRIPT_DIR / "export_frontend_review_data.p
 DEFAULT_MANDATE_PATH = Path(
 	r"config/review_mandates/obsolescence_modernization_prosperity_v1.json"
 )
+DEFAULT_PROCESSED_DIR = get_processed_dir()
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -57,6 +63,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 		"--limit",
 		type=int,
 		help="Optional review limit to pass through to review_documents.py.",
+	)
+	parser.add_argument(
+		"--checkpoint-every",
+		type=int,
+		default=25,
+		help="How many successful reviews between parquet checkpoints.",
+	)
+	parser.add_argument(
+		"--no-resume",
+		action="store_true",
+		help="Ignore existing review output/journal and start from scratch.",
 	)
 	parser.add_argument(
 		"--total-count",
@@ -107,6 +124,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 	if args.limit is not None and args.limit <= 0:
 		print("Error: --limit must be a positive integer.", file=sys.stderr)
 		return 1
+	if args.checkpoint_every <= 0:
+		print("Error: --checkpoint-every must be a positive integer.", file=sys.stderr)
+		return 1
 	if args.frontend_export_every <= 0:
 		print("Error: --frontend-export-every must be a positive integer.", file=sys.stderr)
 		return 1
@@ -135,8 +155,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 	review_input_path = args.review_input_path
 	if review_input_path is None:
-		review_input_path = Path(
-			rf"E:\Programming\buildcanada\canadian-laws\processed\review_inputs_{args.domain}_{mandate_id}_en.parquet"
+		review_input_path = (
+			DEFAULT_PROCESSED_DIR / f"review_inputs_{args.domain}_{mandate_id}_en.parquet"
 		)
 
 	review_documents_command = [
@@ -149,6 +169,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 		review_documents_command.extend(["--output-path", str(args.review_output_path)])
 	if args.limit is not None:
 		review_documents_command.extend(["--limit", str(args.limit)])
+	review_documents_command.extend(["--checkpoint-every", str(args.checkpoint_every)])
+	if args.no_resume:
+		review_documents_command.append("--no-resume")
 	review_documents_command.extend(
 		[
 			"--frontend-summary-output-path",

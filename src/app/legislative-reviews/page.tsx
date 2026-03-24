@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { LiveDashboard } from "@/components/legislative-reviews/live-dashboard";
-import type {
-	ReviewDashboardPayload,
-	ReviewDetail,
-} from "@/components/legislative-reviews/review-data";
-import type { ReviewSummary } from "@/components/legislative-reviews/review-metrics";
-import reviewDetailsData from "@/data/review-details.json";
-import reviewSummaryData from "@/data/review-summary.json";
+import { loadReviewDashboardPayload } from "@/lib/legislative-review-storage";
 
 export const metadata: Metadata = {
 	title: "Legislative Reviews | Build Canada",
@@ -14,11 +8,10 @@ export const metadata: Metadata = {
 		"Progress dashboard for the Canadian legislative modernization review pipeline.",
 };
 
-const initialData: ReviewDashboardPayload = {
-	reviews: reviewDetailsData as ReviewDetail[],
-	summary: reviewSummaryData as ReviewSummary,
-};
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default function LegislativeReviewsPage() {
+export default async function LegislativeReviewsPage() {
+	const initialData = await loadReviewDashboardPayload();
 	return <LiveDashboard initialData={initialData} />;
 }

@@ -7,9 +7,14 @@ import tempfile
 from pathlib import Path
 from typing import Any, Sequence
 
+from env_utils import get_data_root, get_processed_dir, load_project_env
 
-RAW_DATASET_DIR = Path(r"E:\Programming\buildcanada\canadian-laws")
-PROCESSED_DIR = RAW_DATASET_DIR / "processed"
+
+load_project_env()
+
+
+RAW_DATASET_DIR = get_data_root()
+PROCESSED_DIR = get_processed_dir()
 OUTPUT_PATH = PROCESSED_DIR / "sections_en.parquet"
 DOCUMENT_BATCH_SIZE = 100
 

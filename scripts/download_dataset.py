@@ -7,11 +7,16 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
+from env_utils import get_data_root, load_project_env
+
+
+load_project_env()
+
 
 DATASET_NAME = "a2aj/canadian-laws"
 DATASET_REVISION = "refs/convert/parquet"
 DATASET_REPO_TYPE = "dataset"
-TARGET_DIR = Path(r"E:\Programming\buildcanada\canadian-laws")
+TARGET_DIR = get_data_root()
 METADATA_FILENAME = "metadata.json"
 JSONL_FILENAME = "canadian-laws.jsonl"
 

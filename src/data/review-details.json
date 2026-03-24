@@ -2523,5 +2523,1406 @@
     "administrativeBurdenScore": 1,
     "repealRiskScore": 0,
     "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 92",
+    "titleEn": "Lethbridge Airport Zoning Regulations",
+    "citationEn": "CRC, c 92",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes active zoning restrictions around Lethbridge Airport to prevent construction that could interfere with aircraft operations. The law is clearly operational, governing ongoing aviation safety requirements. While it creates some regulatory burden, it serves essential public safety functions and supports aviation infrastructure that enables economic activity and connectivity. The repeal risk is high as it affects core regulatory powers for aviation safety.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 93",
+    "titleEn": "London Airport Zoning Regulations",
+    "citationEn": "CRC, c 93",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "These regulations establish active height restrictions around London Airport to ensure aviation safety. The law is clearly operational, governing ongoing airport zoning requirements that are essential for safe aircraft operations. While the regulations may create some development restrictions, they serve a critical public safety function and enable continued airport operations that support economic activity. The technical aviation safety requirements justify retention despite any administrative burden.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 95",
+    "titleEn": "Mont-Joli Airport Zoning Regulations",
+    "citationEn": "CRC, c 95",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes active zoning restrictions around Mont-Joli Airport to ensure aviation safety by controlling building heights and structures. It serves an ongoing operational purpose for airport safety and remains necessary for current aviation operations. While it creates some regulatory burden, the safety requirements justify retention, and the regulation enables continued airport operations that support regional connectivity and economic activity.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 96",
+    "titleEn": "Montreal International Airport Zoning Regulations",
+    "citationEn": "CRC, c 96",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "All sections of the Montreal International Airport Zoning Regulations have been repealed by SOR/2017-201. The regulation appears to be completely spent with no operational content remaining. This creates administrative clutter without serving any current purpose, contradicting efficiency principles.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 98",
+    "titleEn": "New Montreal International Airport (Mirabel) Zoning Regulations",
+    "citationEn": "CRC, c 98",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "These regulations establish height restrictions and zoning controls around Mirabel Airport for aviation safety. While Mirabel's passenger operations ceased in 2004, it remains operational for cargo and general aviation. The regulations affect property rights and land use restrictions across a large geographic area, creating high repeal risk. Evidence is insufficient to determine current operational necessity versus obsolescence, and the safety/regulatory nature requires expert aviation policy review.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 982",
+    "titleEn": "International River Improvements Regulations",
+    "citationEn": "CRC, c 982",
+    "decision": "retain",
+    "decisionConfidence": 0.8,
+    "rationale": "These regulations implement the International River Improvements Act and establish operational thresholds and notification requirements for international water projects. The regulations directly support Canada's resource development and export capabilities by providing clear regulatory framework for water infrastructure projects affecting international rivers. The de minimis thresholds (3cm level change, 0.3 m³/s flow change) provide reasonable regulatory relief while maintaining oversight of significant projects. This supports both investment certainty and international water management obligations.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "CRC, c 99",
+    "titleEn": "North Bay Airport Zoning Regulations",
+    "citationEn": "CRC, c 99",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes active height restrictions around North Bay Airport to ensure aviation safety. It governs ongoing land use controls in the airport vicinity, which is essential for maintaining operational safety and supporting aviation infrastructure. While it creates some regulatory burden for property development, this serves the clear public benefit of aviation safety and supports transportation infrastructure that enables economic activity and connectivity. The regulation appears operational and necessary for current airport operations.",
+    "evidenceSectionKeys": [
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "F-24",
+    "titleEn": "Fishing and Recreational Harbours Act",
+    "citationEn": "RSC 1985, c F-24",
+    "decision": "retain",
+    "decisionConfidence": 0.74,
+    "rationale": "This Act establishes an active federal regulatory framework for fishing and recreational harbours, including ministerial powers for management, maintenance, project development, and agreements with provinces and private parties. The infrastructure directly supports Canada's fishing industry exports and recreational marine sector. While the Act could benefit from modernization of terminology and processes, it serves essential operational purposes with moderate repeal risk due to regulatory powers and property management authorities.",
+    "evidenceSectionKeys": [
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "F-31.2",
+    "titleEn": "Fort-Falls Bridge Authority Act",
+    "citationEn": "SC 1970-71-72, c 51",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This Act establishes and governs the Fort-Falls Bridge Authority, which operates critical cross-border infrastructure between Ontario and Minnesota. The bridge serves ongoing operational purposes for pedestrian and vehicular traffic, supports trade flows, and enables cross-border economic activity. While the Act is from 1970-72, it governs a live infrastructure asset that facilitates exports, investment, and productivity. The Authority has clear operational mandates including construction, maintenance, operation, and revenue generation. Repeal would be high-risk as it could disrupt established cross-border infrastructure operations and international agreements.",
+    "evidenceSectionKeys": [
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "G-6",
+    "titleEn": "Government Property Traffic Act",
+    "citationEn": "RSC 1985, c G-6",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This Act provides essential regulatory authority for traffic control on federal government properties, which remains operationally relevant for managing traffic on federal lands, buildings, and facilities across Canada. While the Act itself is brief and enabling in nature, it serves an ongoing administrative function by authorizing the Governor in Council to make specific traffic regulations for federal properties. The Act does not create significant administrative burden as it provides streamlined regulatory-making authority rather than complex processes. Repeal risk is moderate to high as it affects regulatory powers and enforcement mechanisms including offences and penalties.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "H-1",
+    "titleEn": "Harbour Commissions Act",
+    "citationEn": "RSC 1985, c H-1",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "The Harbour Commissions Act appears to be entirely spent legislation with all substantive sections (1-5) repealed in 1998. This represents a clear case of obsolete law that no longer serves any operational purpose and should be removed to reduce legislative clutter and improve government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "H-3.5",
+    "titleEn": "Heritage Railway Stations Protection Act",
+    "citationEn": "RSC 1985, c 52 (4th Supp)",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This Act establishes an active regulatory framework for protecting designated heritage railway stations, with ongoing operational relevance through designation powers, prohibition enforcement, and penalty provisions. While it may create some administrative burden for railway companies, it serves a legitimate federal purpose in heritage preservation and involves high repeal risk due to regulatory powers and offence provisions. The Act appears to be functioning as intended rather than being obsolete or transitional.",
+    "evidenceSectionKeys": [
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "H-3.8",
+    "titleEn": "Highway 30 Completion Bridges Act",
+    "citationEn": "SC 2005, c 37",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Act appears to be narrow transitional legislation authorizing Quebec to construct specific bridges for Highway 30 completion. Given the 2005 enactment date and specific project nature, these bridges were likely completed years ago, making the authorization provisions obsolete. The Act creates no ongoing regulatory framework or rights, only one-time construction authorization with federal approval processes that would no longer be needed post-construction.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "I-17.05",
+    "titleEn": "International Bridges and Tunnels Act",
+    "citationEn": "SC 2007, c 1",
+    "decision": "retain",
+    "decisionConfidence": 0.9,
+    "rationale": "This Act establishes the regulatory framework for international bridges and tunnels connecting Canada to other countries, which are critical infrastructure for trade, exports, and cross-border economic activity. The law directly supports prosperity tenets by facilitating trade flows and exports while maintaining necessary federal oversight of strategic border infrastructure. While the Act creates regulatory processes, these appear proportionate to the importance of international border crossings for national competitiveness and security.",
+    "evidenceSectionKeys": [
+      "2",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "I-19.6",
+    "titleEn": "International Interests in Mobile Equipment (aircraft equipment) Act",
+    "citationEn": "SC 2005, c 3",
+    "decision": "retain",
+    "decisionConfidence": 0.9,
+    "rationale": "This Act implements Canada's obligations under international treaties (Cape Town Convention and Aircraft Protocol) that create a modern international registry system for aircraft financing. The law directly supports Canada's aviation industry competitiveness by providing legal certainty for aircraft financing, reducing transaction costs, and facilitating investment in aircraft equipment. The Act is clearly operational, governs ongoing international legal obligations, and enables better access to capital for Canadian aviation sector participants. While it creates some regulatory framework, this appears necessary for international treaty compliance and supports rather than hinders prosperity outcomes.",
+    "evidenceSectionKeys": [
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "I-19.8",
+    "titleEn": "International Rapids Power Development Act",
+    "citationEn": "RSC 1952, c 157",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This Act governs a specific 1951 federal-provincial agreement for power development infrastructure, likely related to St. Lawrence Seaway hydroelectric projects. While it appears to be implementation legislation for a historical agreement, it grants significant powers including expropriation rights and transfers federal land administration to Ontario. The operational status is unclear from the provided sections - the Act requires proclamation to come into force but we cannot determine if this occurred. Given the major regulatory powers involved (land transfers, expropriation, federal-provincial agreements) and insufficient evidence about current operational status, escalation for human review is warranted rather than risking inappropriate classification.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "I-20",
+    "titleEn": "International River Improvements Act",
+    "citationEn": "RSC 1985, c I-20",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This Act governs an active federal regulatory regime for international river improvements affecting transboundary waters, which is clearly operational and serves ongoing national interests. While it creates some administrative burden through licensing requirements, it enables strategic water resource development and protects Canadian water resources from permanent loss - both aligned with prosperity objectives. The Act affects major regulatory powers and environmental protections, making repeal high-risk.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "4.1"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.25",
+    "titleEn": "Maintenance of Ports Operations Act, 1986",
+    "citationEn": "SC 1986, c 46",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Act appears to be completely spent legislation with all substantive sections (1-5) repealed in 2017. The Act no longer contains any operational provisions and serves no current legal purpose. This represents obsolete legislation that should be removed from the statute books to reduce regulatory clutter and improve government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.3",
+    "titleEn": "Maintenance of Railway Operations Act, 1995",
+    "citationEn": "SC 1995, c 6",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Act appears to be completely spent legislation with all substantive sections (1-5) repealed in 2017. The law no longer contains any operational provisions and serves no current purpose. This represents obsolete legislation that should be removed from the statute books to reduce regulatory clutter and improve government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.56",
+    "titleEn": "Marine War Risks Act",
+    "citationEn": "RSC 1970, c W-3",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "The Marine War Risks Act establishes an active federal insurance program for marine war risks that directly supports Canadian maritime commerce and exports. The Act enables the Minister to provide insurance when commercial markets fail during wartime or conflict, preventing ships from being laid up and commerce from being interrupted. This directly aligns with prosperity tenets of growing exports and maintaining competitiveness. The 2014 amendments show ongoing legislative attention and operational relevance. While the Act creates some administrative structure, this is necessary for the insurance function and does not constitute excessive red tape. The insurance mechanism supports rather than hinders maritime trade and resource exports.",
+    "evidenceSectionKeys": [
+      "3",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.6",
+    "titleEn": "Marine Insurance Act",
+    "citationEn": "SC 1993, c 22",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "The Marine Insurance Act establishes a comprehensive regulatory framework for marine insurance contracts that directly supports Canada's maritime commerce and export economy. This law provides essential legal certainty for shipping, trade financing, and risk management in marine transportation - all critical to Canada's competitiveness as a trading nation. The Act enables efficient maritime commerce by standardizing insurance terms and providing clear legal rules, which reduces transaction costs and supports investment in shipping and trade. Given Canada's extensive coastlines and role as a major exporter, this framework is operationally vital and prosperity-enabling rather than bureaucratic red tape.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 2,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.7",
+    "titleEn": "Marine Liability Act",
+    "citationEn": "SC 2001, c 6",
+    "decision": "retain",
+    "decisionConfidence": 0.9,
+    "rationale": "The Marine Liability Act establishes a comprehensive legal framework for maritime liability that is essential for Canada's shipping industry and international trade. As a major trading nation with extensive coastlines, Canada requires robust maritime liability laws to support shipping operations, protect stakeholders, and maintain competitiveness in global maritime commerce. The Act directly enables exports of Canadian products and resources by providing legal certainty for maritime transport. While the Act creates regulatory structure, this is necessary framework rather than red tape, as it provides clear liability rules that facilitate rather than hinder maritime commerce. The Act has high repeal risk as it affects legal rights, remedies, and core regulatory powers in maritime law.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-0.8",
+    "titleEn": "Marine Transportation Security Act",
+    "citationEn": "SC 1994, c 40",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This Act establishes the core federal framework for marine transportation security, including screening procedures, restricted areas, and regulatory powers. It remains operationally relevant for protecting Canada's marine transportation infrastructure and facilitating secure trade flows. While it creates some regulatory burden, the security framework is essential for maintaining confidence in Canadian ports and shipping, which supports export competitiveness and investment in marine infrastructure. The Act affects regulatory powers and offences, making repeal high-risk.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-10.01",
+    "titleEn": "Motor Vehicle Safety Act",
+    "citationEn": "SC 1993, c 16",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "The Motor Vehicle Safety Act establishes a comprehensive federal regulatory framework for vehicle safety standards, manufacturing oversight, and import controls that remains actively operational. While it creates regulatory burden, it serves essential public safety functions and supports Canada's automotive manufacturing sector. The law enables standardized safety requirements that facilitate trade and exports of Canadian vehicles while protecting consumers. Repeal would be extremely high-risk given the core regulatory powers and public safety implications.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-12.01",
+    "titleEn": "Motor Vehicle Transport Act",
+    "citationEn": "RSC 1985, c 29 (3rd Supp)",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This Act establishes the federal regulatory framework for extra-provincial motor carrier operations, focusing on safety standards and interprovincial coordination. It is clearly operational, governing ongoing federal jurisdiction over interprovincial transport. The Act supports prosperity by enabling efficient movement of goods and passengers across provincial boundaries, which is essential for national competitiveness and trade. While it creates some regulatory burden, this is justified by safety requirements and the need for consistent national standards. The Act affects major regulatory powers and transportation safety, making repeal high-risk.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "3.1",
+      "3.2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "M-9",
+    "titleEn": "Motor Vehicle Fuel Consumption Standards Act",
+    "citationEn": "RSC 1985, c M-9",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This Act establishes an active regulatory framework for motor vehicle fuel consumption standards, with ongoing operational relevance through standard-setting powers, company compliance requirements, and enforcement mechanisms. While it creates some administrative burden through reporting and compliance requirements, it serves legitimate regulatory purposes for fuel efficiency standards. The Act affects major regulatory powers and company obligations, making repeal high-risk. The regulatory framework could potentially support innovation in fuel-efficient vehicles, aligning with resource development and competitiveness goals.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "N-22",
+    "titleEn": "Canadian Navigable Waters Act",
+    "citationEn": "RSC 1985, c N-22",
+    "decision": "retain",
+    "decisionConfidence": 0.9,
+    "rationale": "The Canadian Navigable Waters Act is clearly operational legislation governing ongoing federal regulatory authority over navigable waters and works affecting navigation. Recent amendments (2019, 2024) demonstrate active legislative maintenance. The Act enables resource development and infrastructure projects while protecting navigation rights, directly supporting prosperity tenets around investment, innovation, and resource development. While it creates regulatory process, this appears necessary for managing competing uses of navigable waters. High repeal risk due to constitutional navigation powers, Indigenous rights references, and core regulatory framework.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "2.01",
+      "2.1",
+      "2.2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "N-22.6",
+    "titleEn": "New Bridge for the St. Lawrence Act",
+    "citationEn": "SC 2014, c 20, s 375",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This Act establishes the legal framework for a major infrastructure project (New Bridge for the St. Lawrence) that directly supports national productivity and competitiveness by maintaining critical transportation links between Montreal and surrounding areas. The bridge infrastructure is essential for trade flows, economic activity, and connectivity. While the Act appears project-specific, it governs ongoing federal responsibility for major transportation infrastructure that enables economic activity and exports. The declaration as 'works for the general advantage of Canada' indicates this is core federal infrastructure with high repeal risk.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 2,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "N-26",
+    "titleEn": "Northern Pipeline Act",
+    "citationEn": "RSC 1985, c N-26",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This Act establishes the Northern Pipeline Agency and implements a 1977 Canada-US Agreement for a major energy infrastructure project. While the Act appears to create administrative structures that may no longer be actively used, it involves major regulatory powers, international agreements, and energy infrastructure governance. The Act's objectives include maximizing Canadian participation in pipeline construction and addressing Indigenous land claims, which are high-stakes policy areas. Given the complexity of international treaty implementation, potential ongoing regulatory authority, and insufficient evidence about current operational status, this requires human review to assess whether the pipeline project remains active and whether the Agency continues to serve a purpose.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "N-26.5",
+    "titleEn": "Northumberland Strait Crossing Act",
+    "citationEn": "SC 1993, c 43",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This Act provides the legal framework for the Confederation Bridge crossing the Northumberland Strait, a major piece of transportation infrastructure connecting Prince Edward Island to mainland Canada. The Act establishes ongoing federal authority to enter into and manage agreements for this critical infrastructure, including provisions for tolls, maintenance, and operations. The bridge remains operationally vital for PEI's economy and Canada's transportation network, enabling trade, tourism, and connectivity. While the Act is from 1993, it governs a live, essential infrastructure asset that supports prosperity through improved connectivity and reduced transportation costs.",
+    "evidenceSectionKeys": [
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "O-2.6",
+    "titleEn": "An Act to amend and consolidate the Acts relating to the office of Port Warden for the Harbour of Montreal",
+    "citationEn": "SC 1882, c 45",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1882 Act establishes a Port Warden system for Montreal Harbour through a complex multi-layered bureaucratic structure involving the Board of Trade, Board of Examiners, and Governor in Council appointments. The Act appears to be a historical consolidation that may have been superseded by modern port authority legislation and regulatory frameworks. The administrative structure described seems outdated and potentially duplicative of current port management systems. While port operations remain important for exports and competitiveness, this specific 19th-century regulatory framework likely creates unnecessary administrative burden without clear modern operational relevance.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "O-9.5",
+    "titleEn": "An Act respecting certain Works on the Ottawa River",
+    "citationEn": "SC 1870, c 24",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1870 Act declares federal jurisdiction over Ottawa River navigation and related infrastructure. While potentially obsolete given modern transportation law evolution, it involves core constitutional powers over navigation, waterways, and federal works that carry high repeal risk. The Act may still provide foundational authority for federal oversight of Ottawa River infrastructure. Evidence is insufficient to determine current operational status versus obsolescence, and the constitutional/jurisdictional nature requires expert review.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "P-14",
+    "titleEn": "Pilotage Act",
+    "citationEn": "RSC 1985, c P-14",
+    "decision": "retain",
+    "decisionConfidence": 0.9,
+    "rationale": "The Pilotage Act establishes an active regulatory framework for marine pilotage services that directly supports Canada's export economy and competitiveness. The Act creates Pilotage Authorities that provide essential navigation safety services for ships in Canadian waters, which is critical for maintaining efficient port operations and international trade. The framework emphasizes efficiency, cost-effectiveness, and financial self-sufficiency principles that align with prosperity goals. While there may be opportunities for modernization, the Act governs ongoing operations essential to Canada's marine transportation infrastructure and export capabilities.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "P-19.6",
+    "titleEn": "Prince Rupert Grain Handling Operations Act",
+    "citationEn": "SC 1988, c 1",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Act was specifically designed to resolve a 1983-1988 labor dispute at Prince Rupert Grain Ltd. by mandating resumption of operations, extending a collective agreement to 1989, and establishing arbitration procedures. The Act's core provisions (work resumption orders, collective agreement extensions, arbitration appointments) were transitional measures tied to a specific historical dispute that concluded over 35 years ago. The law appears to have no ongoing operational relevance and represents obsolete transitional legislation that could be removed to reduce regulatory clutter.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "P-25",
+    "titleEn": "Prohibition of International Air Services Act",
+    "citationEn": "RSC 1985, c P-25",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This Act provides the federal government with essential powers to prohibit international air services from states that fail to address aircraft hijacking, terrorism, or other unlawful acts. It serves ongoing operational purposes for aviation security and international relations, with clear authority for the Governor in Council to impose targeted sanctions. While the Act creates regulatory powers that could theoretically burden air carriers, these are necessary tools for national security and international aviation safety that align with protecting Canada's prosperity through secure transportation infrastructure.",
+    "evidenceSectionKeys": [
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "P-31.5",
+    "titleEn": "Public Safety Act, 2002",
+    "citationEn": "SC 2004, c 15",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This appears to be an omnibus amendment act from 2002 that made changes to various public safety laws. The provided sections only show the short title and amendment references without substantive content, making it impossible to assess the current operational status, administrative burden, or prosperity impact. Given that public safety legislation typically involves high-risk areas (regulatory powers, offences, penalties) and the evidence is insufficient to make a confident determination, escalation for human review is warranted.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "Q-1.7",
+    "titleEn": "Quebec Harbor, Port Warden Act",
+    "citationEn": "SC 1871, c 33",
+    "decision": "escalate",
+    "decisionConfidence": 0.87,
+    "rationale": "This 1871 Act establishes a Port Warden office for Quebec Harbor with specific governance structures involving the Board of Trade and Industry of Metropolitan Quebec. While the Act appears outdated in structure and terminology, it governs an ongoing regulatory function for a major Canadian port that supports exports and trade competitiveness. The law has been amended as recently as 1980-83, suggesting continued relevance. However, the evidence is insufficient to determine current operational status, modern regulatory framework integration, or whether this creates administrative burden versus enabling efficient port operations. Given the potential impact on port operations, trade facilitation, and regulatory powers, this requires human review to assess modernization needs versus repeal risk.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-3.2",
+    "titleEn": "Railway Belt Act",
+    "citationEn": "RSC 1927, c 116",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Act governs a historical land grant arrangement from the 1880s for CPR construction. The railway has been built, the lands have been largely disposed of, and the Act primarily addresses 19th century squatter rights and settlement processes that are no longer relevant. The Act creates administrative burden by maintaining obsolete legal frameworks while providing no clear ongoing operational purpose or prosperity benefit.",
+    "evidenceSectionKeys": [
+      "2",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-3.25",
+    "titleEn": "Railway Belt Water Act",
+    "citationEn": "RSC 1927, c 211",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1927 Act governs water rights in the Railway Belt of British Columbia, establishing Crown ownership of waters and delegating administration to BC authorities. While the Act appears to reference outdated institutional structures and terminology from the early 20th century, it deals with fundamental property rights, water allocation, and federal-provincial jurisdictional arrangements that carry high repeal risk. The Act's operational status is unclear from the limited sections provided, and the evidence is insufficient to determine whether modern water governance frameworks have superseded this legislation or if it remains legally operative for the Railway Belt lands.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-3.3",
+    "titleEn": "Railway Continuation Act, 2007",
+    "citationEn": "SC 2007, c 8",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "The Railway Continuation Act, 2007 appears to be completely spent legislation. All five sections have been repealed by 2017, c. 26, s. 71, leaving no operative provisions. This represents a clear case of obsolete legislation that serves no current purpose and should be removed from the statute books to reduce regulatory clutter and improve government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-4",
+    "titleEn": "Railway Relocation and Crossing Act",
+    "citationEn": "RSC 1985, c R-4",
+    "decision": "retain",
+    "decisionConfidence": 0.74,
+    "rationale": "This Act establishes an active regulatory framework for railway crossing infrastructure planning and federal cost-sharing in urban transportation projects. It governs ongoing operations of the Canadian Transportation Agency in coordinating railway relocations and crossings with provincial/municipal development plans. The Act directly supports prosperity tenets by enabling infrastructure development that facilitates exports and resource movement, while providing structured processes for transportation efficiency. Though some administrative complexity exists, the Act serves essential infrastructure coordination functions with moderate repeal risk due to its regulatory powers and financial mechanisms.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-4.2",
+    "titleEn": "Railway Safety Act",
+    "citationEn": "RSC 1985, c 32 (4th Supp)",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "The Railway Safety Act is clearly operational legislation governing federal railway safety and security regulation. It establishes ongoing regulatory frameworks, defines ministerial responsibilities, and creates safety management systems for railways under federal jurisdiction. While it may contain some administrative complexity, it serves essential public safety functions and enables critical transportation infrastructure that supports exports and economic competitiveness. The law appears to facilitate modern regulatory approaches through safety management systems and risk-based regulation, aligning with efficiency objectives.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-5.3",
+    "titleEn": "An Act respecting regulations made pursuant to section 4 of the Aeronautics Act",
+    "citationEn": "SC 1969-70, c 45",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a narrow transitional validation Act from 1970 that retroactively deemed certain Air Regulations and related actions to be valid. The Act served a specific historical purpose of correcting regulatory authority issues but appears to have no ongoing operational relevance 50+ years later. All the regulations, orders, and proceedings it addressed would have been resolved decades ago. The Act creates no ongoing administrative burden and poses minimal repeal risk as it was purely corrective legislation with no rights, benefits, or penalties.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-7.3",
+    "titleEn": "Restoring Rail Service Act",
+    "citationEn": "SC 2012, c 8",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This Act was specific emergency legislation to end a 2012 Canadian Pacific Railway strike by mandating return to work and resumption of rail service. The Act references expired collective agreements from December 31, 2011, and appears to have been a one-time transitional measure to address a specific labor dispute over a decade ago. The legislation served its immediate purpose of restoring rail service operations and has no ongoing operational relevance. While rail service is important for exports and productivity, this particular Act was a temporary intervention that has outlived its purpose.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "S-1",
+    "titleEn": "Safe Containers Convention Act",
+    "citationEn": "RSC 1985, c S-1",
+    "decision": "retain",
+    "decisionConfidence": 0.8,
+    "rationale": "This Act implements Canada's obligations under the International Convention for Safe Containers, which is essential for international trade and export competitiveness. The law provides a clear regulatory framework for container safety that facilitates global commerce while ensuring safety standards. Container shipping is fundamental to Canada's export economy, and this Act reduces trade barriers by ensuring Canadian containers meet international standards. The inspection and enforcement provisions are operationally necessary and proportionate. While the Act could benefit from modernization of language and processes, it serves an active regulatory purpose that directly supports prosperity through trade facilitation.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "S-10.01",
+    "titleEn": "Shipping Conferences Exemption Act, 1987",
+    "citationEn": "RSC 1985, c 17 (3rd Supp)",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This Act provides an active regulatory framework for shipping conferences in ocean transportation, administered by the Canadian Transportation Agency. It creates specific exemptions from Competition Act provisions while establishing safeguards against anti-competitive practices. The law directly supports Canada's export competitiveness by enabling efficient ocean shipping arrangements for Canadian goods while preventing abuse. The framework balances economic freedom with necessary oversight in a sector critical to Canada's trade infrastructure.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "S-6.7",
+    "titleEn": "Secure Air Travel Act",
+    "citationEn": "SC 2015, c 20, s 11",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "The Secure Air Travel Act establishes a critical aviation security framework that is clearly operational and necessary for national security and public safety. While it may create some administrative processes, these are justified by the essential security functions it serves. The Act supports prosperity by maintaining secure air travel infrastructure that enables business travel, tourism, and trade. Repeal would be extremely high-risk given its role in transportation security, public safety, and regulatory powers.",
+    "evidenceSectionKeys": [
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "S-7.2",
+    "titleEn": "Security Screening Services Commercialization Act",
+    "citationEn": "SC 2019, c 29, s 270",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This Act establishes the framework for commercializing security screening services in Canadian aviation, creating a designated screening authority and regulatory structure. It appears to be actively operational as part of ongoing aviation security infrastructure. While it involves regulatory processes, it serves the prosperity tenet of delivering better public services at lower cost through commercialization and could enhance government efficiency. The law affects core regulatory powers and public safety, making repeal risky. No clear evidence of obsolescence or excessive administrative burden.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2003-233",
+    "titleEn": "Order Transferring from the Department of Fisheries and Oceans to the Department of Transport of Certain Portions of the Directorate-General of Maritime Programs",
+    "citationEn": "SI/2003-233",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.71,
+    "rationale": "This is a 2003 administrative transfer order that moved specific portions of the Directorate-General of Maritime Programs from Fisheries and Oceans to Transport. Such transfer orders are typically transitional instruments that accomplish their purpose upon implementation and become obsolete once the organizational restructuring is complete. After 20+ years, this transfer would have been fully implemented, making the order no longer operationally relevant. The narrow, historical nature of this administrative restructuring suggests low repeal risk, and removing obsolete transfer orders reduces regulatory clutter, aligning with the mandate's emphasis on reducing bureaucratic inertia and improving government efficiency.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2006-97",
+    "titleEn": "Order Authorizing the Minister of Transport, Infrastructure and Communities to Enter Into a Contribution Agreement with Harbourfront Corporation (1990)",
+    "citationEn": "SI/2006-97",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 2006 order authorizes a specific contribution agreement with Harbourfront Corporation from 1990, suggesting it was a narrow, time-bound authorization for a historical transaction. The order appears to be transitional/implementation legislation that has likely served its purpose. There is no evidence of ongoing operational relevance, and as a specific authorization order rather than a framework law, it carries low repeal risk. Removing obsolete authorization orders reduces administrative clutter and aligns with reducing bureaucratic inertia.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2008-23",
+    "titleEn": "Certain Foreign Marine Carriers Remission Order",
+    "citationEn": "SI/2008-23",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This is a narrow, time-bound remission order that granted fee relief to specific foreign marine carriers for fees paid between 1997 and 2005. The order appears to be a transitional/corrective measure that has served its purpose, as the relevant time period ended nearly two decades ago. It creates no ongoing operational framework and poses minimal repeal risk as it only affects historical fee remissions rather than rights, benefits, or regulatory powers.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2008-28",
+    "titleEn": "Sale of the Digby Fisherman’s Wharf Remission Order",
+    "citationEn": "SI/2008-28",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a narrow, specific remission order tied to a completed transaction from 1999 under the Port Divestiture Program. The order grants debt forgiveness of $480,500 conditional on evidence of sale to a specific entity. Given the 25-year timeframe and the specific transactional nature, this appears to be spent legislation that has served its transitional purpose. The order creates no ongoing regulatory framework and poses minimal repeal risk as it involves a completed debt remission rather than rights, benefits, or core regulatory powers.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2008-99",
+    "titleEn": "Certain Marine Carriers Remission Order",
+    "citationEn": "SI/2008-99",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a time-limited remission order that granted fee relief for marine navigation services for the specific years 2008, 2009, and 2010. The order has clearly expired and served its transitional purpose over a decade ago. It creates no ongoing operational framework and poses minimal repeal risk as it only affected historical fee remissions. Removing this spent legislation aligns with reducing bureaucratic inertia and government efficiency.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2011-66",
+    "titleEn": "Certain Marine Carriers Remission Order, 2011",
+    "citationEn": "SI/2011-66",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a specific 2011 remission order granting fee relief for marine navigation services to carriers operating between northern and southern Canadian waters. While it appears to be a time-limited measure that may be obsolete, it involves taxation/fee remission which carries high repeal risk. The evidence is insufficient to determine current operational status or whether similar relief continues under other mechanisms. Given the tax/fee nature and limited evidence, escalation for human review is appropriate.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2012-78",
+    "titleEn": "Order Designating the Minister of Transport as the appropriate Minister for the Windsor-Detroit Bridge Authority",
+    "citationEn": "SI/2012-78",
+    "decision": "retain",
+    "decisionConfidence": 0.8,
+    "rationale": "This order designates ministerial responsibility for the Windsor-Detroit Bridge Authority, which operates critical cross-border infrastructure facilitating Canada-US trade. The Windsor-Detroit corridor is vital for Canadian exports and economic competitiveness, handling significant bilateral trade volume. Clear ministerial designation ensures accountability and efficient governance of this strategic asset. The order directly supports prosperity tenets by enabling trade flows, exports, and cross-border economic activity.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 2,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/2014-11",
+    "titleEn": "Transfer of Duties Order (Unit Responsible for Federal Bridges in the Region of Montreal)",
+    "citationEn": "SI/2014-11",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a 2014 transfer of duties order for federal bridges in Montreal - a narrow administrative transfer instrument that appears to have completed its transitional purpose. Such orders typically implement one-time organizational changes and become obsolete once the transfer is complete. The order creates no ongoing operational framework and poses minimal repeal risk as it affects administrative structure rather than rights, benefits, or regulatory powers. Removing spent transfer orders reduces regulatory clutter and supports government efficiency.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/78-75",
+    "titleEn": "Atlantic Region Ferry Remission Order",
+    "citationEn": "SI/78-75",
+    "decision": "escalate",
+    "decisionConfidence": 0.69,
+    "rationale": "This 1978 order grants customs duty remissions for ferry vessels chartered by CN Marine Corporation in Atlantic Canada. The law references obsolete entities (CN Marine Corporation, Canadian Transport Commission) that no longer exist, suggesting potential obsolescence. However, ferry services remain operationally critical for Atlantic Canada connectivity and economic activity. The remission affects taxation (customs duties) and involves complex federal-provincial transportation arrangements, creating high repeal risk. Given the outdated institutional references combined with ongoing operational importance and tax implications, escalation for expert review is warranted to determine current relevance and appropriate modernization approach.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/79-2",
+    "titleEn": "Aircraft (International Service) Remission Order",
+    "citationEn": "SI/79-2",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "This remission order provides customs duty relief for Canadian air carriers on aircraft parts, equipment, and materials used in international service, proportional to their international usage. The law directly supports Canadian aviation competitiveness by reducing operational costs for international flights, aligning with prosperity tenets of promoting exports, global competitiveness, and reducing regulatory burden. The tax relief mechanism is operational and serves ongoing commercial aviation needs. While the 1975 start date and references to outdated institutions suggest potential for modernization, the core function remains valuable for Canadian carriers competing internationally.",
+    "evidenceSectionKeys": [
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 2,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/80-108",
+    "titleEn": "Load Line Assignment Authorization Order",
+    "citationEn": "SI/80-108",
+    "decision": "escalate",
+    "decisionConfidence": 0.65,
+    "rationale": "This 1980 order relates to load line assignment authorization for ships, which is part of maritime safety regulation under international conventions. Load line regulations are critical for vessel safety and international trade compliance. Without access to the actual text or sections, there is insufficient evidence to determine operational status, administrative burden, or specific prosperity impacts. Given the maritime safety implications and potential regulatory complexity, this requires human review to assess current relevance and alignment with modern shipping practices.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/80-8",
+    "titleEn": "Certain Areas Covered With Water Proclaimed Public Harbours Effective January 1, 1980",
+    "citationEn": "SI/80-8",
+    "decision": "escalate",
+    "decisionConfidence": 0.65,
+    "rationale": "This 1980 proclamation designating certain water areas as public harbours appears to establish ongoing federal jurisdiction over specific harbour areas. While the instrument is over 40 years old and may contain outdated references, harbour designations typically create continuing legal status affecting navigation rights, federal regulatory authority, and potentially commercial operations. The evidence is insufficient to determine which specific areas are covered, whether they remain operationally relevant, or the repeal risk associated with removing federal harbour status. Given the potential impact on transportation infrastructure, regulatory jurisdiction, and commercial maritime activities, this requires human review to assess current operational relevance and repeal implications.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/81-105",
+    "titleEn": "Load Line Exemption Order",
+    "citationEn": "SI/81-105",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Load Line Exemption Order appears to be completely obsolete as both of its substantive sections (1 and 2) have been repealed by SI/2007-62. The order now contains no operative provisions and serves no current regulatory function. This represents clear administrative inefficiency - maintaining a hollow regulatory instrument with no content creates unnecessary clutter in the regulatory framework without serving any purpose. Repealing this spent order would reduce red tape by eliminating a non-functional regulatory instrument and improve government efficiency by cleaning up the regulatory registry.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/81-16",
+    "titleEn": "Minister of Transport Authority to Prescribe Charges Order",
+    "citationEn": "SI/81-16",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1981 statutory instrument grants the Minister of Transport authority to prescribe charges, which appears to be a core regulatory power affecting transportation costs and potentially taxation-like charges. Without access to the actual content or sections of the order, there is insufficient evidence to determine its current operational status, specific scope, or repeal risk. Given that transportation charges can significantly impact business costs, exports, and competitiveness, and that ministerial charge-setting authority represents a major regulatory power with potential high repeal risk, escalation for human review is warranted.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/81-61",
+    "titleEn": "Minister of Transport Authority to Prescribe Fees or Charges Order",
+    "citationEn": "SI/81-61",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1981 Order grants the Minister of Transport authority to prescribe fees and charges with specific calculation methodologies tied to union agreements and overhead rates. While it appears to create administrative complexity through detailed fee calculation requirements, it involves core ministerial powers over transportation fees and charges. The evidence is insufficient to determine current operational status or whether this authority is still actively used. Given the involvement of ministerial regulatory powers and fee-setting authority, this presents high repeal risk and requires human review to assess current relevance and usage.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/83-217",
+    "titleEn": "Minister of Transport Authority to Prescribe Fees Order",
+    "citationEn": "SI/83-217",
+    "decision": "escalate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1983 order grants the Minister of Transport authority to prescribe fees, which appears to be a core regulatory power affecting taxation/fee structures. The title and citation alone provide insufficient evidence to assess operational status, administrative burden, or prosperity impact. Given the potential for this order to affect fee-setting powers that could impact business costs and competitiveness, and the high uncertainty due to lack of substantive content, escalation for human review is warranted to avoid inappropriate modification of potentially important ministerial authorities.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/86-161",
+    "titleEn": "Railway Rolling Stock (Temporary Domestic Service U.S. Built Multi-Level) Remission Order",
+    "citationEn": "SI/86-161",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This 1986 remission order addresses a highly specific, time-bound situation involving U.S.-built railway cars imported before December 31, 1983, and temporarily diverted to domestic service prior to 1984. The law is clearly obsolete as it only applies to historical events that occurred over 40 years ago. There is no ongoing operational relevance, and the specific conditions (pre-1984 diversions, pre-1983 imports) cannot be met today. This represents exactly the type of spent, transitional legislation that creates administrative clutter without serving any current purpose. Repeal would reduce red tape by eliminating obsolete regulatory provisions.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/89-125",
+    "titleEn": "Exclusion Approval Order for Certain Employees and Certain Positions (Air Traffic Control Group), 1989",
+    "citationEn": "SI/89-125",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1989 order approved temporary exclusions from Public Service Employment Act requirements for specific air traffic control training and transfer programs that operated only from May 1, 1989 to April 30, 1991. The order is clearly spent legislation that served a narrow transitional purpose over 30 years ago. It creates no ongoing operational framework and poses minimal repeal risk as it affects no current rights, benefits, or regulatory powers. Removing this obsolete order aligns with reducing bureaucratic inertia and streamlining government operations.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/90-115",
+    "titleEn": "Reservation to the Crown Waiver Order (Tuktoyaktuk Harbour, N.W.T.)",
+    "citationEn": "SI/90-115",
+    "decision": "escalate",
+    "decisionConfidence": 0.65,
+    "rationale": "This 1990 order waives Crown reservation rights for Tuktoyaktuk Harbour in the Northwest Territories. Without access to the specific waiver terms and current operational status, there is insufficient evidence to determine whether this order remains operationally relevant or creates ongoing administrative burden. Given that harbour infrastructure is critical for Arctic resource development and exports, and that modification of Crown rights carries inherent legal risk, escalation for human review is warranted to assess current relevance and avoid unintended consequences for northern economic development.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/91-21",
+    "titleEn": "Railway Track Scales for In-Motion Weighing Specifications",
+    "citationEn": "SI/91-21",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "This regulation establishes technical specifications for railway track scales used in commercial trade for weighing railway cars in motion. The law is clearly operational, governing active commercial weighing systems essential for rail transport of goods including exports. Railway weighing is critical infrastructure supporting Canada's resource exports and trade competitiveness. The technical specifications ensure accuracy and reliability of commercial weighing systems, reducing disputes and enabling efficient rail commerce. While technical regulations can create compliance burden, this appears to serve essential commercial infrastructure functions with clear ongoing relevance to trade and exports.",
+    "evidenceSectionKeys": [
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/91-65",
+    "titleEn": "Exclusion Approval Order for certain persons and certain positions (Air Traffic Control Group), 1991",
+    "citationEn": "SI/91-65",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1991 order approved temporary exclusions from Public Service Employment Act requirements for air traffic controller appointments, with all provisions explicitly ending on December 31, 1996. The order served a narrow transitional purpose for specific training and transfer programs that concluded over 25 years ago. It creates no ongoing operational framework and poses minimal repeal risk as it affects neither current rights nor active regulatory powers. Removing this spent legislation aligns with reducing bureaucratic inertia and streamlining the regulatory framework.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/92-209",
+    "titleEn": "Foreign Aircraft Servicing Equipment Remission Order, 1992",
+    "citationEn": "SI/92-209",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "This remission order actively supports Canada's aviation competitiveness by providing reciprocal customs duty relief for foreign aircraft servicing equipment at international airports. It directly promotes economic freedom, reduces barriers to international aviation services, and enhances Canada's position in global aviation markets. The order remains operationally relevant for ongoing international airport operations and creates clear economic benefits through reduced costs for aviation service providers. While the reference to 'sales tax' under the Excise Tax Act may be outdated terminology (now GST/HST), the core customs duty remission function remains vital for aviation sector competitiveness.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 2,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/94-56",
+    "titleEn": "Order Authorizing the Minister of Transport to Prescribe Fees (Ship/Shore Communications Services)",
+    "citationEn": "SI/94-56",
+    "decision": "escalate",
+    "decisionConfidence": 0.65,
+    "rationale": "This 1994 order authorizes the Minister of Transport to prescribe fees for ship/shore communications services. Without access to the actual sections or current fee schedules, there is insufficient evidence to determine whether this fee-setting authority is still operational, what specific services are covered, or the current regulatory framework. The order involves fee-setting powers which carries moderate repeal risk, and the maritime communications context suggests potential ongoing operational relevance. Given the weak evidence base and the need to understand current usage before making recommendations about fee-setting authority, escalation for human review is appropriate.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/95-46",
+    "titleEn": "Order Transferring from the Department of Transport to the Department of Fisheries and Oceans the Control and Supervision of the Canadian Coast Guard other Than the Harbours and Ports Directorate and the Regional Harbours and Ports Branches, the Marine Regulatory Directorate, and the Ship Inspection Directorate and the Regional Ship Inspection Branches",
+    "citationEn": "SI/95-46",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1995 order appears to be a narrow administrative transfer instrument that moved Coast Guard operations from Transport to Fisheries and Oceans while retaining certain directorates under Transport. As a 29-year-old transfer order, it likely served its transitional purpose and may now be obsolete if the organizational structure has been fully implemented and stabilized. The order creates potential administrative complexity by maintaining split responsibilities across departments, which could hinder government efficiency. Given its narrow transitional nature and low apparent repeal risk (no rights, benefits, or penalties affected), it qualifies as a repeal candidate to reduce regulatory clutter.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/96-49",
+    "titleEn": "Order Designating the Greater Toronto Airports Authority as a Designated Airport Authority and Designating the Date for the Transfer of the Toronto-Lester B. Pearson International Airport to the Greater Toronto Airport Authority",
+    "citationEn": "SI/96-49",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1996 order appears to be a narrow transitional instrument that designated the Greater Toronto Airports Authority and set a transfer date for Pearson Airport. Given the 28-year timeframe since enactment, this transfer has almost certainly been completed, making the order's original purpose spent. The order represents the type of historical implementation legislation that creates administrative clutter without ongoing operational relevance. Removing such spent instruments aligns with reducing bureaucratic inertia and improving government efficiency.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/96-84",
+    "titleEn": "Order Designating the Winnipeg Airports Authority Inc. as a Designated Airport Authority and Designating the Date for the Transfer of the Winnipeg International Airport to the Winnipeg Airports Authority Inc.",
+    "citationEn": "SI/96-84",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1996 order appears to be a narrow transitional instrument that designated the Winnipeg Airports Authority Inc. and set a specific transfer date for Winnipeg International Airport. Given the 28-year timeframe since enactment, this transfer has almost certainly been completed, making the order's original purpose spent. The designation and transfer date functions appear to be one-time administrative actions rather than ongoing operational requirements. As a transitional transfer instrument with low repeal risk, this represents the type of obsolete administrative order that contributes to regulatory clutter without serving current operational needs.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/96-85",
+    "titleEn": "Order Designating the Ottawa Macdonald-Cartier International Airport Authority as a Designated Airport Authority and Designating the Date for the Transfer of the Ottawa Macdonald-Cartier International Airport to the Ottawa Macdonald-Cartier International Airport Authority",
+    "citationEn": "SI/96-85",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This 1996 order appears to be a narrow transitional instrument that designated the Ottawa Macdonald-Cartier International Airport Authority and set a transfer date for the airport from federal control. Given the title's focus on 'designating the date for the transfer,' this appears to be spent legislation that accomplished its historical purpose of transferring the airport. Such transitional orders typically become obsolete once their implementation purpose is fulfilled. The order likely creates no ongoing operational framework and poses low repeal risk as it appears to be administrative housekeeping rather than affecting rights, benefits, or core regulatory powers.",
+    "evidenceSectionKeys": [],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SI/97-96",
+    "titleEn": "Non-Canadian Ships Safety Order",
+    "citationEn": "SI/97-96",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "This Order appears to be completely spent legislation with all substantive sections (1-5) having been repealed between 2002-2007. The law no longer contains any operational provisions and serves no current regulatory or administrative function. This represents clear obsolete legislation that creates administrative clutter without serving any purpose, aligning with the mandate's emphasis on reducing bureaucratic inertia and improving government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SOR/2000-1",
+    "titleEn": "Certain Canada Port Authorities Divestiture Regulations",
+    "citationEn": "SOR/2000-1",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "These regulations govern pension transitions for employees who moved from public service to divested port authorities around 2000. The regulations are narrowly tied to a historical divestiture process that occurred over 20 years ago. While some provisions may still apply to survivors or those who later cease employment with the 'new employer', the core transitional purpose appears largely spent. The regulations create administrative complexity around pension options and benefits that may no longer serve a meaningful ongoing purpose. Given the historical nature and limited ongoing relevance, this appears to be transitional legislation suitable for repeal consideration.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 1,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SOR/2000-111",
+    "titleEn": "Canadian Aviation Security Regulations",
+    "citationEn": "SOR/2000-111",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "All sections of these regulations have been repealed by SOR/2011-318, making the entire regulatory framework obsolete. The regulations no longer contain any operative provisions and serve no current purpose. This represents clear administrative inefficiency - maintaining repealed regulations creates unnecessary regulatory clutter without any compensating benefit. Repeal risk is minimal as the regulations are already functionally void.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SOR/2000-132",
+    "titleEn": "General Pilotage Regulations",
+    "citationEn": "SOR/2000-132",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "These regulations define compulsory pilotage areas across multiple Canadian regions, establishing critical maritime safety and navigation requirements. The law is clearly operational, governing active pilotage services that facilitate safe vessel movement in Canadian waters. While pilotage requirements may create some administrative burden for shipping, they serve essential public safety functions and support Canada's position as a reliable trading partner by ensuring safe navigation in challenging waters. The regulations directly support export competitiveness by maintaining navigational safety standards that facilitate international shipping. Repeal risk is high as these regulations affect core transportation safety powers and could impact maritime commerce.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "SOR/2000-204",
+    "titleEn": "Class I Nuclear Facilities Regulations",
+    "citationEn": "SOR/2000-204",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "These regulations establish comprehensive safety and licensing requirements for Class I nuclear facilities including reactors, particle accelerators, and uranium processing plants. They are clearly operational, governing active nuclear facilities critical to Canada's energy infrastructure and nuclear industry. While the regulations create administrative requirements, they serve essential public safety functions and support Canada's nuclear sector competitiveness. The high repeal risk due to public safety implications and the regulations' role in enabling nuclear innovation and exports align with retaining this framework.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
   }
 ]

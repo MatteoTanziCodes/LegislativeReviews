@@ -9,10 +9,20 @@
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-12-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"vars": {
+		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
+		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+	},
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".open-next/assets"
 	},
+	"r2_buckets": [
+		{
+			"binding": "LEGISLATIVE_REVIEW_DATA_BUCKET",
+			"bucket_name": "legislative-review-data"
+		}
+	],
 	"images": {
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
@@ -26,6 +36,52 @@
 			"service": "core"
 		}
 	],
+	"env": {
+		"staging": {
+			"name": "core-staging",
+			"vars": {
+				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+			},
+			"images": {
+				"binding": "IMAGES"
+			},
+			"r2_buckets": [
+				{
+					"binding": "LEGISLATIVE_REVIEW_DATA_BUCKET",
+					"bucket_name": "legislative-review-data-staging"
+				}
+			],
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "core-staging"
+				}
+			]
+		},
+		"production": {
+			"name": "core-production",
+			"vars": {
+				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+			},
+			"images": {
+				"binding": "IMAGES"
+			},
+			"r2_buckets": [
+				{
+					"binding": "LEGISLATIVE_REVIEW_DATA_BUCKET",
+					"bucket_name": "legislative-review-data-production"
+				}
+			],
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "core-production"
+				}
+			]
+		}
+	},
 	"observability": {
 		"enabled": true
 	}
