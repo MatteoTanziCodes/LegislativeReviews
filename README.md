@@ -7,12 +7,25 @@ Build Canada legislative review tracker and batch review pipeline for the Canadi
 Production is split into two runtimes:
 
 1. Cloudflare Workers serves the Next.js dashboard.
-2. A separate Python worker machine runs the review pipeline and publishes dashboard artifacts to Cloudflare R2.
+2. A separate Python worker machine runs a background daemon that accepts review requests, executes the review pipeline, and publishes dashboard artifacts to Cloudflare R2.
 
 The frontend reads two JSON artifacts from R2:
 
 - `review-summary.json`
 - `review-details.json`
+
+The workflow control plane also uses:
+
+- `review-admin-state.json`
+- `review-control.json`
+
+Public users should use:
+
+- `/legislative-reviews`
+
+Operators should use:
+
+- `/legislative-reviews/admin`
 
 Local development still works with mirrored files in `src/data/`.
 
@@ -35,9 +48,9 @@ npm run deploy
 
 Environment layout in [wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc):
 
-- default/local: `core` + `legislative-review-data`
-- staging: `core-staging` + `legislative-review-data-staging`
-- production: `core-production` + `legislative-review-data-production`
+- default/local: `legislativereviews` + `legislative-review-data`
+- staging: `legislativereviews-staging` + `legislative-review-data-staging`
+- production: `legislativereviews-production` + `legislative-review-data-production`
 
 Create the environment buckets:
 
@@ -54,11 +67,24 @@ npm run deploy:staging
 npm run deploy:production
 ```
 
+Set the dashboard admin secret in each Worker environment:
+
+```bash
+npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env staging
+npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env production
+npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env staging
+npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env production
+```
+
 Each environment is configured with:
 
 - `LEGISLATIVE_REVIEW_DATA_BUCKET`
 - `LEGISLATIVE_REVIEW_SUMMARY_KEY=review-summary.json`
 - `LEGISLATIVE_REVIEW_DETAILS_KEY=review-details.json`
+- `LEGISLATIVE_REVIEW_ADMIN_STATE_KEY=review-admin-state.json`
+- `LEGISLATIVE_REVIEW_CONTROL_KEY=review-control.json`
+- `LEGISLATIVE_REVIEW_ADMIN_TOKEN` as a Worker secret
+- optionally `LEGISLATIVE_REVIEW_SESSION_SECRET` as a Worker secret for admin session signing
 
 ## Python Worker Setup
 
@@ -90,11 +116,15 @@ Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to
 - `LEGISLATIVE_REVIEW_DATA_ROOT`
 - optionally `LEGISLATIVE_REVIEW_PROCESSED_DIR`
 - `CLAUDE_API_KEY`
+- `LEGISLATIVE_REVIEW_ADMIN_TOKEN`
+- optionally `LEGISLATIVE_REVIEW_SESSION_SECRET`
 - `CLOUDFLARE_R2_ACCOUNT_ID`
 - `CLOUDFLARE_R2_BUCKET`
 - `CLOUDFLARE_R2_ENDPOINT`
 - `CLOUDFLARE_R2_ACCESS_KEY_ID`
 - `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
+- optionally `CLOUDFLARE_R2_ADMIN_STATE_KEY`
+- optionally `CLOUDFLARE_R2_CONTROL_KEY`
 
 ## Batch Review Commands
 
@@ -109,6 +139,12 @@ Run the end-to-end review pipeline for one domain:
 
 ```bash
 python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure
+```
+
+Run the long-lived background worker daemon that powers the production admin panel:
+
+```bash
+python scripts/review_worker_daemon.py
 ```
 
 Resume behavior is enabled by default. If the worker stops mid-run, restarting the same command resumes from the last durable success using the existing review parquet plus a journal file written beside it. Use `--no-resume` only when you intentionally want to restart the batch from scratch.
@@ -126,6 +162,11 @@ During review, [review_documents.py](/d:/Programming/Projects/LegislativeReviews
 - local mirrored frontend JSON
 - R2 dashboard JSON, if `CLOUDFLARE_R2_*` variables are configured
 
+The daemon writes workflow audit state to:
+
+- `review-admin-state.json`
+- `review-control.json` while a request is pending
+
 ## Local Dashboard Development
 
 Run the app locally:
@@ -140,7 +181,13 @@ Open:
 http://localhost:3000/legislative-reviews
 ```
 
-The dashboard polls `/api/legislative-reviews` every few seconds. In local development that route falls back to `src/data/review-summary.json` and `src/data/review-details.json` if Cloudflare bindings are unavailable.
+Admin access:
+
+```text
+http://localhost:3000/legislative-reviews/admin
+```
+
+The dashboard polls `/api/legislative-reviews` every few seconds. In local development that route falls back to local JSON artifacts in `src/data/`, including the admin/control artifacts, if Cloudflare bindings are unavailable.
 
 ## Background Runner
 
@@ -169,5 +216,5 @@ before enabling the service.
 ## Notes
 
 - Cloudflare Workers is the correct place for the dashboard, not for the long-running Python batch process.
-- The dashboard is now production-ready for shared storage via R2.
+- The dashboard is now production-ready for shared storage via R2 and exposes an admin panel for requesting and auditing review runs.
 - The Python publisher uses atomic local writes and uploads `review-details.json` before `review-summary.json` to reduce transient mismatch windows.

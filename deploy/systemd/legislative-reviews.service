@@ -8,7 +8,7 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/opt/LegislativeReviews
 EnvironmentFile=/opt/LegislativeReviews/.env
-ExecStart=/opt/LegislativeReviews/.venv/bin/python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure --frontend-export-every 10
+ExecStart=/opt/LegislativeReviews/.venv/bin/python scripts/review_worker_daemon.py
 Restart=always
 RestartSec=15
 

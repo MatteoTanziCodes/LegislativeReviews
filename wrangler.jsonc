@@ -14,7 +14,9 @@
 	],
 	"vars": {
 		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+		"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+		"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
 	},
 	"assets": {
 		"binding": "ASSETS",
@@ -44,7 +46,9 @@
 			"name": "legislativereviews-staging",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+				"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
 			},
 			"images": {
 				"binding": "IMAGES"
@@ -66,7 +70,9 @@
 			"name": "legislativereviews-production",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+				"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
 			},
 			"images": {
 				"binding": "IMAGES"

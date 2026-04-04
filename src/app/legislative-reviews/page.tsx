@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LiveDashboard } from "@/components/legislative-reviews/live-dashboard";
+import { sanitizeDashboardPayloadForPublic } from "@/components/legislative-reviews/review-data";
 import { loadReviewDashboardPayload } from "@/lib/legislative-review-storage";
 
 export const metadata: Metadata = {
@@ -13,5 +14,10 @@ export const revalidate = 0;
 
 export default async function LegislativeReviewsPage() {
 	const initialData = await loadReviewDashboardPayload();
-	return <LiveDashboard initialData={initialData} />;
+	return (
+		<LiveDashboard
+			initialData={sanitizeDashboardPayloadForPublic(initialData)}
+			showAdminPanel={false}
+		/>
+	);
 }
