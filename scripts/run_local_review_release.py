@@ -137,9 +137,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--refresh-source",
         action="store_true",
         help=(
-            "Download the latest raw parquet snapshot into the local data root before "
-            "running preprocessing."
+            "Force a refresh of the source dataset before preprocessing, even if the "
+            "current local snapshot metadata already matches the remote revision."
         ),
+    )
+    parser.add_argument(
+        "--skip-source-sync",
+        action="store_true",
+        help="Skip checking Hugging Face for source dataset updates before preprocessing.",
     )
     return parser.parse_args(argv)
 
@@ -271,10 +276,12 @@ def run_preprocess_pipeline(
     args: argparse.Namespace,
     env: dict[str, str],
 ) -> int:
-    if args.refresh_source:
+    if not args.skip_source_sync or args.refresh_source:
         refresh_command = [sys.executable, str(DOWNLOAD_DATASET_SCRIPT)]
+        if args.refresh_source:
+            refresh_command.append("--force")
         return_code = run_named_command(
-            label="Refresh source dataset",
+            label="Sync source dataset",
             command=refresh_command,
             env=env,
         )
@@ -309,6 +316,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.skip_preprocess and args.refresh_source:
         print(
             "Error: --skip-preprocess and --refresh-source cannot be used together.",
+            file=sys.stderr,
+        )
+        return 1
+    if args.skip_preprocess and args.skip_source_sync:
+        print(
+            "Error: --skip-preprocess and --skip-source-sync cannot be used together.",
             file=sys.stderr,
         )
         return 1
@@ -369,9 +382,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"  Data root: {data_root}")
     print(f"  Processed dir: {processed_dir}")
     print(
+        "  Source sync: "
+        + (
+            "skipped"
+            if args.skip_source_sync
+            else ("forced refresh" if args.refresh_source else "auto-check")
+        )
+    )
+    print(
         "  Preprocess: "
         + ("skipped" if args.skip_preprocess else "enabled")
-        + (" + source refresh" if args.refresh_source else "")
     )
     print(
         "  R2 publish: "

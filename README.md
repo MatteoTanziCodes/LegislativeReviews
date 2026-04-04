@@ -69,7 +69,7 @@ npm run refresh-laws
 
 If you omit the API key or domain, the script prompts for them.
 
-By default, the command now rebuilds the processed local corpus before it starts reviews, so changes under `docs/canadian-laws` are reflected in the next release.
+By default, the command now checks Hugging Face for a newer `a2aj/canadian-laws` parquet revision, syncs the local source snapshot if needed, and then rebuilds the processed local corpus before it starts reviews.
 
 Examples:
 
@@ -103,6 +103,12 @@ Pull the latest remote parquet snapshot first, then rebuild the local corpus:
 python scripts/run_local_review_release.py --refresh-source --preprocess-only
 ```
 
+Skip the Hugging Face update check and just reuse the local source snapshot:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure --skip-source-sync
+```
+
 Skip preprocessing and reuse the existing processed artifacts:
 
 ```bash
@@ -118,7 +124,7 @@ python scripts/run_local_review_release.py --domain transport_infrastructure --a
 What this command does:
 
 1. Ensures the Claude API key is available.
-2. Optionally refreshes the raw parquet snapshot.
+2. Checks whether the remote parquet snapshot changed and syncs it locally when needed.
 3. Rebuilds `documents_en.parquet`, `sections_en.parquet`, classifier inputs, classifications, and domain scores.
 4. Builds reviewer-ready parquet inputs for the chosen domain.
 5. Runs the review pipeline.
