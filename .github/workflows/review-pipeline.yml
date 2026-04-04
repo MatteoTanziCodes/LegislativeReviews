@@ -92,21 +92,21 @@ jobs:
       - name: Mark workflow as running
         shell: cmd
         run: |
-          python -c "import os, subprocess, sys; cmd=[sys.executable,'scripts/update_review_admin_state.py','--worker-status','running','--domain',os.environ['REVIEW_DOMAIN'],'--last-run-id','${{ github.run_id }}','--last-run-html-url',os.environ['REVIEW_RUN_URL'],'--event-level','info','--event-message',f\"GitHub Actions review workflow started for {os.environ['REVIEW_DOMAIN']}{f' (limit {os.environ.get('REVIEW_LIMIT')})' if os.environ.get('REVIEW_LIMIT') else ''}.\" ]; limit=os.environ.get('REVIEW_LIMIT','').strip(); cmd.extend(['--limit', limit]) if limit else None; command_id=os.environ.get('REVIEW_COMMAND_ID','').strip(); cmd.extend(['--command-id', command_id]) if command_id else None; requested_at=os.environ.get('REVIEW_REQUESTED_AT','').strip(); cmd.extend(['--requested-at', requested_at]) if requested_at else None; raise SystemExit(subprocess.run(cmd, check=False).returncode)"
+          python scripts/run_review_workflow_step.py mark-running
 
       - name: Run legislative review pipeline
         shell: cmd
         run: |
-          python -c "import os, subprocess, sys; command=[sys.executable, 'scripts/run_review_frontend_pipeline.py', '--domain', os.environ['REVIEW_DOMAIN']]; limit=os.environ.get('REVIEW_LIMIT', '').strip(); command.extend(['--limit', limit]) if limit else None; raise SystemExit(subprocess.run(command, check=False).returncode)"
+          python scripts/run_review_workflow_step.py run-pipeline
 
       - name: Mark workflow as complete
         if: ${{ success() }}
         shell: cmd
         run: |
-          python -c "import os, subprocess, sys; cmd=[sys.executable,'scripts/update_review_admin_state.py','--worker-status','complete','--domain',os.environ['REVIEW_DOMAIN'],'--clear-current-run','--last-run-id','${{ github.run_id }}','--last-run-html-url',os.environ['REVIEW_RUN_URL'],'--event-level','info','--event-message',f\"GitHub Actions review workflow completed for {os.environ['REVIEW_DOMAIN']}{f' (limit {os.environ.get('REVIEW_LIMIT')})' if os.environ.get('REVIEW_LIMIT') else ''}.\" ]; limit=os.environ.get('REVIEW_LIMIT','').strip(); cmd.extend(['--limit', limit]) if limit else None; command_id=os.environ.get('REVIEW_COMMAND_ID','').strip(); cmd.extend(['--command-id', command_id]) if command_id else None; requested_at=os.environ.get('REVIEW_REQUESTED_AT','').strip(); cmd.extend(['--requested-at', requested_at]) if requested_at else None; raise SystemExit(subprocess.run(cmd, check=False).returncode)"
+          python scripts/run_review_workflow_step.py mark-complete
 
       - name: Mark workflow as failed
         if: ${{ failure() || cancelled() }}
         shell: cmd
         run: |
-          python -c "import os, subprocess, sys; cmd=[sys.executable,'scripts/update_review_admin_state.py','--worker-status','error','--domain',os.environ['REVIEW_DOMAIN'],'--clear-current-run','--last-error',f\"GitHub Actions review workflow failed for {os.environ['REVIEW_DOMAIN']}.\",'--last-run-id','${{ github.run_id }}','--last-run-html-url',os.environ['REVIEW_RUN_URL'],'--event-level','error','--event-message',f\"GitHub Actions review workflow failed for {os.environ['REVIEW_DOMAIN']}{f' (limit {os.environ.get('REVIEW_LIMIT')})' if os.environ.get('REVIEW_LIMIT') else ''}.\" ]; limit=os.environ.get('REVIEW_LIMIT','').strip(); cmd.extend(['--limit', limit]) if limit else None; command_id=os.environ.get('REVIEW_COMMAND_ID','').strip(); cmd.extend(['--command-id', command_id]) if command_id else None; requested_at=os.environ.get('REVIEW_REQUESTED_AT','').strip(); cmd.extend(['--requested-at', requested_at]) if requested_at else None; raise SystemExit(subprocess.run(cmd, check=False).returncode)"
+          python scripts/run_review_workflow_step.py mark-error
