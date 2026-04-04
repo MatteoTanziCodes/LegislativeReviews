@@ -1,0 +1,16 @@
+[Unit]
+Description=Legislative review pipeline
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/LegislativeReviews
+EnvironmentFile=/opt/LegislativeReviews/.env
+ExecStart=/opt/LegislativeReviews/.venv/bin/python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure --frontend-export-every 10
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
