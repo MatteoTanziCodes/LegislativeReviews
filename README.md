@@ -7,12 +7,24 @@ Build Canada legislative review tracker and batch review pipeline for the Canadi
 Production is split into two runtimes:
 
 1. Cloudflare Workers serves the Next.js dashboard.
-2. A separate Python worker machine runs the review pipeline and publishes dashboard artifacts to Cloudflare R2.
+2. GitHub Actions runs the Python review pipeline and publishes dashboard artifacts to Cloudflare R2.
 
 The frontend reads two JSON artifacts from R2:
 
 - `review-summary.json`
 - `review-details.json`
+
+The admin workflow state also lives in R2:
+
+- `review-admin-state.json`
+
+Public users should use:
+
+- `/legislative-reviews`
+
+Operators should use:
+
+- `/legislative-reviews/admin`
 
 Local development still works with mirrored files in `src/data/`.
 
@@ -35,9 +47,9 @@ npm run deploy
 
 Environment layout in [wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc):
 
-- default/local: `core` + `legislative-review-data`
-- staging: `core-staging` + `legislative-review-data-staging`
-- production: `core-production` + `legislative-review-data-production`
+- default/local: `legislativereviews` + `legislative-review-data`
+- staging: `legislativereviews-staging` + `legislative-review-data-staging`
+- production: `legislativereviews-production` + `legislative-review-data-production`
 
 Create the environment buckets:
 
@@ -54,30 +66,73 @@ npm run deploy:staging
 npm run deploy:production
 ```
 
+Set the dashboard admin secret in each Worker environment:
+
+```bash
+npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env staging
+npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env production
+npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env staging
+npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env production
+npx wrangler secret put GITHUB_REVIEW_WORKFLOW_TOKEN --env staging
+npx wrangler secret put GITHUB_REVIEW_WORKFLOW_TOKEN --env production
+```
+
 Each environment is configured with:
 
 - `LEGISLATIVE_REVIEW_DATA_BUCKET`
 - `LEGISLATIVE_REVIEW_SUMMARY_KEY=review-summary.json`
 - `LEGISLATIVE_REVIEW_DETAILS_KEY=review-details.json`
+- `LEGISLATIVE_REVIEW_ADMIN_STATE_KEY=review-admin-state.json`
+- `LEGISLATIVE_REVIEW_ADMIN_TOKEN` as a Worker secret
+- optionally `LEGISLATIVE_REVIEW_SESSION_SECRET` as a Worker secret for admin session signing
+- `GITHUB_REVIEW_WORKFLOW_OWNER`
+- `GITHUB_REVIEW_WORKFLOW_REPO`
+- `GITHUB_REVIEW_WORKFLOW_ID=review-pipeline.yml`
+- `GITHUB_REVIEW_WORKFLOW_REF=main`
+- `GITHUB_REVIEW_WORKFLOW_ENVIRONMENT=staging|production`
+- `GITHUB_REVIEW_WORKFLOW_TOKEN` as a Worker secret with permission to dispatch Actions workflows in this repository
 
-## Python Worker Setup
+## GitHub Actions Review Runner
 
 Prerequisites:
 
 - Python 3.10+
-- Access to the raw and processed parquet paths under a configurable dataset root
+- A GitHub Actions runner with access to the raw and processed parquet paths under a configurable dataset root
 - Anthropic API key
-- Cloudflare R2 API credentials for the Python publisher
+- Cloudflare R2 API credentials for the publisher
 
-Create an environment and install dependencies:
+The repo now includes [review-pipeline.yml](/d:/Programming/Projects/LegislativeReviews/.github/workflows/review-pipeline.yml), which is the production execution path for review runs. The dashboard dispatches that workflow from `/legislative-reviews/admin`.
+
+The workflow currently uses a self-hosted runner with the label `legislative-reviews` because the review corpus lives outside the repository. If you later move the review input parquet into remote storage, you can switch the workflow to a GitHub-hosted runner.
+
+Set up the self-hosted runner on the machine that already has access to your legislative dataset:
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+./config.sh --labels legislative-reviews
+./run.sh
 ```
 
-On Windows PowerShell:
+Then configure GitHub environment variables and secrets for both `staging` and `production`.
+
+Environment variables:
+
+- `LEGISLATIVE_REVIEW_DATA_ROOT`
+- optionally `LEGISLATIVE_REVIEW_PROCESSED_DIR`
+- `FASTEMBED_THREADS`
+- `CLOUDFLARE_R2_ACCOUNT_ID`
+- `CLOUDFLARE_R2_BUCKET`
+- `CLOUDFLARE_R2_ENDPOINT`
+- optionally `CLOUDFLARE_R2_SUMMARY_KEY`
+- optionally `CLOUDFLARE_R2_DETAILS_KEY`
+- optionally `CLOUDFLARE_R2_ADMIN_STATE_KEY`
+
+Environment secrets:
+
+- `CLAUDE_API_KEY`
+- `CLOUDFLARE_R2_ACCESS_KEY_ID`
+- `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
+
+You can still run the pipeline manually on the runner machine for debugging:
 
 ```powershell
 python -m venv .venv
@@ -85,7 +140,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to `.env` and fill in:
+Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to `.env` on the runner machine and fill in:
 
 - `LEGISLATIVE_REVIEW_DATA_ROOT`
 - optionally `LEGISLATIVE_REVIEW_PROCESSED_DIR`
@@ -95,6 +150,7 @@ Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to
 - `CLOUDFLARE_R2_ENDPOINT`
 - `CLOUDFLARE_R2_ACCESS_KEY_ID`
 - `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
+- optionally `CLOUDFLARE_R2_ADMIN_STATE_KEY`
 
 ## Batch Review Commands
 
@@ -111,7 +167,7 @@ Run the end-to-end review pipeline for one domain:
 python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure
 ```
 
-Resume behavior is enabled by default. If the worker stops mid-run, restarting the same command resumes from the last durable success using the existing review parquet plus a journal file written beside it. Use `--no-resume` only when you intentionally want to restart the batch from scratch.
+Resume behavior is enabled by default. If the review runner stops mid-run, restarting the same command resumes from the last durable success using the existing review parquet plus a journal file written beside it. Use `--no-resume` only when you intentionally want to restart the batch from scratch.
 
 Run a smaller batch:
 
@@ -125,6 +181,10 @@ During review, [review_documents.py](/d:/Programming/Projects/LegislativeReviews
 - a per-review resume journal beside the parquet output
 - local mirrored frontend JSON
 - R2 dashboard JSON, if `CLOUDFLARE_R2_*` variables are configured
+
+The workflow updater script writes audit state to:
+
+- `review-admin-state.json`
 
 ## Local Dashboard Development
 
@@ -140,34 +200,17 @@ Open:
 http://localhost:3000/legislative-reviews
 ```
 
-The dashboard polls `/api/legislative-reviews` every few seconds. In local development that route falls back to `src/data/review-summary.json` and `src/data/review-details.json` if Cloudflare bindings are unavailable.
+Admin access:
 
-## Background Runner
-
-An example systemd service is included at [legislative-reviews.service](/d:/Programming/Projects/LegislativeReviews/deploy/systemd/legislative-reviews.service).
-
-Typical Linux install:
-
-```bash
-sudo cp deploy/systemd/legislative-reviews.service /etc/systemd/system/legislative-reviews.service
-sudo systemctl daemon-reload
-sudo systemctl enable legislative-reviews
-sudo systemctl start legislative-reviews
-sudo systemctl status legislative-reviews
-journalctl -u legislative-reviews -f
+```text
+http://localhost:3000/legislative-reviews/admin
 ```
 
-Adjust:
-
-- `User`
-- `WorkingDirectory`
-- `EnvironmentFile`
-- `ExecStart`
-
-before enabling the service.
+The dashboard polls `/api/legislative-reviews` every few seconds. In local development that route falls back to local JSON artifacts in `src/data/` if Cloudflare bindings are unavailable. If you also set the GitHub workflow environment variables in `.env`, the local admin screen can dispatch the real GitHub Actions workflow.
 
 ## Notes
 
 - Cloudflare Workers is the correct place for the dashboard, not for the long-running Python batch process.
-- The dashboard is now production-ready for shared storage via R2.
+- GitHub Actions is now the production control plane for review execution.
+- The dashboard is production-ready for shared storage via R2 and exposes an admin panel for dispatching and auditing GitHub Actions review runs.
 - The Python publisher uses atomic local writes and uploads `review-details.json` before `review-summary.json` to reduce transient mismatch windows.

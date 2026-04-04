@@ -23,6 +23,7 @@ DEFAULT_PIPELINE_STATUS = "complete"
 DECISION_LABELS = ("retain", "amend", "repeal_candidate", "escalate")
 DEFAULT_R2_SUMMARY_OBJECT_KEY = "review-summary.json"
 DEFAULT_R2_DETAILS_OBJECT_KEY = "review-details.json"
+DEFAULT_R2_ADMIN_STATE_OBJECT_KEY = "review-admin-state.json"
 
 
 @dataclass(frozen=True)
@@ -47,8 +48,30 @@ class R2PublishConfig:
 	endpoint_url: str
 	access_key_id: str
 	secret_access_key: str
+	admin_state_object_key: str
 	summary_object_key: str
 	details_object_key: str
+
+
+def review_row_from_detail_payload(payload: dict[str, Any]) -> ReviewRow:
+	return ReviewRow(
+		document_id=str(payload["documentId"]),
+		title_en=str(payload["titleEn"]),
+		citation_en=(
+			str(payload["citationEn"]) if payload.get("citationEn") is not None else None
+		),
+		decision=str(payload["decision"]),
+		decision_confidence=float(payload["decisionConfidence"]),
+		rationale=str(payload["rationale"]),
+		evidence_section_keys=[
+			str(item) for item in (payload.get("evidenceSectionKeys") or [])
+		],
+		operational_relevance_score=int(payload["operationalRelevanceScore"]),
+		prosperity_alignment_score=int(payload["prosperityAlignmentScore"]),
+		administrative_burden_score=int(payload["administrativeBurdenScore"]),
+		repeal_risk_score=int(payload["repealRiskScore"]),
+		review_model=str(payload["reviewModel"]),
+	)
 
 
 def ensure_directory(path: Path) -> None:
@@ -87,6 +110,11 @@ def build_r2_publish_config(
 		or os.getenv("CLOUDFLARE_R2_DETAILS_KEY")
 		or DEFAULT_R2_DETAILS_OBJECT_KEY
 	)
+	admin_state_object_key = (
+		getattr(args, "r2_admin_state_object_key", None)
+		or os.getenv("CLOUDFLARE_R2_ADMIN_STATE_KEY")
+		or DEFAULT_R2_ADMIN_STATE_OBJECT_KEY
+	)
 
 	if not endpoint_url:
 		account_id = os.getenv("CLOUDFLARE_R2_ACCOUNT_ID")
@@ -112,6 +140,7 @@ def build_r2_publish_config(
 		endpoint_url=endpoint_url,
 		access_key_id=access_key_id,
 		secret_access_key=secret_access_key,
+		admin_state_object_key=admin_state_object_key,
 		summary_object_key=summary_object_key,
 		details_object_key=details_object_key,
 	)
@@ -129,6 +158,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 		required=True,
 		type=Path,
 		help="Path to the review parquet output.",
+	)
+	parser.add_argument(
+		"--admin-state-output-path",
+		type=Path,
+		help="Optional admin state JSON path used to infer the current accumulated dataset.",
 	)
 	parser.add_argument(
 		"--summary-output-path",
@@ -179,6 +213,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 	parser.add_argument(
 		"--r2-secret-access-key",
 		help="Optional Cloudflare R2 secret access key.",
+	)
+	parser.add_argument(
+		"--r2-admin-state-object-key",
+		default=DEFAULT_R2_ADMIN_STATE_OBJECT_KEY,
+		help="Object key for the admin state JSON in Cloudflare R2.",
 	)
 	parser.add_argument(
 		"--r2-summary-object-key",
@@ -251,6 +290,93 @@ def load_review_rows(review_output_path: Path) -> list[ReviewRow]:
 		)
 
 	return review_rows
+
+
+def load_existing_local_details(details_output_path: Path) -> list[ReviewRow]:
+	if not details_output_path.exists():
+		return []
+
+	payload = json.loads(details_output_path.read_text(encoding="utf-8"))
+	if not isinstance(payload, list):
+		raise RuntimeError(
+			f"Existing frontend details payload at {details_output_path} is invalid."
+		)
+
+	return [review_row_from_detail_payload(item) for item in payload]
+
+
+def build_s3_client(config: R2PublishConfig):
+	try:
+		import boto3
+	except ImportError as exc:
+		raise RuntimeError(
+			"boto3 is required for Cloudflare R2 publishing. "
+			"Install it with `pip install boto3`."
+		) from exc
+
+	return boto3.client(
+		"s3",
+		endpoint_url=config.endpoint_url,
+		aws_access_key_id=config.access_key_id,
+		aws_secret_access_key=config.secret_access_key,
+		region_name="auto",
+	)
+
+
+def load_existing_r2_details(config: R2PublishConfig) -> list[ReviewRow]:
+	client = build_s3_client(config)
+	try:
+		response = client.get_object(
+			Bucket=config.bucket_name,
+			Key=config.details_object_key,
+		)
+	except Exception as exc:
+		error_code = getattr(exc, "response", {}).get("Error", {}).get("Code")
+		if error_code in {"NoSuchKey", "404"}:
+			return []
+		raise
+
+	payload = json.loads(response["Body"].read().decode("utf-8"))
+	if not isinstance(payload, list):
+		raise RuntimeError("Existing frontend details payload in R2 is invalid.")
+	return [review_row_from_detail_payload(item) for item in payload]
+
+
+def merge_review_rows(
+	existing_rows: Sequence[ReviewRow],
+	incoming_rows: Sequence[ReviewRow],
+) -> list[ReviewRow]:
+	merged_by_document_id: dict[str, ReviewRow] = {
+		row.document_id: row for row in existing_rows
+	}
+	for row in incoming_rows:
+		merged_by_document_id[row.document_id] = row
+
+	return [
+		merged_by_document_id[document_id]
+		for document_id in sorted(merged_by_document_id)
+	]
+	
+
+def load_existing_frontend_rows(
+	*,
+	details_output_path: Path,
+	pipeline_status: str,
+	r2_publish_config: R2PublishConfig | None,
+) -> list[ReviewRow]:
+	if pipeline_status == "idle":
+		return []
+
+	try:
+		return load_existing_local_details(details_output_path)
+	except RuntimeError:
+		if r2_publish_config is None:
+			raise
+
+	if r2_publish_config is None:
+		return []
+
+	return load_existing_r2_details(r2_publish_config)
 
 
 def build_summary_payload(
@@ -336,21 +462,7 @@ def upload_json_to_r2(
 	object_key: str,
 	payload: Any,
 ) -> None:
-	try:
-		import boto3
-	except ImportError as exc:
-		raise RuntimeError(
-			"boto3 is required for Cloudflare R2 publishing. "
-			"Install it with `pip install boto3`."
-		) from exc
-
-	client = boto3.client(
-		"s3",
-		endpoint_url=config.endpoint_url,
-		aws_access_key_id=config.access_key_id,
-		aws_secret_access_key=config.secret_access_key,
-		region_name="auto",
-	)
+	client = build_s3_client(config)
 	client.put_object(
 		Bucket=config.bucket_name,
 		Key=object_key,
@@ -382,6 +494,7 @@ def get_last_updated_iso(
 def export_frontend_payloads(
 	review_rows: Sequence[ReviewRow],
 	*,
+	admin_state_output_path: Path | None = None,
 	summary_output_path: Path,
 	details_output_path: Path,
 	total_count: int,
@@ -390,14 +503,20 @@ def export_frontend_payloads(
 	pipeline_status: str,
 	r2_publish_config: R2PublishConfig | None = None,
 ) -> dict[str, Any]:
+	existing_rows = load_existing_frontend_rows(
+		details_output_path=details_output_path,
+		pipeline_status=pipeline_status,
+		r2_publish_config=r2_publish_config,
+	)
+	merged_rows = merge_review_rows(existing_rows, review_rows)
 	summary_payload = build_summary_payload(
-		review_rows,
+		merged_rows,
 		total_count=total_count,
 		daily_capacity=daily_capacity,
 		last_updated=last_updated,
 		pipeline_status=pipeline_status,
 	)
-	details_payload = build_details_payload(review_rows)
+	details_payload = build_details_payload(merged_rows)
 
 	write_json(details_output_path, details_payload)
 	write_json(summary_output_path, summary_payload)
@@ -449,6 +568,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 	summary_payload = export_frontend_payloads(
 		review_rows,
+		admin_state_output_path=args.admin_state_output_path,
 		summary_output_path=args.summary_output_path,
 		details_output_path=args.details_output_path,
 		total_count=args.total_count,

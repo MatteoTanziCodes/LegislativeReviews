@@ -4,14 +4,23 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "core",
-	"account_id": "af43b5869a980d4edc6c18f15cd7aa2d",
+	"name": "legislativereviews",
+	"account_id": "613ce8a5c9f09c0e869f398b42e790fe",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-12-01",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"vars": {
 		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+		"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+		"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+		"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+		"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+		"GITHUB_REVIEW_WORKFLOW_REF": "main",
+		"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
 	},
 	"assets": {
 		"binding": "ASSETS",
@@ -33,15 +42,21 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "core"
+			"service": "legislativereviews"
 		}
 	],
 	"env": {
 		"staging": {
-			"name": "core-staging",
+			"name": "legislativereviews-staging",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+				"GITHUB_REVIEW_WORKFLOW_REF": "main",
+				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "staging"
 			},
 			"images": {
 				"binding": "IMAGES"
@@ -55,15 +70,21 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "core-staging"
+					"service": "legislativereviews"
 				}
 			]
 		},
 		"production": {
-			"name": "core-production",
+			"name": "legislativereviews-production",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
-				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
+				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
+				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
+				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+				"GITHUB_REVIEW_WORKFLOW_REF": "main",
+				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
 			},
 			"images": {
 				"binding": "IMAGES"
@@ -77,7 +98,7 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "core-production"
+					"service": "legislativereviews"
 				}
 			]
 		}
