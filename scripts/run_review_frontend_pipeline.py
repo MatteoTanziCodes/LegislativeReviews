@@ -4,6 +4,7 @@ import argparse
 import json
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Sequence
 
@@ -104,6 +105,91 @@ def run_step(command: list[str]) -> int:
 	return process.returncode
 
 
+def build_review_journal_path(output_path: Path) -> Path:
+	return output_path.with_name(f"{output_path.stem}.journal.jsonl")
+
+
+def build_review_manifest_path(output_path: Path) -> Path:
+	return output_path.with_name(f"{output_path.stem}.manifest.json")
+
+
+def build_review_lock_path(output_path: Path) -> Path:
+	return output_path.with_name(f"{output_path.stem}.lock")
+
+
+def build_legacy_backup_path(path: Path, timestamp: str) -> Path:
+	return path.with_name(f"{path.stem}.legacy-{timestamp}{path.suffix}")
+
+
+def archive_path(path: Path, timestamp: str) -> Path:
+	backup_path = build_legacy_backup_path(path, timestamp)
+	sequence = 1
+	while backup_path.exists():
+		backup_path = path.with_name(
+			f"{path.stem}.legacy-{timestamp}-{sequence}{path.suffix}"
+		)
+		sequence += 1
+	path.replace(backup_path)
+	return backup_path
+
+
+def migrate_legacy_review_state(
+	*,
+	python_executable: str,
+	review_output_path: Path,
+	summary_output_path: Path,
+	details_output_path: Path,
+	total_count: int,
+	daily_capacity: int,
+) -> bool:
+	journal_path = build_review_journal_path(review_output_path)
+	manifest_path = build_review_manifest_path(review_output_path)
+	lock_path = build_review_lock_path(review_output_path)
+	legacy_paths = [
+		path
+		for path in (review_output_path, journal_path, lock_path)
+		if path.exists()
+	]
+	if not legacy_paths or manifest_path.exists():
+		return False
+
+	print()
+	print(
+		"Legacy review artifacts detected without a run manifest. "
+		"Bootstrapping dashboard state, archiving the old files, and restarting fresh.",
+		flush=True,
+	)
+
+	if review_output_path.exists():
+		bootstrap_export_command = [
+			python_executable,
+			str(EXPORT_FRONTEND_REVIEW_DATA_SCRIPT),
+			"--review-output-path",
+			str(review_output_path),
+			"--summary-output-path",
+			str(summary_output_path),
+			"--details-output-path",
+			str(details_output_path),
+			"--total-count",
+			str(total_count),
+			"--daily-capacity",
+			str(daily_capacity),
+			"--pipeline-status",
+			"in_progress",
+		]
+		return_code = run_step(bootstrap_export_command)
+		if return_code != 0:
+			raise RuntimeError(
+				"Failed to bootstrap frontend state from legacy review output before archiving."
+			)
+
+	timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+	for path in legacy_paths:
+		backup_path = archive_path(path, timestamp)
+		print(f"Archived legacy artifact: {path} -> {backup_path}", flush=True)
+	return True
+
+
 def load_mandate_id(path: Path) -> str:
 	with path.open("r", encoding="utf-8") as handle:
 		payload = json.load(handle)
@@ -170,8 +256,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 	if args.limit is not None:
 		review_documents_command.extend(["--limit", str(args.limit)])
 	review_documents_command.extend(["--checkpoint-every", str(args.checkpoint_every)])
-	if args.no_resume:
-		review_documents_command.append("--no-resume")
 	review_documents_command.extend(
 		[
 			"--frontend-summary-output-path",
@@ -196,6 +280,24 @@ def main(argv: Sequence[str] | None = None) -> int:
 			)
 		else:
 			review_output_path = review_input_path.with_name(f"reviews_{input_name}")
+
+	force_no_resume = False
+	if not args.no_resume:
+		try:
+			force_no_resume = migrate_legacy_review_state(
+				python_executable=python_executable,
+				review_output_path=review_output_path,
+				summary_output_path=args.summary_output_path,
+				details_output_path=args.details_output_path,
+				total_count=args.total_count,
+				daily_capacity=args.daily_capacity,
+			)
+		except RuntimeError as exc:
+			print(f"Error: {exc}", file=sys.stderr)
+			return 1
+
+	if args.no_resume or force_no_resume:
+		review_documents_command.append("--no-resume")
 
 	export_frontend_command = [
 		python_executable,
