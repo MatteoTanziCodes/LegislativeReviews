@@ -1,21 +1,21 @@
 {
   "totalCount": 5796,
-  "reviewedCount": 281,
-  "remainingCount": 5515,
-  "percentReviewed": 4.85,
+  "reviewedCount": 311,
+  "remainingCount": 5485,
+  "percentReviewed": 5.37,
   "dailyCapacity": 200,
-  "lastUpdated": "2026-04-04T17:01:46-04:00",
+  "lastUpdated": "2026-04-04T17:05:03-04:00",
   "pipelineStatus": "in_progress",
   "decisionCounts": {
-    "retain": 177,
-    "amend": 6,
-    "repeal_candidate": 42,
-    "escalate": 56
+    "retain": 201,
+    "amend": 7,
+    "repeal_candidate": 45,
+    "escalate": 58
   },
   "averageConfidenceByDecision": {
-    "retain": 0.876,
-    "amend": 0.748,
-    "repeal_candidate": 0.859,
-    "escalate": 0.742
+    "retain": 0.871,
+    "amend": 0.725,
+    "repeal_candidate": 0.856,
+    "escalate": 0.743
   }
 }

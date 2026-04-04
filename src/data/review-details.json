@@ -5106,5 +5106,553 @@
     "administrativeBurdenScore": 1,
     "repealRiskScore": 3,
     "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-3.3",
+    "titleEn": "Railway Continuation Act, 2007",
+    "citationEn": "SC 2007, c 8",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.87,
+    "rationale": "The Railway Continuation Act, 2007 appears to be completely spent legislation. All five sections have been repealed by 2017, c. 26, s. 71, leaving no operative provisions. This represents a clear case of obsolete legislation that serves no current purpose and should be removed from the statute books to reduce regulatory clutter and improve government efficiency.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-4",
+    "titleEn": "Railway Relocation and Crossing Act",
+    "citationEn": "RSC 1985, c R-4",
+    "decision": "retain",
+    "decisionConfidence": 0.74,
+    "rationale": "This Act establishes an active regulatory framework for railway crossing infrastructure planning and federal cost-sharing in urban transportation projects. It governs ongoing operations of the Canadian Transportation Agency in coordinating railway relocations and crossings with provincial/municipal development plans. The Act directly supports prosperity tenets by enabling infrastructure development that facilitates exports and resource movement, while providing structured processes for transportation efficiency. Though some administrative complexity exists, the Act serves essential infrastructure coordination functions with moderate repeal risk due to its regulatory powers and financial mechanisms.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-4.2",
+    "titleEn": "Railway Safety Act",
+    "citationEn": "RSC 1985, c 32 (4th Supp)",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "The Railway Safety Act is clearly operational legislation governing federal railway safety and security regulation. It establishes ongoing regulatory frameworks, defines ministerial responsibilities, and creates safety management systems for railways under federal jurisdiction. While it may contain some administrative complexity, it serves essential public safety functions and enables critical transportation infrastructure that supports exports and economic competitiveness. The law appears to facilitate modern regulatory approaches through safety management systems and risk-based regulation, aligning with efficiency objectives.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-5.3",
+    "titleEn": "An Act respecting regulations made pursuant to section 4 of the Aeronautics Act",
+    "citationEn": "SC 1969-70, c 45",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This is a narrow transitional validation Act from 1970 that retroactively deemed certain Air Regulations and related actions to be valid. The Act served a specific historical purpose of correcting regulatory authority issues but appears to have no ongoing operational relevance 50+ years later. All the regulations, orders, and proceedings it addressed would have been resolved decades ago. The Act creates no ongoing administrative burden and poses minimal repeal risk as it was purely corrective legislation with no rights, benefits, or penalties.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 0,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "R-7.3",
+    "titleEn": "Restoring Rail Service Act",
+    "citationEn": "SC 2012, c 8",
+    "decision": "repeal_candidate",
+    "decisionConfidence": 0.79,
+    "rationale": "This Act was specific emergency legislation to end a 2012 Canadian Pacific Railway strike by mandating return to work and resumption of rail service. The Act references expired collective agreements from December 31, 2011, and appears to have been a one-time transitional measure to address a specific labor dispute over a decade ago. The legislation served its immediate purpose of restoring rail service operations and has no ongoing operational relevance. While rail service is important for exports and productivity, this particular Act was a temporary intervention that has outlived its purpose.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 0,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 1,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 1026",
+    "titleEn": "GENERAL",
+    "citationEn": "RRO 1990, Reg 1026",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes the governance structure for a professional surveying association, including election procedures, nomination committees, and eligibility requirements. It is clearly operational, governing ongoing professional regulation that supports property rights, land development, and infrastructure projects essential to economic activity. While administrative in nature, it provides necessary structure for professional oversight without creating excessive red tape. The regulation supports prosperity by ensuring qualified professional surveyors for land development and resource projects.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 25",
+    "titleEn": "TRANSPORTATION",
+    "citationEn": "RRO 1990, Reg 25",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes comprehensive animal welfare standards for transportation that remain operationally relevant and necessary. While it may create some administrative requirements, these serve legitimate animal welfare purposes and the regulation appears to be actively governing ongoing transportation activities. The standards support productivity in agriculture and research sectors by ensuring animal health during transport, which protects economic value. No clear evidence of obsolescence or excessive red tape that would justify amendment or repeal.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 351",
+    "titleEn": "MARINAS",
+    "citationEn": "RRO 1990, Reg 351",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes ongoing operational requirements for marina operators regarding waste management and sewage disposal facilities. It directly supports recreational boating infrastructure which contributes to tourism and marine services sectors. The requirements are clearly operational today and serve environmental protection purposes while enabling marina operations. While creating some regulatory burden, the environmental and public health benefits justify retention without modification.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 577",
+    "titleEn": "COVERING OF LOADS",
+    "citationEn": "RRO 1990, Reg 577",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This regulation establishes active safety requirements for commercial vehicles carrying loose materials on highways. It serves ongoing operational purposes by preventing road debris hazards and maintaining highway safety. While it creates compliance requirements for transport operators, these are necessary for public safety and do not constitute excessive red tape. The regulation supports prosperity by maintaining safe, efficient transportation infrastructure essential for moving Canadian exports and resources. Repeal would create significant safety risks.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 579",
+    "titleEn": "DESIGNATION OF HIGHWAYS",
+    "citationEn": "RRO 1990, Reg 579",
+    "decision": "retain",
+    "decisionConfidence": 0.8,
+    "rationale": "This regulation designates highway classifications that are fundamental to Ontario's transportation infrastructure system. Highway classification directly supports economic competitiveness by enabling efficient movement of goods and people, which is essential for exports, investment, and productivity. The King's Highway designation and Class A highway system provide clear operational framework for transportation infrastructure that underpins economic activity. While this is provincial regulation rather than federal law, the classification system appears actively operational and necessary for transportation management with low administrative burden.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 596",
+    "titleEn": "GENERAL",
+    "citationEn": "RRO 1990, Reg 596",
+    "decision": "escalate",
+    "decisionConfidence": 0.87,
+    "rationale": "This regulation governs vehicle headlamp safety standards, which is an active operational area affecting public safety and regulatory compliance. While the regulation contains outdated references (vehicles manufactured before 1939) and technical specifications that may need modernization, it addresses core safety requirements that carry high repeal risk. The evidence is insufficient to determine whether specific provisions are obsolete versus still necessary for safety compliance, and the regulation affects major regulatory powers in transportation safety.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "4.1"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 598",
+    "titleEn": "GROSS WEIGHT ON BRIDGES",
+    "citationEn": "RRO 1990, Reg 598",
+    "decision": "amend",
+    "decisionConfidence": 0.59,
+    "rationale": "This regulation establishes weight limits for specific bridges to ensure public safety and infrastructure protection. While operationally relevant for ongoing bridge management, it shows signs of administrative inefficiency with multiple revoked schedules and outdated references (e.g., 'King's Highway'). The regulation serves legitimate safety purposes but could be streamlined to reduce administrative burden while maintaining essential protections for infrastructure and public safety.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 599",
+    "titleEn": "HIGHWAY CLOSINGS",
+    "citationEn": "RRO 1990, Reg 599",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation provides essential operational procedures for police officers to close highways using standardized methods and equipment specifications. It serves an active public safety function that supports economic activity by ensuring safe, predictable highway closures during emergencies, construction, or hazardous conditions. The detailed technical specifications ensure consistency across jurisdictions, which reduces confusion and supports efficient traffic management. While the regulation is technical and detailed, it does not create unnecessary red tape but rather provides clear operational guidance that enables effective public service delivery.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 603",
+    "titleEn": "OVER-DIMENSIONAL FARM VEHICLES",
+    "citationEn": "RRO 1990, Reg 603",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "This regulation governs active safety requirements for over-dimensional farm vehicles on highways, directly supporting agricultural productivity and export competitiveness. The law establishes clear operational safety standards (lighting, escort requirements) for farm equipment movement, which enables efficient agricultural operations while maintaining public safety. The regulation supports prosperity by facilitating agricultural resource development and export activities without creating unnecessary red tape - it provides clear, specific technical requirements rather than bureaucratic barriers. While it imposes some compliance requirements, these are proportionate safety measures that enable rather than hinder agricultural productivity.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 604",
+    "titleEn": "PARKINg",
+    "citationEn": "RRO 1990, Reg 604",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes essential parking rules for Ontario's King's Highway system, which remains actively operational and necessary for traffic safety and flow. While it creates some administrative complexity through detailed specifications and appendices, it serves a clear ongoing public safety purpose and enables efficient highway operations. The regulation supports prosperity by maintaining orderly traffic flow on major transportation corridors that are vital for commerce and economic activity.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 605",
+    "titleEn": "PARKING OF VEHICLES IN TERRITORY WITHOUT MUNICIPAL ORGANIZATION",
+    "citationEn": "RRO 1990, Reg 605",
+    "decision": "retain",
+    "decisionConfidence": 0.56,
+    "rationale": "This regulation establishes parking restrictions on highways in unorganized territories, which remains operationally relevant for traffic management and public safety. While narrow in scope, it serves an ongoing regulatory function in areas without municipal governance. The regulation is straightforward with minimal administrative burden and clear exemptions for essential services. Repeal risk is moderate as it affects regulatory powers and potential penalties for violations.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 608",
+    "titleEn": "RESTRICTED USE OF LEFT LANES BY COMMERCIAL MOTOR VEHICLES",
+    "citationEn": "RRO 1990, Reg 608",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation actively governs commercial vehicle lane restrictions on major highways, serving ongoing traffic management and safety purposes. While it creates some regulatory burden on commercial operators, it appears necessary for highway safety and traffic flow optimization. The regulation is clearly operational with specific highway designations and detailed signage requirements. Repeal risk is moderate due to potential safety implications and impacts on commercial transportation operations.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 609",
+    "titleEn": "RESTRICTED USE OF THE KING’S HIGHWAY AND TOLL HIGHWAYS",
+    "citationEn": "RRO 1990, Reg 609",
+    "decision": "retain",
+    "decisionConfidence": 0.88,
+    "rationale": "This regulation actively governs highway safety by restricting slow-moving vehicles and farm equipment on major highways. It serves clear operational purposes for traffic flow and safety on Ontario's busiest highways including the 400-series and QEW. While it may create some administrative burden for farmers and equipment operators, it enables efficient movement of goods and people on critical transportation infrastructure, supporting productivity and competitiveness. The regulation includes reasonable exemptions for adjacent landowners and maintenance vehicles. Repeal would create safety risks and traffic flow problems on major economic corridors.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 612",
+    "titleEn": "SCHOOL BUSES",
+    "citationEn": "RRO 1990, Reg 612",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes comprehensive safety standards for school buses in Ontario, including equipment requirements, lighting systems, emergency exits, and accessibility provisions. The law is clearly operational, governing active school transportation systems that serve thousands of students daily. While the regulation contains detailed technical specifications that could potentially be streamlined, it addresses critical public safety concerns for children's transportation. The repeal risk is high due to public safety implications, and the regulation supports government efficiency by establishing clear, uniform standards for school transportation services.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 613",
+    "titleEn": "SEAT BELT ASSEMBLIES",
+    "citationEn": "RRO 1990, Reg 613",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation provides necessary safety exemptions for specific operational circumstances (law enforcement custody transport, emergency medical services, rural mail delivery) where standard seat belt requirements would be impractical or unsafe. The law is clearly operational, addresses legitimate safety and operational needs, creates minimal administrative burden, and carries high repeal risk as it affects public safety regulations and law enforcement operations.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 615",
+    "titleEn": "SIGNS",
+    "citationEn": "RRO 1990, Reg 615",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes detailed technical specifications for speed limit signs on highways, including dimensions, placement, and bilingual requirements. It is clearly operational and actively governs current highway signage standards. While highly technical and prescriptive, it serves essential public safety functions and supports efficient traffic flow. The regulation enables standardized signage that facilitates commerce and transportation efficiency. Repeal would create regulatory gaps affecting public safety and traffic management.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 616",
+    "titleEn": "SLOW MOVING VEHICLE SIGN",
+    "citationEn": "RRO 1990, Reg 616",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes specific technical standards for slow moving vehicle signs that are essential for road safety and traffic management. The law is clearly operational, governing ongoing safety requirements for agricultural and construction vehicles on public roads. While it creates some regulatory burden, it serves a vital public safety function with clear compensating benefits. The technical specifications ensure standardization and visibility for road safety, which supports productive economic activities like agriculture and construction. Repeal would create safety risks and regulatory gaps.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 618",
+    "titleEn": "SPECIFICATIONS AND STANDARDS FOR TRAILER COUPLINGS",
+    "citationEn": "RRO 1990, Reg 618",
+    "decision": "retain",
+    "decisionConfidence": 0.98,
+    "rationale": "This regulation establishes detailed technical safety specifications for trailer coupling systems used in commercial transportation. The law is clearly operational, governing ongoing safety requirements for truck-trailer combinations that are essential to Canada's freight transportation network. While the technical specifications create compliance requirements, they serve critical safety functions and support the efficient movement of goods that drives exports and economic activity. The regulation enables safe, reliable freight transport infrastructure that underpins productivity and competitiveness. Repeal risk is high due to public safety implications.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 621",
+    "titleEn": "SPEED LIMITS IN TERRITORY WITHOUT MUNICIPAL ORGANIZATION",
+    "citationEn": "RRO 1990, Reg 621",
+    "decision": "escalate",
+    "decisionConfidence": 0.65,
+    "rationale": "This regulation establishes speed limits for highways in unorganized territories, which is an active traffic safety and regulatory function. While the regulation appears operational, the evidence is insufficient to determine its current relevance, administrative burden, or alignment with prosperity objectives. The regulation affects public safety and regulatory powers, creating moderate repeal risk. Without access to the referenced Schedules or understanding of current territorial organization, a human review is needed to assess whether this regulation supports efficient transportation infrastructure or creates unnecessary restrictions.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 622",
+    "titleEn": "STOPPING OF VEHICLES ON PARTS OF THE KING’S HIGHWAY",
+    "citationEn": "RRO 1990, Reg 622",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This regulation actively governs vehicle stopping restrictions on specific parts of the King's Highway, which is clearly operational traffic management law. While it uses outdated terminology ('King's Highway'), it serves an ongoing public safety and traffic flow function. The regulation supports productivity by maintaining efficient traffic movement on key transportation corridors, which facilitates commerce and goods movement. Repeal risk is high as this affects regulatory powers and public safety.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 623",
+    "titleEn": "STOP SIGNS AT INTERSECTIONS",
+    "citationEn": "RRO 1990, Reg 623",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This regulation establishes mandatory stop sign placement at highway intersections and exit ramps, which is essential for traffic safety and operational highway management. While it creates regulatory requirements, these are necessary for public safety and efficient traffic flow. The regulation appears to be actively operational and serves a clear ongoing purpose in highway administration. Repeal would create significant safety risks and regulatory gaps.",
+    "evidenceSectionKeys": [
+      "1",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 624",
+    "titleEn": "STOP SIGNS IN TERRITORY WITHOUT MUNICIPAL ORGANIZATION",
+    "citationEn": "RRO 1990, Reg 624",
+    "decision": "retain",
+    "decisionConfidence": 0.56,
+    "rationale": "This regulation designates specific highway intersections for stop sign placement in unorganized territories, which is an active traffic safety function. While narrow in scope, it serves ongoing operational needs for road safety infrastructure. The regulation appears to be functioning administrative law with low administrative burden and clear public safety purpose.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 625",
+    "titleEn": "TIRE STANDARDS AND SPECIFICATIONS",
+    "citationEn": "RRO 1990, Reg 625",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes essential tire safety standards that are clearly operational and necessary for public safety. While it creates some administrative requirements, these are justified by the critical safety function. The technical specifications ensure vehicle safety and performance, which supports economic productivity by maintaining reliable transportation infrastructure. The regulation appears current and actively enforced as part of ongoing vehicle safety oversight.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 626",
+    "titleEn": "TRAFFIC CONTROL SIGNAL SYSTEMS",
+    "citationEn": "RRO 1990, Reg 626",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes technical standards for traffic control signal systems, which are essential operational infrastructure for road safety and traffic flow. The law is clearly operational today, governing active traffic signal installations across Ontario. While it may benefit from modernization to incorporate new technologies, it serves a critical public safety function with low administrative burden and high repeal risk due to safety implications.",
+    "evidenceSectionKeys": [
+      "1"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 627",
+    "titleEn": "USE OF CONTROLLED-ACCESS HIGHWAYS BY PEDESTRIANS",
+    "citationEn": "RRO 1990, Reg 627",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes essential safety prohibitions for pedestrian access to controlled-access highways while providing necessary exceptions for emergency services, maintenance, and specific circumstances. The law is clearly operational, governing current highway safety on major Ontario highways including the 400-series. While it creates some regulatory structure, this serves a critical public safety function with minimal administrative burden. The regulation supports prosperity by maintaining safe, efficient highway operations that facilitate commerce and transportation. Repeal would create significant safety risks and potential liability issues.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
   }
 ]
