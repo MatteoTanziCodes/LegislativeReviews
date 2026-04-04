@@ -78,19 +78,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify Python is available on the runner
-        shell: pwsh
+        shell: powershell
         run: |
           python --version
           python -m pip --version
 
       - name: Install Python dependencies
-        shell: pwsh
+        shell: powershell
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Mark workflow as running
-        shell: pwsh
+        shell: powershell
         run: |
           $cmd = @(
             "python", "scripts/update_review_admin_state.py",
@@ -113,13 +113,13 @@ jobs:
           & $cmd[0] $cmd[1..($cmd.Length - 1)]
 
       - name: Run legislative review pipeline
-        shell: pwsh
+        shell: powershell
         run: |
           python -c "import os, subprocess, sys; command=[sys.executable, 'scripts/run_review_frontend_pipeline.py', '--domain', os.environ['REVIEW_DOMAIN']]; limit=os.environ.get('REVIEW_LIMIT', '').strip(); command.extend(['--limit', limit]) if limit else None; raise SystemExit(subprocess.run(command, check=False).returncode)"
 
       - name: Mark workflow as complete
         if: ${{ success() }}
-        shell: pwsh
+        shell: powershell
         run: |
           $cmd = @(
             "python", "scripts/update_review_admin_state.py",
@@ -144,7 +144,7 @@ jobs:
 
       - name: Mark workflow as failed
         if: ${{ failure() || cancelled() }}
-        shell: pwsh
+        shell: powershell
         run: |
           $cmd = @(
             "python", "scripts/update_review_admin_state.py",
