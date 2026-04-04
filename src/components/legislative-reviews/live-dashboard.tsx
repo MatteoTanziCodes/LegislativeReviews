@@ -8,7 +8,6 @@ import type {
 	ReviewDashboardPayload,
 } from "@/components/legislative-reviews/review-data";
 import { ProgressRail } from "@/components/legislative-reviews/progress-rail";
-import { ReviewAdminPanel } from "@/components/legislative-reviews/review-admin-panel";
 import { ReviewSignalsSummary } from "@/components/legislative-reviews/review-signals-summary";
 import { ReviewOutcomesPanel } from "@/components/legislative-reviews/review-outcomes-panel";
 import {
@@ -33,48 +32,10 @@ async function fetchReviewDashboardPayload(): Promise<ReviewDashboardPayload> {
 	return (await response.json()) as ReviewDashboardPayload;
 }
 
-async function requestReviewRun(payload: {
-	domain: string;
-	limit: number | null;
-}): Promise<void> {
-	const response = await fetch("/api/legislative-reviews", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			action: "request_run",
-			domain: payload.domain,
-			limit: payload.limit,
-		}),
-	});
-
-	if (!response.ok) {
-		const errorPayload = (await response.json().catch(() => null)) as
-			| { error?: string }
-			| null;
-		throw new Error(
-			errorPayload?.error ?? `Review request failed with status ${response.status}.`,
-		);
-	}
-}
-
-async function logoutAdminSession(): Promise<void> {
-	const response = await fetch("/api/legislative-reviews/admin/session", {
-		method: "DELETE",
-	});
-	if (!response.ok) {
-		throw new Error("Unable to close admin session.");
-	}
-	window.location.href = "/legislative-reviews/admin";
-}
-
 export function LiveDashboard({
 	initialData,
-	showAdminPanel = false,
 }: {
 	initialData: ReviewDashboardPayload;
-	showAdminPanel?: boolean;
 }) {
 	const [dashboardData, setDashboardData] =
 		useState<ReviewDashboardPayload>(initialData);
@@ -130,6 +91,11 @@ export function LiveDashboard({
 	const decisionCounts = normalizeDecisionCounts(
 		dashboardData.summary.decisionCounts,
 	);
+	const rollout = dashboardData.summary.rollout;
+	const rolloutActive =
+		rollout?.dailyRelease !== undefined &&
+		rollout.dailyRelease !== "all" &&
+		dashboardData.summary.reviewedCount < rollout.availableReviewCount;
 	const reviewRunStatus = useMemo<ReviewRunStatus>(() => {
 		if (syncError) {
 			return {
@@ -139,32 +105,8 @@ export function LiveDashboard({
 			};
 		}
 
-		if (dashboardData.adminState.workerStatus === "running") {
-			return {
-				label: "Reviews in progress",
-				pulse: true,
-				tone: "accent",
-			};
-		}
-
-		if (dashboardData.adminState.workerStatus === "pending") {
-			return {
-				label: "Review workflow queued",
-				pulse: true,
-				tone: "accent",
-			};
-		}
-
-		if (dashboardData.adminState.workerStatus === "error") {
-			return {
-				label: "Review workflow error",
-				pulse: false,
-				tone: "danger",
-			};
-		}
-
 		return deriveReviewRunStatus(dashboardData.summary);
-	}, [dashboardData.adminState.workerStatus, dashboardData.summary, syncError]);
+	}, [dashboardData.summary, syncError]);
 	const statusToneClasses = {
 		accent: {
 			dot: "bg-accent",
@@ -235,6 +177,13 @@ export function LiveDashboard({
 								Showing last successful snapshot.
 							</p>
 						) : null}
+						{rolloutActive ? (
+							<p className="font-mono text-[0.64rem] uppercase tracking-[0.24em] text-muted">
+								Staged release: {dashboardData.summary.reviewedCount.toLocaleString()} of{" "}
+								{rollout.availableReviewCount.toLocaleString()} processed results live at{" "}
+								{rollout.dailyRelease}/day.
+							</p>
+						) : null}
 					</div>
 				</header>
 
@@ -263,22 +212,6 @@ export function LiveDashboard({
 					/>
 				</section>
 
-				{showAdminPanel ? (
-					<ReviewAdminPanel
-						adminState={dashboardData.adminState}
-						onLogout={logoutAdminSession}
-						onRequestRun={async (payload) => {
-							await requestReviewRun(payload);
-							const refreshed = await fetchReviewDashboardPayload();
-							startTransition(() => {
-								setDashboardData(refreshed);
-							});
-							setSyncError(null);
-						}}
-						summary={dashboardData.summary}
-					/>
-				) : null}
-
 				<ReviewOutcomesPanel
 					decisionCounts={decisionCounts}
 					reviews={dashboardData.reviews}
@@ -288,10 +221,12 @@ export function LiveDashboard({
 
 				<div className="pt-8">
 					<ProgressRail
+						availableReviewCount={rollout?.availableReviewCount}
 						dailyCapacity={metrics.dailyCapacity}
 						estimatedDaysRemaining={metrics.estimatedDaysRemaining}
 						percentReviewed={metrics.percentReviewed}
 						reviewedCount={metrics.reviewedCount}
+						rolloutActive={rolloutActive}
 						totalCount={metrics.totalCount}
 					/>
 				</div>

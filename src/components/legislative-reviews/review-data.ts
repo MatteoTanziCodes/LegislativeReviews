@@ -75,7 +75,7 @@ export function sanitizeDashboardPayloadForPublic(
 			recentEvents: [],
 			workerHost: null,
 			workerPid: null,
-			workerStatus: payload.adminState.workerStatus,
+			workerStatus: "idle",
 		},
 	};
 }

@@ -4,7 +4,11 @@ import os
 from pathlib import Path
 
 
-DEFAULT_DATA_ROOT = Path(r"E:\Programming\buildcanada\canadian-laws")
+def get_project_root() -> Path:
+	return Path(__file__).resolve().parent.parent
+
+
+DEFAULT_DATA_ROOT = get_project_root() / "docs" / "canadian-laws"
 
 
 def load_project_env() -> None:
@@ -21,19 +25,22 @@ def load_project_env() -> None:
 	load_dotenv(env_path, override=False)
 
 
-def get_project_root() -> Path:
-	return Path(__file__).resolve().parent.parent
+def resolve_project_path(value: str) -> Path:
+	path = Path(value).expanduser()
+	if path.is_absolute():
+		return path
+	return get_project_root() / path
 
 
 def get_data_root() -> Path:
 	override = os.getenv("LEGISLATIVE_REVIEW_DATA_ROOT")
 	if override:
-		return Path(override).expanduser()
+		return resolve_project_path(override)
 	return DEFAULT_DATA_ROOT
 
 
 def get_processed_dir() -> Path:
 	override = os.getenv("LEGISLATIVE_REVIEW_PROCESSED_DIR")
 	if override:
-		return Path(override).expanduser()
+		return resolve_project_path(override)
 	return get_data_root() / "processed"

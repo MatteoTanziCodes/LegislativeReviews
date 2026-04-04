@@ -14,10 +14,5 @@ export const revalidate = 0;
 
 export default async function LegislativeReviewsPage() {
 	const initialData = await loadReviewDashboardPayload();
-	return (
-		<LiveDashboard
-			initialData={sanitizeDashboardPayloadForPublic(initialData)}
-			showAdminPanel={false}
-		/>
-	);
+	return <LiveDashboard initialData={sanitizeDashboardPayloadForPublic(initialData)} />;
 }

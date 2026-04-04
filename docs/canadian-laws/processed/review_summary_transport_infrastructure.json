@@ -1,0 +1,18 @@
+{
+  "totalCount": 5796,
+  "reviewedCount": 10,
+  "remainingCount": 5786,
+  "percentReviewed": 0.17,
+  "decisionCounts": {
+    "retain": 7,
+    "amend": 0,
+    "repeal_candidate": 1,
+    "escalate": 2
+  },
+  "averageConfidenceByDecision": {
+    "retain": 0.923,
+    "amend": 0.0,
+    "repeal_candidate": 0.87,
+    "escalate": 0.76
+  }
+}

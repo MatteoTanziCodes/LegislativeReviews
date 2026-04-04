@@ -12,6 +12,13 @@ export type ReviewPipelineStatus =
 	| "complete"
 	| "error";
 
+export type ReviewRolloutSummary = {
+	availableReviewCount: number;
+	dailyRelease: number | "all";
+	startDate?: string | null;
+	timeZone?: string;
+};
+
 export type ReviewProgressSnapshot = {
 	totalCount: number;
 	reviewedCount: number;
@@ -25,6 +32,7 @@ export type ReviewSummary = {
 	lastUpdated?: string;
 	pipelineStatus?: ReviewPipelineStatus;
 	reviewedCount: number;
+	rollout?: ReviewRolloutSummary;
 	totalCount: number;
 };
 
@@ -84,6 +92,18 @@ export function deriveReviewRunStatus(
 	if (summary.pipelineStatus === "idle") {
 		return {
 			label: "Review queue idle",
+			pulse: false,
+			tone: "muted",
+		};
+	}
+
+	if (
+		summary.rollout &&
+		summary.rollout.dailyRelease !== "all" &&
+		summary.reviewedCount < summary.rollout.availableReviewCount
+	) {
+		return {
+			label: "Daily rollout in progress",
 			pulse: false,
 			tone: "muted",
 		};

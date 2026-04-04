@@ -1,194 +1,304 @@
 # Legislative Reviews
 
-Build Canada legislative review tracker and batch review pipeline for the Canadian federal legislative corpus.
+Build Canada legislative review tracker and local review pipeline for the Canadian federal legislative corpus.
 
-## Architecture
+## What This Project Does
 
-Production is split into two runtimes:
+This project has two responsibilities:
 
-1. Cloudflare Workers serves the Next.js dashboard.
-2. GitHub Actions runs the Python review pipeline and publishes dashboard artifacts to Cloudflare R2.
+1. Process legislation locally with Python and Claude.
+2. Publish frontend-ready results to Cloudflare R2 so the public dashboard can display them.
 
-The frontend reads two JSON artifacts from R2:
+The hosted website is now intentionally read-only. It does not trigger reviews or run Python jobs.
+
+## Final Production Model
+
+This is the deployment model the repo now assumes:
+
+- Local machine:
+  - stores the full legislative dataset
+  - runs the Python review pipeline
+  - exports `review-summary.json` and `review-details.json`
+  - uploads those JSON files to Cloudflare R2
+- Cloudflare:
+  - hosts the Next.js dashboard
+  - reads the published JSON artifacts from R2
+  - optionally stages public release daily through environment variables
+
+The website does not need your local machine to stay online after results are published.
+
+## What Data Lives Where
+
+Local only:
+
+- raw dataset
+- processed parquet inputs and outputs
+- resume journals and manifests
+
+Hosted remotely in R2 for the website:
 
 - `review-summary.json`
 - `review-details.json`
 
-The admin workflow state also lives in R2:
+Optional:
 
-- `review-admin-state.json`
+- if you want off-machine backup of the full processed review outputs, copy `processed/reviews_*.parquet`, `*.journal.jsonl`, and `*.manifest.json` into a separate backup bucket or another object store
+- this is not required for the website itself
 
-Public users should use:
+## One Command To Run Reviews
 
-- `/legislative-reviews`
-
-Operators should use:
-
-- `/legislative-reviews/admin`
-
-Local development still works with mirrored files in `src/data/`.
-
-## Frontend Deployment
-
-Prerequisites:
-
-- Node 20.x
-- Wrangler access to your Cloudflare account
-- Environment-specific R2 buckets, or update [wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc)
-
-Install and deploy:
+The easiest operator command is now:
 
 ```bash
-npm ci
-npx wrangler login
-npx wrangler r2 bucket create legislative-review-data
-npm run deploy
+python scripts/run_local_review_release.py
 ```
 
-Environment layout in [wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc):
-
-- default/local: `legislativereviews` + `legislative-review-data`
-- staging: `legislativereviews-staging` + `legislative-review-data-staging`
-- production: `legislativereviews-production` + `legislative-review-data-production`
-
-Create the environment buckets:
+or:
 
 ```bash
-npx wrangler r2 bucket create legislative-review-data-staging
-npx wrangler r2 bucket create legislative-review-data-production
+npm run review
 ```
 
-Preview or deploy by environment:
+Useful helper scripts:
 
 ```bash
-npm run preview:staging
-npm run deploy:staging
-npm run deploy:production
+npm run smoke-test
+npm run preprocess
+npm run refresh-laws
 ```
 
-Set the dashboard admin secret in each Worker environment:
+If you omit the API key or domain, the script prompts for them.
+
+By default, the command now rebuilds the processed local corpus before it starts reviews, so changes under `docs/canadian-laws` are reflected in the next release.
+
+Examples:
+
+Run one domain:
 
 ```bash
-npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env staging
-npx wrangler secret put LEGISLATIVE_REVIEW_ADMIN_TOKEN --env production
-npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env staging
-npx wrangler secret put LEGISLATIVE_REVIEW_SESSION_SECRET --env production
-npx wrangler secret put GITHUB_REVIEW_WORKFLOW_TOKEN --env staging
-npx wrangler secret put GITHUB_REVIEW_WORKFLOW_TOKEN --env production
+python scripts/run_local_review_release.py --domain transport_infrastructure
 ```
 
-Each environment is configured with:
+Run all domains:
 
-- `LEGISLATIVE_REVIEW_DATA_BUCKET`
-- `LEGISLATIVE_REVIEW_SUMMARY_KEY=review-summary.json`
-- `LEGISLATIVE_REVIEW_DETAILS_KEY=review-details.json`
-- `LEGISLATIVE_REVIEW_ADMIN_STATE_KEY=review-admin-state.json`
-- `LEGISLATIVE_REVIEW_ADMIN_TOKEN` as a Worker secret
-- optionally `LEGISLATIVE_REVIEW_SESSION_SECRET` as a Worker secret for admin session signing
-- `GITHUB_REVIEW_WORKFLOW_OWNER`
-- `GITHUB_REVIEW_WORKFLOW_REPO`
-- `GITHUB_REVIEW_WORKFLOW_ID=review-pipeline.yml`
-- `GITHUB_REVIEW_WORKFLOW_REF=main`
-- `GITHUB_REVIEW_WORKFLOW_ENVIRONMENT=staging|production`
-- `GITHUB_REVIEW_WORKFLOW_TOKEN` as a Worker secret with permission to dispatch Actions workflows in this repository
+```bash
+python scripts/run_local_review_release.py --domain all
+```
 
-## GitHub Actions Review Runner
+Run all domains with a small test limit per domain:
 
-Prerequisites:
+```bash
+python scripts/run_local_review_release.py --domain all --limit 10
+```
 
+Refresh the processed local corpus only:
+
+```bash
+python scripts/run_local_review_release.py --preprocess-only
+```
+
+Pull the latest remote parquet snapshot first, then rebuild the local corpus:
+
+```bash
+python scripts/run_local_review_release.py --refresh-source --preprocess-only
+```
+
+Skip preprocessing and reuse the existing processed artifacts:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure --skip-preprocess
+```
+
+Pass the Claude key directly:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure --api-key YOUR_KEY
+```
+
+What this command does:
+
+1. Ensures the Claude API key is available.
+2. Optionally refreshes the raw parquet snapshot.
+3. Rebuilds `documents_en.parquet`, `sections_en.parquet`, classifier inputs, classifications, and domain scores.
+4. Builds reviewer-ready parquet inputs for the chosen domain.
+5. Runs the review pipeline.
+6. Exports `review-summary.json` and `review-details.json`.
+7. Publishes those JSON artifacts to R2 if the R2 env vars are configured.
+
+## Staged Daily Release
+
+The site can reveal processed results gradually instead of all at once.
+
+Set:
+
+- `LEGISLATIVE_REVIEW_DAILY_RELEASE=all` to show everything immediately
+- `LEGISLATIVE_REVIEW_DAILY_RELEASE=200` to reveal 200 reviewed rows per day
+- optionally `LEGISLATIVE_REVIEW_ROLLOUT_START_DATE=2026-04-04T00:00:00-04:00` to pin the first release day
+- optionally `LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE=America/Toronto` to control calendar-day boundaries
+
+Important:
+
+- the full reviewed dataset can already be present in R2
+- the API applies the visibility gate at runtime
+- no separate cron job is required
+- if no explicit rollout start date is set, the dashboard uses the exported summary `lastUpdated` timestamp as day one
+
+## Prerequisites
+
+Operator machine:
+
+- Node 20+
 - Python 3.10+
-- A GitHub Actions runner with access to the raw and processed parquet paths under a configurable dataset root
+- access to the legislative dataset
 - Anthropic API key
-- Cloudflare R2 API credentials for the publisher
+- Cloudflare account
+- Wrangler CLI access
 
-The repo now includes [review-pipeline.yml](/d:/Programming/Projects/LegislativeReviews/.github/workflows/review-pipeline.yml), which is the production execution path for review runs. The dashboard dispatches that workflow from `/legislative-reviews/admin`.
+## Initial Setup For A New Owner
 
-The workflow currently uses a self-hosted runner with the label `legislative-reviews` because the review corpus lives outside the repository. If you later move the review input parquet into remote storage, you can switch the workflow to a GitHub-hosted runner.
-
-Set up the self-hosted runner on the machine that already has access to your legislative dataset:
+### 1. Clone and install
 
 ```bash
-./config.sh --labels legislative-reviews
-./run.sh
-```
-
-Then configure GitHub environment variables and secrets for both `staging` and `production`.
-
-Environment variables:
-
-- `LEGISLATIVE_REVIEW_DATA_ROOT`
-- optionally `LEGISLATIVE_REVIEW_PROCESSED_DIR`
-- `FASTEMBED_THREADS`
-- `CLOUDFLARE_R2_ACCOUNT_ID`
-- `CLOUDFLARE_R2_BUCKET`
-- `CLOUDFLARE_R2_ENDPOINT`
-- optionally `CLOUDFLARE_R2_SUMMARY_KEY`
-- optionally `CLOUDFLARE_R2_DETAILS_KEY`
-- optionally `CLOUDFLARE_R2_ADMIN_STATE_KEY`
-
-Environment secrets:
-
-- `CLAUDE_API_KEY`
-- `CLOUDFLARE_R2_ACCESS_KEY_ID`
-- `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
-
-You can still run the pipeline manually on the runner machine for debugging:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+git clone <repo-url>
+cd LegislativeReviews
+npm ci
 pip install -r requirements.txt
 ```
 
-Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to `.env` on the runner machine and fill in:
+### 2. Create `.env`
 
-- `LEGISLATIVE_REVIEW_DATA_ROOT`
-- optionally `LEGISLATIVE_REVIEW_PROCESSED_DIR`
+Copy [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example) to `.env`.
+
+Minimum local processing values:
+
 - `CLAUDE_API_KEY`
+- `LEGISLATIVE_REVIEW_DATA_ROOT`
+
+Default project-local value:
+
+- `LEGISLATIVE_REVIEW_DATA_ROOT=docs\canadian-laws`
+
+Minimum remote publishing values:
+
 - `CLOUDFLARE_R2_ACCOUNT_ID`
 - `CLOUDFLARE_R2_BUCKET`
 - `CLOUDFLARE_R2_ENDPOINT`
 - `CLOUDFLARE_R2_ACCESS_KEY_ID`
 - `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
-- optionally `CLOUDFLARE_R2_ADMIN_STATE_KEY`
 
-## Batch Review Commands
+Optional:
 
-The Python scripts now derive dataset paths from:
+- `LEGISLATIVE_REVIEW_PROCESSED_DIR`
+- `FASTEMBED_THREADS`
+- `LEGISLATIVE_REVIEW_DAILY_RELEASE`
+- `LEGISLATIVE_REVIEW_ROLLOUT_START_DATE`
+- `LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE`
 
-- `LEGISLATIVE_REVIEW_DATA_ROOT`
-- `LEGISLATIVE_REVIEW_PROCESSED_DIR` if you need processed artifacts in a separate mount
+### 3. Create Cloudflare R2 buckets
 
-If you do not set them, the scripts fall back to the original Windows development path.
-
-Run the end-to-end review pipeline for one domain:
-
-```bash
-python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure
-```
-
-Resume behavior is enabled by default. If the review runner stops mid-run, restarting the same command resumes from the last durable success using the existing review parquet plus a journal file written beside it. Use `--no-resume` only when you intentionally want to restart the batch from scratch.
-
-Run a smaller batch:
+Staging:
 
 ```bash
-python scripts/run_review_frontend_pipeline.py --domain transport_infrastructure --limit 50
+npx wrangler r2 bucket create legislative-review-data-staging
 ```
 
-During review, [review_documents.py](/d:/Programming/Projects/LegislativeReviews/scripts/review_documents.py) checkpoints:
+Production:
 
-- the parquet review output
-- a per-review resume journal beside the parquet output
-- local mirrored frontend JSON
-- R2 dashboard JSON, if `CLOUDFLARE_R2_*` variables are configured
+```bash
+npx wrangler r2 bucket create legislative-review-data-production
+```
 
-The workflow updater script writes audit state to:
+### 4. Confirm Wrangler config
 
-- `review-admin-state.json`
+[wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc) is already set up for:
 
-## Local Dashboard Development
+- `legislativereviews-staging` -> `legislative-review-data-staging`
+- `legislativereviews` -> `legislative-review-data-production`
 
-Run the app locally:
+If your Cloudflare account or bucket names differ, update that file before deploying.
+
+### 5. Deploy the frontend
+
+Staging:
+
+```bash
+npm run deploy:staging
+```
+
+Production:
+
+```bash
+npm run deploy:production
+```
+
+### 6. Publish your first dataset
+
+Run a small local test:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure --limit 5
+```
+
+If the R2 env vars are present, the command will publish the frontend artifacts automatically.
+
+If you also want to pull the latest source snapshot first:
+
+```bash
+python scripts/run_local_review_release.py --refresh-source --domain transport_infrastructure --limit 5
+```
+
+Before a long run, validate the local setup and R2 access:
+
+```bash
+npm run smoke-test
+```
+
+## Daily Operator Workflow
+
+The normal operator workflow is:
+
+1. Optionally refresh the raw laws snapshot.
+2. Run a local review batch.
+3. Let the script rebuild the processed local corpus before review generation.
+4. Let the script publish the refreshed JSON to R2.
+5. The Cloudflare site updates automatically.
+6. The daily release gate controls how much of the already-published reviewed set is visible.
+
+Typical commands:
+
+Process one domain fully:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure
+```
+
+Process every supported domain:
+
+```bash
+python scripts/run_local_review_release.py --domain all
+```
+
+Refresh the laws snapshot first, then process one domain:
+
+```bash
+python scripts/run_local_review_release.py --refresh-source --domain transport_infrastructure
+```
+
+Refresh only the local processed corpus without running reviews:
+
+```bash
+python scripts/run_local_review_release.py --preprocess-only
+```
+
+If you already have a finished review parquet and only want to republish website artifacts:
+
+```bash
+python scripts/export_frontend_review_data.py --review-output-path <path-to-review-parquet>
+```
+
+## Local Development
+
+Run the site locally:
 
 ```bash
 npm run dev
@@ -200,17 +310,106 @@ Open:
 http://localhost:3000/legislative-reviews
 ```
 
-Admin access:
+The local app reads `src/data/review-summary.json` and `src/data/review-details.json` when Cloudflare bindings are not available.
 
-```text
-http://localhost:3000/legislative-reviews/admin
+## Deployment Commands
+
+Build:
+
+```bash
+npm run build
 ```
 
-The dashboard polls `/api/legislative-reviews` every few seconds. In local development that route falls back to local JSON artifacts in `src/data/` if Cloudflare bindings are unavailable. If you also set the GitHub workflow environment variables in `.env`, the local admin screen can dispatch the real GitHub Actions workflow.
+Preview:
 
-## Notes
+```bash
+npm run preview:staging
+npm run preview:production
+```
 
-- Cloudflare Workers is the correct place for the dashboard, not for the long-running Python batch process.
-- GitHub Actions is now the production control plane for review execution.
-- The dashboard is production-ready for shared storage via R2 and exposes an admin panel for dispatching and auditing GitHub Actions review runs.
-- The Python publisher uses atomic local writes and uploads `review-details.json` before `review-summary.json` to reduce transient mismatch windows.
+Deploy:
+
+```bash
+npm run deploy:staging
+npm run deploy:production
+```
+
+## Source Data Layout
+
+The default local source layout is:
+
+```text
+docs/canadian-laws/
+  default/train/*.parquet
+  processed/
+  metadata.json
+```
+
+The review scripts now default to this project-local path. Only set `LEGISLATIVE_REVIEW_DATA_ROOT` or `LEGISLATIVE_REVIEW_PROCESSED_DIR` if the next owner stores the corpus elsewhere.
+
+## Recommended Remote Data Readiness
+
+If the goal is "the website must not depend on a local machine being online", the correct readiness setup is:
+
+1. Keep the raw and processed legislative corpus local.
+2. Treat R2 as the remote source of truth for website data.
+3. Publish `review-summary.json` and `review-details.json` after each local run.
+4. Deploy the frontend once to Cloudflare.
+5. Let the site read from R2 only.
+
+That is the simplest reliable production model for handoff.
+
+If you want full off-machine backup later, add a second backup location for the review parquet outputs, but that is optional and separate from the website.
+
+For the hosted site itself, the only data that must live remotely is:
+
+- `review-summary.json`
+- `review-details.json`
+
+Everything else can remain local to the operator machine.
+
+## Troubleshooting
+
+If the site shows no data:
+
+- verify the correct R2 bucket is configured in Cloudflare
+- verify `review-summary.json` and `review-details.json` exist in that bucket
+- verify the Worker environment has the correct bucket binding
+
+If local reviews fail immediately:
+
+- verify `CLAUDE_API_KEY`
+- verify `LEGISLATIVE_REVIEW_DATA_ROOT`
+- verify `docs/canadian-laws/default/train/*.parquet` exists
+- rerun `python scripts/run_local_review_release.py --preprocess-only`
+
+If the site shows all results instead of daily rollout:
+
+- verify `LEGISLATIVE_REVIEW_DAILY_RELEASE` is set in Cloudflare
+- redeploy after changing Worker vars
+
+## Files To Know
+
+Primary operator script:
+
+- [run_local_review_release.py](/d:/Programming/Projects/LegislativeReviews/scripts/run_local_review_release.py)
+
+Release smoke test:
+
+- [smoke_test_release_setup.py](/d:/Programming/Projects/LegislativeReviews/scripts/smoke_test_release_setup.py)
+
+Per-domain pipeline:
+
+- [run_review_frontend_pipeline.py](/d:/Programming/Projects/LegislativeReviews/scripts/run_review_frontend_pipeline.py)
+
+Frontend artifact exporter:
+
+- [export_frontend_review_data.py](/d:/Programming/Projects/LegislativeReviews/scripts/export_frontend_review_data.py)
+
+Cloudflare config:
+
+- [wrangler.jsonc](/d:/Programming/Projects/LegislativeReviews/wrangler.jsonc)
+
+Environment template:
+
+- [.env.example](/d:/Programming/Projects/LegislativeReviews/.env.example)

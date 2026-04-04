@@ -23,7 +23,6 @@ DEFAULT_PIPELINE_STATUS = "complete"
 DECISION_LABELS = ("retain", "amend", "repeal_candidate", "escalate")
 DEFAULT_R2_SUMMARY_OBJECT_KEY = "review-summary.json"
 DEFAULT_R2_DETAILS_OBJECT_KEY = "review-details.json"
-DEFAULT_R2_ADMIN_STATE_OBJECT_KEY = "review-admin-state.json"
 
 
 @dataclass(frozen=True)
@@ -48,7 +47,6 @@ class R2PublishConfig:
 	endpoint_url: str
 	access_key_id: str
 	secret_access_key: str
-	admin_state_object_key: str
 	summary_object_key: str
 	details_object_key: str
 
@@ -110,11 +108,6 @@ def build_r2_publish_config(
 		or os.getenv("CLOUDFLARE_R2_DETAILS_KEY")
 		or DEFAULT_R2_DETAILS_OBJECT_KEY
 	)
-	admin_state_object_key = (
-		getattr(args, "r2_admin_state_object_key", None)
-		or os.getenv("CLOUDFLARE_R2_ADMIN_STATE_KEY")
-		or DEFAULT_R2_ADMIN_STATE_OBJECT_KEY
-	)
 
 	if not endpoint_url:
 		account_id = os.getenv("CLOUDFLARE_R2_ACCOUNT_ID")
@@ -140,7 +133,6 @@ def build_r2_publish_config(
 		endpoint_url=endpoint_url,
 		access_key_id=access_key_id,
 		secret_access_key=secret_access_key,
-		admin_state_object_key=admin_state_object_key,
 		summary_object_key=summary_object_key,
 		details_object_key=details_object_key,
 	)
@@ -158,11 +150,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 		required=True,
 		type=Path,
 		help="Path to the review parquet output.",
-	)
-	parser.add_argument(
-		"--admin-state-output-path",
-		type=Path,
-		help="Optional admin state JSON path used to infer the current accumulated dataset.",
 	)
 	parser.add_argument(
 		"--summary-output-path",
@@ -213,11 +200,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 	parser.add_argument(
 		"--r2-secret-access-key",
 		help="Optional Cloudflare R2 secret access key.",
-	)
-	parser.add_argument(
-		"--r2-admin-state-object-key",
-		default=DEFAULT_R2_ADMIN_STATE_OBJECT_KEY,
-		help="Object key for the admin state JSON in Cloudflare R2.",
 	)
 	parser.add_argument(
 		"--r2-summary-object-key",
@@ -494,7 +476,6 @@ def get_last_updated_iso(
 def export_frontend_payloads(
 	review_rows: Sequence[ReviewRow],
 	*,
-	admin_state_output_path: Path | None = None,
 	summary_output_path: Path,
 	details_output_path: Path,
 	total_count: int,
@@ -568,7 +549,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 	summary_payload = export_frontend_payloads(
 		review_rows,
-		admin_state_output_path=args.admin_state_output_path,
 		summary_output_path=args.summary_output_path,
 		details_output_path=args.details_output_path,
 		total_count=args.total_count,

@@ -1,13 +1,16 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type {
 	ReviewAdminState,
 	ReviewDashboardPayload,
 	ReviewDetail,
-	ReviewRunRequest,
 } from "@/components/legislative-reviews/review-data";
-import type { ReviewSummary } from "@/components/legislative-reviews/review-metrics";
+import {
+	REVIEW_DECISIONS,
+	type ReviewDecision,
+	type ReviewSummary,
+} from "@/components/legislative-reviews/review-metrics";
 
 const SUMMARY_PATH = path.join(process.cwd(), "src", "data", "review-summary.json");
 const DETAILS_PATH = path.join(process.cwd(), "src", "data", "review-details.json");
@@ -17,29 +20,30 @@ const ADMIN_STATE_PATH = path.join(
 	"data",
 	"review-admin-state.json",
 );
-const CONTROL_PATH = path.join(
-	process.cwd(),
-	"src",
-	"data",
-	"review-control.json",
-);
 
 const DEFAULT_SUMMARY_OBJECT_KEY = "review-summary.json";
 const DEFAULT_DETAILS_OBJECT_KEY = "review-details.json";
 const DEFAULT_ADMIN_STATE_OBJECT_KEY = "review-admin-state.json";
-const DEFAULT_CONTROL_OBJECT_KEY = "review-control.json";
 const DEFAULT_TOTAL_COUNT = 5796;
 const DEFAULT_DAILY_CAPACITY = 200;
+const DEFAULT_ROLLOUT_TIMEZONE = "America/Toronto";
 const READ_ATTEMPTS = 3;
 const READ_RETRY_DELAY_MS = 75;
 
 type DashboardStorageEnv = CloudflareEnv & {
 	LEGISLATIVE_REVIEW_ADMIN_STATE_KEY?: string;
-	LEGISLATIVE_REVIEW_ADMIN_TOKEN?: string;
-	LEGISLATIVE_REVIEW_CONTROL_KEY?: string;
 	LEGISLATIVE_REVIEW_DATA_BUCKET?: R2Bucket;
+	LEGISLATIVE_REVIEW_DAILY_RELEASE?: string;
 	LEGISLATIVE_REVIEW_DETAILS_KEY?: string;
+	LEGISLATIVE_REVIEW_ROLLOUT_START_DATE?: string;
+	LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE?: string;
 	LEGISLATIVE_REVIEW_SUMMARY_KEY?: string;
+};
+
+type ReviewRolloutConfig = {
+	dailyRelease: number;
+	startDate: string | null;
+	timeZone: string;
 };
 
 function delay(ms: number) {
@@ -102,6 +106,177 @@ function createEmptyDashboardPayload(
 	};
 }
 
+function getDashboardEnvValue(
+	env: DashboardStorageEnv | null,
+	key: keyof DashboardStorageEnv,
+): string | null {
+	const envValue = env?.[key];
+	if (typeof envValue === "string" && envValue.trim()) {
+		return envValue.trim();
+	}
+
+	const processValue = process.env[String(key)];
+	return processValue?.trim() || null;
+}
+
+function parseReviewRolloutConfig(
+	env: DashboardStorageEnv | null,
+): ReviewRolloutConfig | null {
+	const rawDailyRelease = getDashboardEnvValue(
+		env,
+		"LEGISLATIVE_REVIEW_DAILY_RELEASE",
+	);
+	if (!rawDailyRelease || rawDailyRelease.toLowerCase() === "all") {
+		return null;
+	}
+
+	const parsedDailyRelease = Number.parseInt(rawDailyRelease, 10);
+	if (!Number.isInteger(parsedDailyRelease) || parsedDailyRelease <= 0) {
+		console.warn(
+			"Invalid LEGISLATIVE_REVIEW_DAILY_RELEASE value. Falling back to full visibility.",
+			rawDailyRelease,
+		);
+		return null;
+	}
+
+	return {
+		dailyRelease: parsedDailyRelease,
+		startDate: getDashboardEnvValue(env, "LEGISLATIVE_REVIEW_ROLLOUT_START_DATE"),
+		timeZone:
+			getDashboardEnvValue(env, "LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE") ??
+			DEFAULT_ROLLOUT_TIMEZONE,
+	};
+}
+
+function buildCalendarDateKey(date: Date, timeZone: string): string {
+	const formatter = new Intl.DateTimeFormat("en-CA", {
+		timeZone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	});
+	const parts = formatter.formatToParts(date);
+	const year = parts.find((part) => part.type === "year")?.value;
+	const month = parts.find((part) => part.type === "month")?.value;
+	const day = parts.find((part) => part.type === "day")?.value;
+	if (!year || !month || !day) {
+		throw new Error(`Unable to build rollout date key for timezone ${timeZone}.`);
+	}
+	return `${year}-${month}-${day}`;
+}
+
+function calculateDayDifference(startKey: string, endKey: string): number {
+	const [startYear, startMonth, startDay] = startKey.split("-").map(Number);
+	const [endYear, endMonth, endDay] = endKey.split("-").map(Number);
+	const startValue = Date.UTC(startYear, startMonth - 1, startDay);
+	const endValue = Date.UTC(endYear, endMonth - 1, endDay);
+	return Math.floor((endValue - startValue) / 86_400_000);
+}
+
+function buildDecisionCounts(
+	reviews: ReviewDetail[],
+): Record<ReviewDecision, number> {
+	const decisionCounts = Object.fromEntries(
+		REVIEW_DECISIONS.map((decision) => [decision, 0]),
+	) as Record<ReviewDecision, number>;
+
+	for (const review of reviews) {
+		decisionCounts[review.decision] += 1;
+	}
+
+	return decisionCounts;
+}
+
+function buildAverageConfidenceByDecision(
+	reviews: ReviewDetail[],
+	decisionCounts: Record<ReviewDecision, number>,
+): Record<ReviewDecision, number> {
+	const confidenceSums = Object.fromEntries(
+		REVIEW_DECISIONS.map((decision) => [decision, 0]),
+	) as Record<ReviewDecision, number>;
+
+	for (const review of reviews) {
+		confidenceSums[review.decision] += review.decisionConfidence;
+	}
+
+	return Object.fromEntries(
+		REVIEW_DECISIONS.map((decision) => [
+			decision,
+			decisionCounts[decision] === 0
+				? 0
+				: Number(
+						(confidenceSums[decision] / decisionCounts[decision]).toFixed(3),
+					),
+		]),
+	) as Record<ReviewDecision, number>;
+}
+
+function applyReviewRollout(
+	payload: ReviewDashboardPayload,
+	rolloutConfig: ReviewRolloutConfig | null,
+): ReviewDashboardPayload {
+	if (!rolloutConfig) {
+		return payload;
+	}
+
+	const availableReviewCount = payload.reviews.length;
+	if (availableReviewCount === 0) {
+		return payload;
+	}
+
+	const rolloutStartDate = rolloutConfig.startDate ?? payload.summary.lastUpdated ?? null;
+	if (!rolloutStartDate) {
+		console.warn(
+			"LEGISLATIVE_REVIEW_DAILY_RELEASE is set but no rollout start date is available. Falling back to full visibility.",
+		);
+		return payload;
+	}
+
+	const rolloutStart = new Date(rolloutStartDate);
+	if (Number.isNaN(rolloutStart.getTime())) {
+		console.warn(
+			"Invalid rollout start date. Falling back to full visibility.",
+			rolloutStartDate,
+		);
+		return payload;
+	}
+
+	const currentDayKey = buildCalendarDateKey(new Date(), rolloutConfig.timeZone);
+	const startDayKey = buildCalendarDateKey(rolloutStart, rolloutConfig.timeZone);
+	const dayDifference = calculateDayDifference(startDayKey, currentDayKey);
+	const visibleReviewCount =
+		dayDifference < 0
+			? 0
+			: Math.min(
+					availableReviewCount,
+					(dayDifference + 1) * rolloutConfig.dailyRelease,
+				);
+	const visibleReviews = payload.reviews.slice(0, visibleReviewCount);
+	const decisionCounts = buildDecisionCounts(visibleReviews);
+	const averageConfidenceByDecision = buildAverageConfidenceByDecision(
+		visibleReviews,
+		decisionCounts,
+	);
+
+	return {
+		...payload,
+		reviews: visibleReviews,
+		summary: {
+			...payload.summary,
+			averageConfidenceByDecision,
+			dailyCapacity: rolloutConfig.dailyRelease,
+			decisionCounts,
+			reviewedCount: visibleReviewCount,
+			rollout: {
+				availableReviewCount,
+				dailyRelease: rolloutConfig.dailyRelease,
+				startDate: rolloutStartDate,
+				timeZone: rolloutConfig.timeZone,
+			},
+		},
+	};
+}
+
 function isMissingDashboardArtifactError(error: unknown): boolean {
 	if (!(error instanceof Error)) {
 		return false;
@@ -141,17 +316,6 @@ async function readLocalJson<T>(filePath: string): Promise<T | null> {
 	}
 }
 
-async function writeLocalJson(filePath: string, payload: unknown): Promise<void> {
-	await mkdir(path.dirname(filePath), { recursive: true });
-	const tempPath = `${filePath}.${process.pid}.tmp`;
-	await writeFile(
-		tempPath,
-		`${JSON.stringify(payload, null, 2)}\n`,
-		"utf-8",
-	);
-	await rename(tempPath, filePath);
-}
-
 async function readR2Json<T>(
 	bucket: R2Bucket,
 	objectKey: string,
@@ -161,23 +325,6 @@ async function readR2Json<T>(
 		return null;
 	}
 	return object.json<T>();
-}
-
-async function writeR2Json(
-	bucket: R2Bucket,
-	objectKey: string,
-	payload: unknown,
-): Promise<void> {
-	await bucket.put(
-		objectKey,
-		`${JSON.stringify(payload, null, 2)}\n`,
-		{
-			httpMetadata: {
-				cacheControl: "no-store, no-cache, must-revalidate, max-age=0",
-				contentType: "application/json; charset=utf-8",
-			},
-		},
-	);
 }
 
 async function loadLocalDashboardPayload(): Promise<ReviewDashboardPayload> {
@@ -248,78 +395,16 @@ async function loadDashboardPayloadFromR2(
 	throw lastError ?? new Error("Unable to load legislative review dashboard data.");
 }
 
-export async function loadReviewAdminState(): Promise<ReviewAdminState> {
-	const env = await getDashboardStorageEnv();
-	if (env?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
-		const adminState =
-			(await readR2Json<ReviewAdminState>(
-				env.LEGISLATIVE_REVIEW_DATA_BUCKET,
-				env.LEGISLATIVE_REVIEW_ADMIN_STATE_KEY ?? DEFAULT_ADMIN_STATE_OBJECT_KEY,
-			)) ?? createDefaultAdminState();
-		return adminState;
-	}
-
-	return (
-		(await readLocalJson<ReviewAdminState>(ADMIN_STATE_PATH)) ??
-		createDefaultAdminState()
-	);
-}
-
-export async function loadReviewControlRequest(): Promise<ReviewRunRequest | null> {
-	const env = await getDashboardStorageEnv();
-	if (env?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
-		return readR2Json<ReviewRunRequest>(
-			env.LEGISLATIVE_REVIEW_DATA_BUCKET,
-			env.LEGISLATIVE_REVIEW_CONTROL_KEY ?? DEFAULT_CONTROL_OBJECT_KEY,
-		);
-	}
-
-	return readLocalJson<ReviewRunRequest>(CONTROL_PATH);
-}
-
-export async function persistReviewAdminState(
-	adminState: ReviewAdminState,
-): Promise<void> {
-	const env = await getDashboardStorageEnv();
-	if (env?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
-		await writeR2Json(
-			env.LEGISLATIVE_REVIEW_DATA_BUCKET,
-			env.LEGISLATIVE_REVIEW_ADMIN_STATE_KEY ?? DEFAULT_ADMIN_STATE_OBJECT_KEY,
-			adminState,
-		);
-		return;
-	}
-
-	await writeLocalJson(ADMIN_STATE_PATH, adminState);
-}
-
-export async function persistReviewControlRequest(
-	request: ReviewRunRequest,
-): Promise<void> {
-	const env = await getDashboardStorageEnv();
-	if (env?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
-		await writeR2Json(
-			env.LEGISLATIVE_REVIEW_DATA_BUCKET,
-			env.LEGISLATIVE_REVIEW_CONTROL_KEY ?? DEFAULT_CONTROL_OBJECT_KEY,
-			request,
-		);
-		return;
-	}
-
-	await writeLocalJson(CONTROL_PATH, request);
-}
-
-export async function getReviewAdminToken(): Promise<string | null> {
-	const env = await getDashboardStorageEnv();
-	return env?.LEGISLATIVE_REVIEW_ADMIN_TOKEN ?? process.env.LEGISLATIVE_REVIEW_ADMIN_TOKEN ?? null;
-}
-
 export async function loadReviewDashboardPayload(): Promise<ReviewDashboardPayload> {
 	const bucketEnv = await getDashboardStorageEnv();
+	const rolloutConfig = parseReviewRolloutConfig(bucketEnv);
 
 	if (bucketEnv?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
 		try {
-			return await loadDashboardPayloadFromR2(bucketEnv);
+			return applyReviewRollout(
+				await loadDashboardPayloadFromR2(bucketEnv),
+				rolloutConfig,
+			);
 		} catch (error) {
 			if (!isMissingDashboardArtifactError(error)) {
 				throw error;
@@ -334,7 +419,7 @@ export async function loadReviewDashboardPayload(): Promise<ReviewDashboardPaylo
 	}
 
 	try {
-		return await loadLocalDashboardPayload();
+		return applyReviewRollout(await loadLocalDashboardPayload(), rolloutConfig);
 	} catch (error) {
 		if (!isMissingDashboardArtifactError(error)) {
 			throw error;

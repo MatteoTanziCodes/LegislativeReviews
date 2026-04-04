@@ -1,0 +1,16 @@
+{
+  "manifest_version": 1,
+  "input_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\review_inputs_governance_administrative_obsolescence_modernization_prosperity_v1_en.parquet",
+  "output_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\reviews_governance_administrative_obsolescence_modernization_prosperity_v1_en.parquet",
+  "journal_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\reviews_governance_administrative_obsolescence_modernization_prosperity_v1_en.journal.jsonl",
+  "mandate_id": "obsolescence_modernization_prosperity_v1",
+  "review_model": "claude-sonnet-4-20250514",
+  "prompt_version": "2026-03-24.qualitative-v1",
+  "selected_row_count": 1695,
+  "document_range_start": "A-1.5",
+  "document_range_end": "Z-041",
+  "primary_domains": [
+    "governance_administrative"
+  ],
+  "input_fingerprint": "b54b9fad4cc15bb09ca4ac69c4bebac40b29d546ca53390268755376e849212f"
+}

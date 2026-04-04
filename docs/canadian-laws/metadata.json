@@ -1,0 +1,11 @@
+{
+  "dataset_name": "a2aj/canadian-laws",
+  "revision": "refs/convert/parquet",
+  "download_timestamp": "2026-03-11T04:56:02.432642+00:00",
+  "local_path": "E:\\Programming\\buildcanada\\canadian-laws",
+  "file_count": 2,
+  "downloaded_files": [
+    "default/train/0000.parquet",
+    "default/train/0001.parquet"
+  ]
+}

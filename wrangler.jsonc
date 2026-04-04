@@ -15,12 +15,8 @@
 	"vars": {
 		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
-		"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-		"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
-		"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
-		"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
-		"GITHUB_REVIEW_WORKFLOW_REF": "main",
-		"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
+		"LEGISLATIVE_REVIEW_DAILY_RELEASE": "all",
+		"LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE": "America/Toronto"
 	},
 	"assets": {
 		"binding": "ASSETS",
@@ -51,12 +47,8 @@
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
-				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
-				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
-				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
-				"GITHUB_REVIEW_WORKFLOW_REF": "main",
-				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "staging"
+				"LEGISLATIVE_REVIEW_DAILY_RELEASE": "all",
+				"LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE": "America/Toronto"
 			},
 			"images": {
 				"binding": "IMAGES"
@@ -79,12 +71,8 @@
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
-				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
-				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
-				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
-				"GITHUB_REVIEW_WORKFLOW_REF": "main",
-				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
+				"LEGISLATIVE_REVIEW_DAILY_RELEASE": "all",
+				"LEGISLATIVE_REVIEW_ROLLOUT_TIMEZONE": "America/Toronto"
 			},
 			"images": {
 				"binding": "IMAGES"
