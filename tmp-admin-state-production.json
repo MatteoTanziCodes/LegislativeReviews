@@ -1,0 +1,39 @@
+{
+  "currentDomain": null,
+  "currentLimit": null,
+  "lastCommand": null,
+  "lastError": "GitHub workflow dispatch failed with status 403.",
+  "lastRunHtmlUrl": null,
+  "lastRunId": null,
+  "recentEvents": [
+    {
+      "level": "error",
+      "message": "GitHub Actions dispatch failed for transport_infrastructure. GitHub workflow dispatch failed with status 403.",
+      "timestamp": "2026-04-04T08:16:16.848Z"
+    },
+    {
+      "level": "error",
+      "message": "GitHub Actions dispatch failed for transport_infrastructure. GitHub workflow dispatch failed with status 403.",
+      "timestamp": "2026-04-04T08:16:11.786Z"
+    },
+    {
+      "level": "error",
+      "message": "GitHub Actions dispatch failed for transport_infrastructure. GitHub workflow dispatch failed with status 403.",
+      "timestamp": "2026-04-04T07:49:55.803Z"
+    },
+    {
+      "level": "error",
+      "message": "GitHub Actions dispatch failed for transport_infrastructure. GitHub workflow dispatch failed with status 403.",
+      "timestamp": "2026-04-04T07:00:12.597Z"
+    },
+    {
+      "level": "error",
+      "message": "GitHub Actions dispatch failed for transport_infrastructure. GitHub workflow dispatch failed with status 403.",
+      "timestamp": "2026-04-04T06:58:12.094Z"
+    }
+  ],
+  "workerHost": null,
+  "workerPid": null,
+  "workerStatus": "error",
+  "lastRequestedAt": "2026-04-04T08:16:16.848Z"
+}

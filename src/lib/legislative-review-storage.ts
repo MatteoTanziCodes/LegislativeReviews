@@ -2,7 +2,6 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type {
-	ReviewAdminState,
 	ReviewDashboardPayload,
 	ReviewDetail,
 } from "@/components/legislative-reviews/review-data";
@@ -14,16 +13,9 @@ import {
 
 const SUMMARY_PATH = path.join(process.cwd(), "src", "data", "review-summary.json");
 const DETAILS_PATH = path.join(process.cwd(), "src", "data", "review-details.json");
-const ADMIN_STATE_PATH = path.join(
-	process.cwd(),
-	"src",
-	"data",
-	"review-admin-state.json",
-);
 
 const DEFAULT_SUMMARY_OBJECT_KEY = "review-summary.json";
 const DEFAULT_DETAILS_OBJECT_KEY = "review-details.json";
-const DEFAULT_ADMIN_STATE_OBJECT_KEY = "review-admin-state.json";
 const DEFAULT_TOTAL_COUNT = 5796;
 const DEFAULT_DAILY_CAPACITY = 200;
 const DEFAULT_ROLLOUT_TIMEZONE = "America/Toronto";
@@ -31,7 +23,6 @@ const READ_ATTEMPTS = 3;
 const READ_RETRY_DELAY_MS = 75;
 
 type DashboardStorageEnv = CloudflareEnv & {
-	LEGISLATIVE_REVIEW_ADMIN_STATE_KEY?: string;
 	LEGISLATIVE_REVIEW_DATA_BUCKET?: R2Bucket;
 	LEGISLATIVE_REVIEW_DAILY_RELEASE?: string;
 	LEGISLATIVE_REVIEW_DETAILS_KEY?: string;
@@ -52,35 +43,12 @@ function delay(ms: number) {
 	});
 }
 
-function createDefaultAdminState(): ReviewAdminState {
-	return {
-		currentDomain: null,
-		currentLimit: null,
-		lastCommand: null,
-		lastError: null,
-		lastRunHtmlUrl: null,
-		lastRunId: null,
-		recentEvents: [],
-		workerHost: null,
-		workerPid: null,
-		workerStatus: "idle",
-	};
-}
-
-function createEmptySummary(adminState?: ReviewAdminState): ReviewSummary {
-	const pipelineStatus =
-		adminState?.workerStatus === "running" || adminState?.workerStatus === "pending"
-			? "in_progress"
-			: adminState?.workerStatus === "error"
-				? "error"
-				: "idle";
-
+function createEmptySummary(): ReviewSummary {
 	return {
 		totalCount: DEFAULT_TOTAL_COUNT,
 		reviewedCount: 0,
 		dailyCapacity: DEFAULT_DAILY_CAPACITY,
-		lastUpdated: adminState?.lastCompletedAt ?? adminState?.lastHeartbeatAt,
-		pipelineStatus,
+		pipelineStatus: "idle",
 		decisionCounts: {
 			retain: 0,
 			amend: 0,
@@ -96,13 +64,22 @@ function createEmptySummary(adminState?: ReviewAdminState): ReviewSummary {
 	};
 }
 
-function createEmptyDashboardPayload(
-	adminState: ReviewAdminState = createDefaultAdminState(),
-): ReviewDashboardPayload {
+function createEmptyDashboardPayload(): ReviewDashboardPayload {
 	return {
-		adminState,
+		adminState: {
+			currentDomain: null,
+			currentLimit: null,
+			lastCommand: null,
+			lastError: null,
+			lastRunHtmlUrl: null,
+			lastRunId: null,
+			recentEvents: [],
+			workerHost: null,
+			workerPid: null,
+			workerStatus: "idle",
+		},
 		reviews: [],
-		summary: createEmptySummary(adminState),
+		summary: createEmptySummary(),
 	};
 }
 
@@ -328,19 +305,17 @@ async function readR2Json<T>(
 }
 
 async function loadLocalDashboardPayload(): Promise<ReviewDashboardPayload> {
-	const [summary, reviews, adminState] = await Promise.all([
+	const [summary, reviews] = await Promise.all([
 		readLocalJson<ReviewSummary>(SUMMARY_PATH),
 		readLocalJson<ReviewDetail[]>(DETAILS_PATH),
-		readLocalJson<ReviewAdminState>(ADMIN_STATE_PATH),
 	]);
 
-	const effectiveAdminState = adminState ?? createDefaultAdminState();
 	if (!summary || !reviews) {
-		return createEmptyDashboardPayload(effectiveAdminState);
+		return createEmptyDashboardPayload();
 	}
 
 	return {
-		adminState: effectiveAdminState,
+		adminState: createEmptyDashboardPayload().adminState,
 		reviews,
 		summary,
 	};
@@ -358,27 +333,23 @@ async function loadDashboardPayloadFromR2(
 		env.LEGISLATIVE_REVIEW_SUMMARY_KEY ?? DEFAULT_SUMMARY_OBJECT_KEY;
 	const detailsObjectKey =
 		env.LEGISLATIVE_REVIEW_DETAILS_KEY ?? DEFAULT_DETAILS_OBJECT_KEY;
-	const adminStateObjectKey =
-		env.LEGISLATIVE_REVIEW_ADMIN_STATE_KEY ?? DEFAULT_ADMIN_STATE_OBJECT_KEY;
 
 	let lastError: unknown;
 
 	for (let attempt = 1; attempt <= READ_ATTEMPTS; attempt += 1) {
 		try {
-			const [summary, reviews, adminState] = await Promise.all([
+			const [summary, reviews] = await Promise.all([
 				readR2Json<ReviewSummary>(bucket, summaryObjectKey),
 				readR2Json<ReviewDetail[]>(bucket, detailsObjectKey),
-				readR2Json<ReviewAdminState>(bucket, adminStateObjectKey),
 			]);
 
-			const effectiveAdminState = adminState ?? createDefaultAdminState();
 			if (!summary || !reviews) {
-				return createEmptyDashboardPayload(effectiveAdminState);
+				return createEmptyDashboardPayload();
 			}
 
 			if (summary.reviewedCount === reviews.length || attempt === READ_ATTEMPTS) {
 				return {
-					adminState: effectiveAdminState,
+					adminState: createEmptyDashboardPayload().adminState,
 					reviews,
 					summary,
 				};

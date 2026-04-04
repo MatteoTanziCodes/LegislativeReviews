@@ -1,0 +1,21 @@
+{
+  "totalCount": 5796,
+  "reviewedCount": 221,
+  "remainingCount": 5575,
+  "percentReviewed": 3.81,
+  "dailyCapacity": 200,
+  "lastUpdated": "2026-04-04T04:18:55-04:00",
+  "pipelineStatus": "complete",
+  "decisionCounts": {
+    "retain": 111,
+    "amend": 4,
+    "repeal_candidate": 60,
+    "escalate": 46
+  },
+  "averageConfidenceByDecision": {
+    "retain": 0.89,
+    "amend": 0.796,
+    "repeal_candidate": 0.844,
+    "escalate": 0.758
+  }
+}
