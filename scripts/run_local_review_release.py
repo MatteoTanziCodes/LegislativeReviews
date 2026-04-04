@@ -41,6 +41,7 @@ PREPROCESS_STEPS: tuple[tuple[str, Path], ...] = (
     ("Classify documents", CLASSIFY_DOCUMENTS_SCRIPT),
     ("Build domain scores", BUILD_DOCUMENT_DOMAIN_SCORES_SCRIPT),
 )
+RECLASSIFICATION_STEP_NAMES = {"Classify documents", "Build domain scores"}
 DOMAIN_OPTIONS = tuple(classifier.TAXONOMY_PROTOTYPES.keys())
 DOMAIN_OR_ALL = ("all", *DOMAIN_OPTIONS)
 
@@ -145,6 +146,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--skip-source-sync",
         action="store_true",
         help="Skip checking Hugging Face for source dataset updates before preprocessing.",
+    )
+    parser.add_argument(
+        "--reclassify-all",
+        action="store_true",
+        help="Force full reclassification and domain-score rebuild for all documents.",
     )
     return parser.parse_args(argv)
 
@@ -289,9 +295,12 @@ def run_preprocess_pipeline(
             return return_code
 
     for label, script_path in PREPROCESS_STEPS:
+        command = [sys.executable, str(script_path)]
+        if args.reclassify_all and label in RECLASSIFICATION_STEP_NAMES:
+            command.append("--reclassify-all")
         return_code = run_named_command(
             label=label,
-            command=[sys.executable, str(script_path)],
+            command=command,
             env=env,
         )
         if return_code != 0:
@@ -392,6 +401,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(
         "  Preprocess: "
         + ("skipped" if args.skip_preprocess else "enabled")
+    )
+    print(
+        "  Classification mode: "
+        + ("full rebuild" if args.reclassify_all else "incremental")
     )
     print(
         "  R2 publish: "

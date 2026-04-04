@@ -1,16 +1,16 @@
 {
   "manifest_version": 1,
-  "input_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\review_inputs_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
-  "output_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
-  "journal_path": "E:\\Programming\\buildcanada\\canadian-laws\\processed\\reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.journal.jsonl",
+  "input_path": "D:\\Programming\\Projects\\LegislativeReviews\\docs\\canadian-laws\\processed\\review_inputs_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
+  "output_path": "D:\\Programming\\Projects\\LegislativeReviews\\docs\\canadian-laws\\processed\\reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
+  "journal_path": "D:\\Programming\\Projects\\LegislativeReviews\\docs\\canadian-laws\\processed\\reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.journal.jsonl",
   "mandate_id": "obsolescence_modernization_prosperity_v1",
   "review_model": "claude-sonnet-4-20250514",
   "prompt_version": "2026-03-24.qualitative-v1",
-  "selected_row_count": 1,
+  "selected_row_count": 786,
   "document_range_start": "A-10.4",
-  "document_range_end": "A-10.4",
+  "document_range_end": "W-6.5",
   "primary_domains": [
     "transport_infrastructure"
   ],
-  "input_fingerprint": "1958d37164705d2d64b4697418bf7319add0f1b240e5f127e1bcb6c1be5ee243"
+  "input_fingerprint": "38d4cf604aaf49569fee9d610bd662bbf5429273f2f36938993d339b25031a51"
 }

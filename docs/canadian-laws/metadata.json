@@ -1,11 +1,28 @@
 {
   "dataset_name": "a2aj/canadian-laws",
   "revision": "refs/convert/parquet",
-  "download_timestamp": "2026-03-11T04:56:02.432642+00:00",
-  "local_path": "E:\\Programming\\buildcanada\\canadian-laws",
-  "file_count": 2,
+  "resolved_revision": "cf10f7dc15806a2bbc6edc69b63fc2801e18404c",
+  "last_checked_timestamp": "2026-04-04T19:41:01.409084+00:00",
+  "download_performed": false,
+  "local_path": "D:\\Programming\\Projects\\LegislativeReviews\\docs\\canadian-laws",
+  "file_count": 17,
   "downloaded_files": [
     "default/train/0000.parquet",
-    "default/train/0001.parquet"
+    "default/train/0001.parquet",
+    "default/train/0002.parquet",
+    "default/train/0003.parquet",
+    "processed/document_classifier_inputs_en.parquet",
+    "processed/document_domain_scores_en.parquet",
+    "processed/document_domains_en.parquet",
+    "processed/documents_en.parquet",
+    "processed/review_inputs_governance_administrative_en.parquet",
+    "processed/review_inputs_governance_administrative_obsolescence_modernization_prosperity_v1_en.parquet",
+    "processed/review_inputs_governance_administrative_prosperity_en.parquet",
+    "processed/review_inputs_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
+    "processed/reviews_governance_administrative_obsolescence_modernization_prosperity_v1_en.parquet",
+    "processed/reviews_governance_administrative_prosperity_sample_en.parquet",
+    "processed/reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.legacy-20260404T041839.parquet",
+    "processed/reviews_transport_infrastructure_obsolescence_modernization_prosperity_v1_en.parquet",
+    "processed/sections_en.parquet"
   ]
 }

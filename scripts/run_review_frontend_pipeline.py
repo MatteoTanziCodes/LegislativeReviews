@@ -14,6 +14,9 @@ from env_utils import get_processed_dir, load_project_env
 load_project_env()
 
 
+import review_documents as review_runner
+
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUILD_REVIEW_INPUTS_SCRIPT = SCRIPT_DIR / "build_review_inputs.py"
 REVIEW_DOCUMENTS_SCRIPT = SCRIPT_DIR / "review_documents.py"
@@ -190,6 +193,102 @@ def migrate_legacy_review_state(
 	return True
 
 
+def migrate_incompatible_review_state(
+	*,
+	python_executable: str,
+	review_input_path: Path,
+	review_output_path: Path,
+	mandate_path: Path,
+	review_limit: int | None,
+	summary_output_path: Path,
+	details_output_path: Path,
+	total_count: int,
+	daily_capacity: int,
+) -> bool:
+	journal_path = build_review_journal_path(review_output_path)
+	manifest_path = build_review_manifest_path(review_output_path)
+	lock_path = build_review_lock_path(review_output_path)
+	if not manifest_path.exists():
+		return False
+
+	existing_manifest = review_runner.load_review_run_manifest(manifest_path)
+	if existing_manifest is None:
+		return False
+
+	mandate = review_runner.load_mandate(mandate_path)
+	review_config = review_runner.get_review_config()
+	current_review_inputs = review_runner.load_review_inputs(review_input_path, review_limit)
+	current_manifest = review_runner.build_review_run_manifest(
+		input_path=review_input_path,
+		output_path=review_output_path,
+		journal_path=journal_path,
+		review_inputs=current_review_inputs,
+		mandate_id=mandate["mandate_id"],
+		review_model=review_config.model,
+	)
+
+	comparable_fields = (
+		"manifest_version",
+		"input_path",
+		"output_path",
+		"journal_path",
+		"mandate_id",
+		"review_model",
+		"prompt_version",
+		"selected_row_count",
+		"document_range_start",
+		"document_range_end",
+		"primary_domains",
+		"input_fingerprint",
+	)
+	mismatches = [
+		field_name
+		for field_name in comparable_fields
+		if getattr(existing_manifest, field_name) != getattr(current_manifest, field_name)
+	]
+	if not mismatches:
+		return False
+
+	print()
+	print(
+		"Existing review state is incompatible with the current run configuration. "
+		"Bootstrapping dashboard state, archiving the old files, and restarting fresh.",
+		flush=True,
+	)
+	print("Manifest mismatch fields: " + ", ".join(mismatches[:6]), flush=True)
+
+	if review_output_path.exists():
+		bootstrap_export_command = [
+			python_executable,
+			str(EXPORT_FRONTEND_REVIEW_DATA_SCRIPT),
+			"--review-output-path",
+			str(review_output_path),
+			"--summary-output-path",
+			str(summary_output_path),
+			"--details-output-path",
+			str(details_output_path),
+			"--total-count",
+			str(total_count),
+			"--daily-capacity",
+			str(daily_capacity),
+			"--pipeline-status",
+			"in_progress",
+		]
+		return_code = run_step(bootstrap_export_command)
+		if return_code != 0:
+			raise RuntimeError(
+				"Failed to bootstrap frontend state from incompatible review output before archiving."
+			)
+
+	timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+	for path in (review_output_path, journal_path, manifest_path, lock_path):
+		if not path.exists():
+			continue
+		backup_path = archive_path(path, timestamp)
+		print(f"Archived incompatible artifact: {path} -> {backup_path}", flush=True)
+	return True
+
+
 def load_mandate_id(path: Path) -> str:
 	with path.open("r", encoding="utf-8") as handle:
 		payload = json.load(handle)
@@ -292,6 +391,18 @@ def main(argv: Sequence[str] | None = None) -> int:
 				total_count=args.total_count,
 				daily_capacity=args.daily_capacity,
 			)
+			if not force_no_resume:
+				force_no_resume = migrate_incompatible_review_state(
+					python_executable=python_executable,
+					review_input_path=review_input_path,
+					review_output_path=review_output_path,
+					mandate_path=args.mandate_path,
+					review_limit=args.limit,
+					summary_output_path=args.summary_output_path,
+					details_output_path=args.details_output_path,
+					total_count=args.total_count,
+					daily_capacity=args.daily_capacity,
+				)
 		except RuntimeError as exc:
 			print(f"Error: {exc}", file=sys.stderr)
 			return 1

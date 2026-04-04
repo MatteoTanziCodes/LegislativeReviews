@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import math
 import os
@@ -164,6 +166,21 @@ class PrototypeRow:
     text: str
 
 
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Classify documents into primary domains. By default, only new or changed "
+            "documents are reclassified; existing unchanged rows are reused."
+        )
+    )
+    parser.add_argument(
+        "--reclassify-all",
+        action="store_true",
+        help="Ignore existing classification output and recompute every document.",
+    )
+    return parser.parse_args(argv)
+
+
 def load_env_file(path: Path) -> None:
     if not path.exists():
         return
@@ -249,6 +266,71 @@ def get_embedding_text(
     if classifier_input_text and classifier_input_text.strip():
         return classifier_input_text.strip()
     return build_document_text(title_en, citation_en)
+
+
+def compute_document_input_fingerprint(document: DocumentRow) -> str:
+    digest = hashlib.sha256()
+    fields = (
+        document.document_id,
+        document.title_en,
+        document.citation_en or "",
+        document.classifier_input_text or "",
+    )
+    for field in fields:
+        digest.update(field.encode("utf-8"))
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def load_existing_classification_rows(
+    output_path: Path,
+) -> dict[str, tuple[Any, ...]]:
+    try:
+        import duckdb
+    except ImportError as exc:
+        raise RuntimeError("duckdb is required. Install it with `pip install duckdb`.") from exc
+
+    if not output_path.exists():
+        return {}
+
+    con = duckdb.connect()
+    try:
+        schema_rows = con.execute(
+            "DESCRIBE SELECT * FROM read_parquet(?)",
+            [str(output_path)],
+        ).fetchall()
+        column_names = {str(row[0]) for row in schema_rows}
+        input_fingerprint_expr = (
+            "input_fingerprint"
+            if "input_fingerprint" in column_names
+            else "NULL AS input_fingerprint"
+        )
+        rows = con.execute(
+            f"""
+            SELECT
+                document_id,
+                title_en,
+                primary_domain,
+                classification_method,
+                classification_confidence,
+                top_similarity_score,
+                second_best_domain,
+                second_best_score,
+                score_margin,
+                matched_taxonomy_description,
+                llm_used,
+                llm_raw_label,
+                fallback_reason,
+                {input_fingerprint_expr}
+            FROM read_parquet(?)
+            ORDER BY document_id
+            """,
+            [str(output_path)],
+        ).fetchall()
+    finally:
+        con.close()
+
+    return {str(row[0]): row for row in rows}
 
 
 def generate_embeddings(texts: Sequence[str], config: EmbeddingConfig) -> list[list[float]]:
@@ -518,13 +600,12 @@ def print_domain_counts(counter: Counter[str]) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    _ = argv
-
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8")
 
+    args = parse_args(argv)
     load_env_file(Path(".env"))
 
     try:
@@ -591,7 +672,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     matched_taxonomy_description VARCHAR,
                     llm_used BOOLEAN,
                     llm_raw_label VARCHAR,
-                    fallback_reason VARCHAR
+                    fallback_reason VARCHAR,
+                    input_fingerprint VARCHAR
                 )
                 """
             )
@@ -609,40 +691,91 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Counts by primary_domain:")
         return 0
 
-    document_texts = [
-        get_embedding_text(
-            classifier_input_text=document.classifier_input_text,
-            title_en=document.title_en,
-            citation_en=document.citation_en,
-        )
+    existing_rows = (
+        {}
+        if args.reclassify_all
+        else load_existing_classification_rows(OUTPUT_PATH)
+    )
+    current_fingerprints = {
+        document.document_id: compute_document_input_fingerprint(document)
         for document in documents
-    ]
+    }
+    documents_to_classify: list[DocumentRow] = []
+    results_by_document_id: dict[str, tuple[Any, ...]] = {}
+
+    for document in documents:
+        existing_row = existing_rows.get(document.document_id)
+        current_fingerprint = current_fingerprints[document.document_id]
+        if existing_row is None:
+            documents_to_classify.append(document)
+            continue
+
+        existing_fingerprint = existing_row[13]
+        if existing_fingerprint and existing_fingerprint != current_fingerprint:
+            documents_to_classify.append(document)
+            continue
+
+        results_by_document_id[document.document_id] = (
+            existing_row[0],
+            existing_row[1],
+            existing_row[2],
+            existing_row[3],
+            existing_row[4],
+            existing_row[5],
+            existing_row[6],
+            existing_row[7],
+            existing_row[8],
+            existing_row[9],
+            existing_row[10],
+            existing_row[11],
+            existing_row[12],
+            current_fingerprint,
+        )
+
     prototype_texts = [prototype_row.text for prototype_row in prototype_rows]
-
-    try:
-        print(
-            "Generating document embeddings "
-            f"({len(document_texts)} texts, provider={embedding_config.provider}, "
-            f"model={embedding_config.model_name}, batch_size={embedding_config.batch_size}, "
-            f"fastembed_threads={embedding_config.fastembed_threads})..."
-        )
-        document_embeddings = generate_embeddings(document_texts, embedding_config)
-        print(
-            "Generating taxonomy prototype embeddings "
-            f"({len(prototype_texts)} prototypes across {len(taxonomy_prototypes)} labels)..."
-        )
-        prototype_embeddings = generate_embeddings(prototype_texts, embedding_config)
-    except Exception as exc:
-        print(f"Error generating embeddings: {exc}", file=sys.stderr)
-        return 1
-
-    results: list[tuple[Any, ...]] = []
+    prototype_embeddings: list[list[float]] = []
+    document_embeddings: list[list[float]] = []
     domain_counter: Counter[str] = Counter()
     semantic_only_count = 0
     llm_fallback_count = 0
     semantic_low_margin_count = 0
+    reused_count = len(results_by_document_id)
 
-    for index, (document, embedding) in enumerate(zip(documents, document_embeddings), start=1):
+    print(f"Total documents available: {total_documents}")
+    print(f"Documents reused without reclassification: {reused_count}")
+    print(f"Documents newly classified: {len(documents_to_classify)}")
+
+    if documents_to_classify:
+        document_texts = [
+            get_embedding_text(
+                classifier_input_text=document.classifier_input_text,
+                title_en=document.title_en,
+                citation_en=document.citation_en,
+            )
+            for document in documents_to_classify
+        ]
+
+        try:
+            print(
+                "Generating document embeddings "
+                f"({len(document_texts)} texts, provider={embedding_config.provider}, "
+                f"model={embedding_config.model_name}, batch_size={embedding_config.batch_size}, "
+                f"fastembed_threads={embedding_config.fastembed_threads})..."
+            )
+            document_embeddings = generate_embeddings(document_texts, embedding_config)
+            print(
+                "Generating taxonomy prototype embeddings "
+                f"({len(prototype_texts)} prototypes across {len(taxonomy_prototypes)} labels)..."
+            )
+            prototype_embeddings = generate_embeddings(prototype_texts, embedding_config)
+        except Exception as exc:
+            print(f"Error generating embeddings: {exc}", file=sys.stderr)
+            return 1
+
+    for existing_row in results_by_document_id.values():
+        domain_counter[str(existing_row[2])] += 1
+
+    for index, (document, embedding) in enumerate(zip(documents_to_classify, document_embeddings), start=1):
         semantic_match = classify_with_semantic_similarity(
             document_embedding=embedding,
             prototype_rows=prototype_rows,
@@ -696,30 +829,31 @@ def main(argv: Sequence[str] | None = None) -> int:
                 semantic_low_margin_count += 1
 
         domain_counter[primary_domain] += 1
-        results.append(
-            (
-                document.document_id,
-                document.title_en,
-                primary_domain,
-                classification_method,
-                confidence,
-                top_similarity_score,
-                second_best_domain,
-                second_best_score,
-                score_margin,
-                matched_description,
-                llm_used,
-                llm_raw_label,
-                fallback_reason,
-            )
+        results_by_document_id[document.document_id] = (
+            document.document_id,
+            document.title_en,
+            primary_domain,
+            classification_method,
+            confidence,
+            top_similarity_score,
+            second_best_domain,
+            second_best_score,
+            score_margin,
+            matched_description,
+            llm_used,
+            llm_raw_label,
+            fallback_reason,
+            current_fingerprints[document.document_id],
         )
 
-        if index == total_documents or index % CLASSIFICATION_PROGRESS_EVERY == 0:
+        if index == len(documents_to_classify) or index % CLASSIFICATION_PROGRESS_EVERY == 0:
             print(
-                f"Classified {index}/{total_documents} documents "
+                f"Classified {index}/{len(documents_to_classify)} documents "
                 f"(semantic={semantic_only_count}, llm={llm_fallback_count}, "
                 f"low_margin={semantic_low_margin_count})"
             )
+
+    results = [results_by_document_id[document.document_id] for document in documents]
 
     delete_output = duckdb.connect()
     try:
@@ -738,14 +872,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 matched_taxonomy_description VARCHAR,
                 llm_used BOOLEAN,
                 llm_raw_label VARCHAR,
-                fallback_reason VARCHAR
+                fallback_reason VARCHAR,
+                input_fingerprint VARCHAR
             )
             """
         )
-        delete_output.executemany(
-            "INSERT INTO classification_results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            results,
-        )
+        if results:
+            delete_output.executemany(
+                "INSERT INTO classification_results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                results,
+            )
         delete_if_exists(temp_output_path)
         delete_if_exists(OUTPUT_PATH)
         delete_output.execute("COPY classification_results TO ? (FORMAT PARQUET)", [str(temp_output_path)])

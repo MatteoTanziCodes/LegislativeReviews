@@ -70,6 +70,7 @@ npm run refresh-laws
 If you omit the API key or domain, the script prompts for them.
 
 By default, the command now checks Hugging Face for a newer `a2aj/canadian-laws` parquet revision, syncs the local source snapshot if needed, and then rebuilds the processed local corpus before it starts reviews.
+The expensive classification steps are incremental by default: existing unchanged documents are reused, and only new or changed documents are reclassified and rescored.
 
 Examples:
 
@@ -115,6 +116,12 @@ Skip preprocessing and reuse the existing processed artifacts:
 python scripts/run_local_review_release.py --domain transport_infrastructure --skip-preprocess
 ```
 
+Force a full reclassification pass for every document:
+
+```bash
+python scripts/run_local_review_release.py --domain transport_infrastructure --reclassify-all
+```
+
 Pass the Claude key directly:
 
 ```bash
@@ -125,11 +132,12 @@ What this command does:
 
 1. Ensures the Claude API key is available.
 2. Checks whether the remote parquet snapshot changed and syncs it locally when needed.
-3. Rebuilds `documents_en.parquet`, `sections_en.parquet`, classifier inputs, classifications, and domain scores.
-4. Builds reviewer-ready parquet inputs for the chosen domain.
-5. Runs the review pipeline.
-6. Exports `review-summary.json` and `review-details.json`.
-7. Publishes those JSON artifacts to R2 if the R2 env vars are configured.
+3. Rebuilds `documents_en.parquet`, `sections_en.parquet`, and classifier inputs.
+4. Reuses existing classifications and domain scores for unchanged documents, and recomputes only new or changed documents by default.
+5. Builds reviewer-ready parquet inputs for the chosen domain.
+6. Runs the review pipeline.
+7. Exports `review-summary.json` and `review-details.json`.
+8. Publishes those JSON artifacts to R2 if the R2 env vars are configured.
 
 ## Staged Daily Release
 
