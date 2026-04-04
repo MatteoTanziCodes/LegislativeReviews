@@ -5654,5 +5654,189 @@
     "administrativeBurdenScore": 1,
     "repealRiskScore": 3,
     "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 628",
+    "titleEn": "VEHICLE PERMITS",
+    "citationEn": "RRO 1990, Reg 628",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes operational vehicle permit requirements for accessible vehicles, passenger transportation vehicles (U10 permits), and tow trucks, with detailed safety inspection and classification procedures. The law is clearly operational today, governing active permit systems and safety standards. While it creates some administrative processes, these serve legitimate safety and regulatory purposes with manageable burden. The regulation supports economic activity in transportation sectors and maintains safety standards without creating significant red tape or hindering productivity.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 629",
+    "titleEn": "Accessible Vehicles",
+    "citationEn": "RRO 1990, Reg 629",
+    "decision": "retain",
+    "decisionConfidence": 0.92,
+    "rationale": "This regulation establishes comprehensive safety and accessibility standards for vehicles serving persons with disabilities, including detailed technical specifications for lighting, doors, wheelchair access, and safety equipment. The law is clearly operational, governing an active regulatory regime for accessible transportation services. While it creates administrative requirements, these serve essential public safety and accessibility purposes. The regulation supports prosperity by enabling workforce participation of persons with disabilities and ensuring safe, standardized accessible transportation services. Repeal risk is high as this affects public safety, rights of persons with disabilities, and core regulatory powers.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "3.1",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 630",
+    "titleEn": "VEHICLES ON CONTROLLED-ACCESS HIGHWAYS",
+    "citationEn": "RRO 1990, Reg 630",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation actively governs vehicle access restrictions on Ontario's controlled-access highways, which is essential for highway safety and traffic management. The regulation is clearly operational, covering major highways like the 400-series and QEW. While it creates some regulatory burden by restricting certain vehicle types, this serves legitimate safety purposes on high-speed highways. The regulation supports prosperity by maintaining efficient traffic flow on critical transportation infrastructure that enables commerce and trade. Repeal would create safety risks and potentially impede the efficient movement of goods and people.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 631",
+    "titleEn": "YIELD RIGHT-OF-WAY SIGNS IN TERRITORY WITHOUT MUNICIPAL ORGANIZATION",
+    "citationEn": "RRO 1990, Reg 631",
+    "decision": "retain",
+    "decisionConfidence": 0.48,
+    "rationale": "This regulation establishes yield right-of-way sign requirements for highway intersections in unorganized territories, which is an active traffic safety regulation. While narrow in scope, it serves an ongoing operational purpose for highway safety in areas without municipal governance. The regulation appears to be functioning administrative infrastructure rather than obsolete legislation, and repeal could create safety gaps in traffic control.",
+    "evidenceSectionKeys": [
+      "1",
+      "2"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 668",
+    "titleEn": "FAULT DETERMINATION RULES",
+    "citationEn": "RRO 1990, Reg 668",
+    "decision": "retain",
+    "decisionConfidence": 0.84,
+    "rationale": "This regulation establishes standardized fault determination rules for automobile insurance claims, which is actively operational and serves ongoing regulatory purposes. While it creates some administrative process, it provides necessary clarity and consistency for insurance determinations, reducing disputes and litigation costs. The regulation appears to streamline insurance processes rather than create unnecessary red tape, and repeal would be high-risk as it affects legal rights and insurance benefits.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 3,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 734",
+    "titleEn": "Establishment of Local Roads Areas — Northeastern and Eastern Regions",
+    "citationEn": "RRO 1990, Reg 734",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes and designates specific local roads areas in northeastern and eastern Ontario regions, with recent updates as late as 2021 indicating active operational status. The regulation serves ongoing transportation infrastructure governance by clearly defining local roads areas and their boundaries through referenced Ministry of Transportation plans. While it creates some administrative process through plan filing requirements, this appears necessary for proper infrastructure management. The regulation supports economic activity by maintaining clear road designations that facilitate transportation of goods and resources in these regions, aligning with prosperity goals of supporting resource development and exports.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 735",
+    "titleEn": "ESTABLISHMENT OF LOCAL ROADS AREAS — NORTHWESTERN REGION",
+    "citationEn": "RRO 1990, Reg 735",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes specific local roads areas in Northwestern Ontario with detailed geographic boundaries and references to current Ministry of Transportation plans (some as recent as 2020). The regulation appears operationally active as it designates local roads infrastructure that supports resource development, investment access, and export transportation in remote areas. While administrative in nature, it serves the prosperity tenets by enabling infrastructure access for economic development in resource-rich regions. The regulation has low administrative burden as it simply establishes geographic boundaries, and repeal risk is moderate as it affects established transportation infrastructure and local government operations.",
+    "evidenceSectionKeys": [
+      "2",
+      "3"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 0,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 803",
+    "titleEn": "DESIGNATIONS",
+    "citationEn": "RRO 1990, Reg 803",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation actively governs current highway designations and motorized snow vehicle restrictions on Ontario's King's Highway system. It provides clear operational rules for public safety and highway management, with specific designations for major highways (401, 402, 403, etc.) and detailed provisions for snow vehicle access. The regulation supports transportation infrastructure efficiency and public safety without creating significant administrative burden. While it could potentially benefit from modernization of language and structure, it serves an ongoing operational purpose with manageable repeal risk.",
+    "evidenceSectionKeys": [
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 1,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 804",
+    "titleEn": "GENERAL",
+    "citationEn": "RRO 1990, Reg 804",
+    "decision": "retain",
+    "decisionConfidence": 0.82,
+    "rationale": "This regulation establishes essential traffic safety rules for motorized snow vehicles interacting with roadways and other traffic. It defines key terms, establishes right-of-way rules, requires compliance with traffic signs, and sets safety protocols for entering roadways. The regulation serves an ongoing operational purpose in managing winter recreational vehicle traffic safety and appears to facilitate rather than hinder economic activity by providing clear rules for snow vehicle operation. While the regulation creates some procedural requirements, these appear necessary for public safety rather than constituting unnecessary red tape.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "operationalRelevanceScore": 3,
+    "prosperityAlignmentScore": 0,
+    "administrativeBurdenScore": 1,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
+  },
+  {
+    "documentId": "RRO 1990, Reg 805",
+    "titleEn": "MOTORIZED SNOW VEHICLE OPERATORS’ LICENCES",
+    "citationEn": "RRO 1990, Reg 805",
+    "decision": "amend",
+    "decisionConfidence": 0.875,
+    "rationale": "This regulation establishes a licensing system for motorized snow vehicle operators, which remains operationally relevant for public safety. However, it contains outdated fee structures ($7 fee likely set decades ago) and potentially duplicative administrative processes that create unnecessary red tape. The regulation could be modernized to streamline licensing processes, update fees to reflect current costs, and potentially integrate with other licensing systems for efficiency gains. While the core safety purpose aligns with legitimate government functions, the administrative burden evidence suggests modernization opportunities.",
+    "evidenceSectionKeys": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "operationalRelevanceScore": 2,
+    "prosperityAlignmentScore": -1,
+    "administrativeBurdenScore": 2,
+    "repealRiskScore": 2,
+    "reviewModel": "claude-sonnet-4-20250514"
   }
 ]
