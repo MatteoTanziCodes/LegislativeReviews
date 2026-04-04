@@ -4,11 +4,14 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "core",
-	"account_id": "af43b5869a980d4edc6c18f15cd7aa2d",
+	"name": "legislativereviews",
+	"account_id": "613ce8a5c9f09c0e869f398b42e790fe",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-12-01",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"vars": {
 		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
@@ -21,6 +24,16 @@
 		{
 			"binding": "LEGISLATIVE_REVIEW_DATA_BUCKET",
 			"bucket_name": "legislative-review-data"
+		},
+		{
+			"bucket_name": "legislative-review-data-staging",
+			"binding": "legislative_review_data_staging",
+			"remote": true
+		},
+		{
+			"bucket_name": "legislative-review-data-production",
+			"binding": "legislative_review_data_production",
+			"remote": true
 		}
 	],
 	"images": {
@@ -33,12 +46,12 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "core"
+			"service": "legislativereviews"
 		}
 	],
 	"env": {
 		"staging": {
-			"name": "core-staging",
+			"name": "legislativereviews-staging",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
@@ -55,12 +68,12 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "core-staging"
+					"service": "legislativereviews-staging"
 				}
 			]
 		},
 		"production": {
-			"name": "core-production",
+			"name": "legislativereviews-production",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json"
@@ -77,7 +90,7 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "core-production"
+					"service": "legislativereviews-production"
 				}
 			]
 		}
