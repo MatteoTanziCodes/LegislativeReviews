@@ -24,16 +24,6 @@
 		{
 			"binding": "LEGISLATIVE_REVIEW_DATA_BUCKET",
 			"bucket_name": "legislative-review-data"
-		},
-		{
-			"bucket_name": "legislative-review-data-staging",
-			"binding": "legislative_review_data_staging",
-			"remote": true
-		},
-		{
-			"bucket_name": "legislative-review-data-production",
-			"binding": "legislative_review_data_production",
-			"remote": true
 		}
 	],
 	"images": {
@@ -68,7 +58,7 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "legislativereviews-staging"
+					"service": "legislativereviews"
 				}
 			]
 		},
@@ -90,7 +80,7 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "legislativereviews-production"
+					"service": "legislativereviews"
 				}
 			]
 		}
