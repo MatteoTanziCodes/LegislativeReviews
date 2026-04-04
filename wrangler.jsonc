@@ -16,7 +16,11 @@
 		"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 		"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
 		"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-		"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
+		"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+		"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+		"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+		"GITHUB_REVIEW_WORKFLOW_REF": "main",
+		"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
 	},
 	"assets": {
 		"binding": "ASSETS",
@@ -48,7 +52,11 @@
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
 				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-				"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
+				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+				"GITHUB_REVIEW_WORKFLOW_REF": "main",
+				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "staging"
 			},
 			"images": {
 				"binding": "IMAGES"
@@ -72,7 +80,11 @@
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
 				"LEGISLATIVE_REVIEW_ADMIN_STATE_KEY": "review-admin-state.json",
-				"LEGISLATIVE_REVIEW_CONTROL_KEY": "review-control.json"
+				"GITHUB_REVIEW_WORKFLOW_OWNER": "MatteoTanziCodes",
+				"GITHUB_REVIEW_WORKFLOW_REPO": "LegislativeReviews",
+				"GITHUB_REVIEW_WORKFLOW_ID": "review-pipeline.yml",
+				"GITHUB_REVIEW_WORKFLOW_REF": "main",
+				"GITHUB_REVIEW_WORKFLOW_ENVIRONMENT": "production"
 			},
 			"images": {
 				"binding": "IMAGES"

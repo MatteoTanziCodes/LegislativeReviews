@@ -41,6 +41,8 @@ export type ReviewAdminState = {
 	lastError?: string | null;
 	lastHeartbeatAt?: string;
 	lastRequestedAt?: string;
+	lastRunHtmlUrl?: string | null;
+	lastRunId?: number | null;
 	lastStartedAt?: string;
 	recentEvents: ReviewAdminEvent[];
 	workerHost?: string | null;
@@ -67,6 +69,8 @@ export function sanitizeDashboardPayloadForPublic(
 			lastError: null,
 			lastHeartbeatAt: payload.adminState.lastHeartbeatAt,
 			lastRequestedAt: undefined,
+			lastRunHtmlUrl: null,
+			lastRunId: null,
 			lastStartedAt: undefined,
 			recentEvents: [],
 			workerHost: null,

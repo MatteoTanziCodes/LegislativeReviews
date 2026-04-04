@@ -18,7 +18,7 @@ export function ReviewAdminLogin() {
 						Legislative Reviews Admin
 					</p>
 					<h1 className="mt-4 font-display text-4xl tracking-[-0.06em] text-foreground">
-						Authenticate to control the review worker.
+						Authenticate to control the review workflow.
 					</h1>
 					<p className="mt-4 text-base leading-8 text-muted">
 						This path is for operator access only. Enter the admin token to open

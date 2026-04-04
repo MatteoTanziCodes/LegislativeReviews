@@ -149,7 +149,7 @@ export function LiveDashboard({
 
 		if (dashboardData.adminState.workerStatus === "pending") {
 			return {
-				label: "Review request queued",
+				label: "Review workflow queued",
 				pulse: true,
 				tone: "accent",
 			};
@@ -157,7 +157,7 @@ export function LiveDashboard({
 
 		if (dashboardData.adminState.workerStatus === "error") {
 			return {
-				label: "Review worker error",
+				label: "Review workflow error",
 				pulse: false,
 				tone: "danger",
 			};

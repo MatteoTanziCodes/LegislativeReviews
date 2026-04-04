@@ -54,6 +54,8 @@ function createDefaultAdminState(): ReviewAdminState {
 		currentLimit: null,
 		lastCommand: null,
 		lastError: null,
+		lastRunHtmlUrl: null,
+		lastRunId: null,
 		recentEvents: [],
 		workerHost: null,
 		workerPid: null,
