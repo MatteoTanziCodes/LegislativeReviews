@@ -1,0 +1,181 @@
+name: Legislative Review Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_environment:
+        description: Target GitHub environment for secrets, vars, and R2 publishing.
+        required: true
+        default: production
+        type: choice
+        options:
+          - staging
+          - production
+      domain:
+        description: Primary domain to review.
+        required: true
+        default: transport_infrastructure
+        type: choice
+        options:
+          - transport_infrastructure
+          - governance_administrative
+          - environment_resources
+          - business_commerce
+          - tax_finance
+          - criminal_public_safety
+          - health_social_services
+          - indigenous_crown_relations
+          - labor_employment
+          - rights_privacy_access
+          - other
+      limit:
+        description: Optional limit for a smaller review batch.
+        required: false
+        type: string
+      command_id:
+        description: Optional dashboard command id for audit correlation.
+        required: false
+        type: string
+      requested_at:
+        description: Optional ISO timestamp from the dashboard request.
+        required: false
+        type: string
+
+concurrency:
+  group: legislative-review-${{ inputs.deployment_environment }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: Review ${{ inputs.domain }}
+    runs-on:
+      - self-hosted
+      - legislative-reviews
+    timeout-minutes: 1440
+    environment: ${{ inputs.deployment_environment }}
+    permissions:
+      contents: read
+    env:
+      CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+      LEGISLATIVE_REVIEW_DATA_ROOT: ${{ vars.LEGISLATIVE_REVIEW_DATA_ROOT }}
+      LEGISLATIVE_REVIEW_PROCESSED_DIR: ${{ vars.LEGISLATIVE_REVIEW_PROCESSED_DIR }}
+      FASTEMBED_THREADS: ${{ vars.FASTEMBED_THREADS }}
+      CLOUDFLARE_R2_ACCOUNT_ID: ${{ vars.CLOUDFLARE_R2_ACCOUNT_ID }}
+      CLOUDFLARE_R2_BUCKET: ${{ vars.CLOUDFLARE_R2_BUCKET }}
+      CLOUDFLARE_R2_ENDPOINT: ${{ vars.CLOUDFLARE_R2_ENDPOINT }}
+      CLOUDFLARE_R2_SUMMARY_KEY: ${{ vars.CLOUDFLARE_R2_SUMMARY_KEY }}
+      CLOUDFLARE_R2_DETAILS_KEY: ${{ vars.CLOUDFLARE_R2_DETAILS_KEY }}
+      CLOUDFLARE_R2_ADMIN_STATE_KEY: ${{ vars.CLOUDFLARE_R2_ADMIN_STATE_KEY }}
+      CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      REVIEW_COMMAND_ID: ${{ inputs.command_id }}
+      REVIEW_DOMAIN: ${{ inputs.domain }}
+      REVIEW_LIMIT: ${{ inputs.limit }}
+      REVIEW_REQUESTED_AT: ${{ inputs.requested_at }}
+      REVIEW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Mark workflow as running
+        shell: bash
+        run: |
+          cmd=(python scripts/update_review_admin_state.py
+            --worker-status running
+            --domain "$REVIEW_DOMAIN"
+            --last-run-id "${{ github.run_id }}"
+            --last-run-html-url "$REVIEW_RUN_URL"
+            --event-level info
+            --event-message "GitHub Actions review workflow started for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          )
+          if [[ -n "$REVIEW_LIMIT" ]]; then
+            cmd+=(--limit "$REVIEW_LIMIT")
+          fi
+          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
+            cmd+=(--command-id "$REVIEW_COMMAND_ID")
+          fi
+          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
+            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
+          fi
+          "${cmd[@]}"
+
+      - name: Run legislative review pipeline
+        run: |
+          python - <<'PY'
+          import os
+          import subprocess
+          import sys
+
+          command = [
+              sys.executable,
+              "scripts/run_review_frontend_pipeline.py",
+              "--domain",
+              os.environ["REVIEW_DOMAIN"],
+          ]
+
+          limit = os.environ.get("REVIEW_LIMIT", "").strip()
+          if limit:
+              command.extend(["--limit", limit])
+
+          raise SystemExit(subprocess.run(command, check=False).returncode)
+          PY
+
+      - name: Mark workflow as complete
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          cmd=(python scripts/update_review_admin_state.py
+            --worker-status complete
+            --domain "$REVIEW_DOMAIN"
+            --clear-current-run
+            --last-run-id "${{ github.run_id }}"
+            --last-run-html-url "$REVIEW_RUN_URL"
+            --event-level info
+            --event-message "GitHub Actions review workflow completed for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          )
+          if [[ -n "$REVIEW_LIMIT" ]]; then
+            cmd+=(--limit "$REVIEW_LIMIT")
+          fi
+          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
+            cmd+=(--command-id "$REVIEW_COMMAND_ID")
+          fi
+          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
+            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
+          fi
+          "${cmd[@]}"
+
+      - name: Mark workflow as failed
+        if: ${{ failure() || cancelled() }}
+        shell: bash
+        run: |
+          cmd=(python scripts/update_review_admin_state.py
+            --worker-status error
+            --domain "$REVIEW_DOMAIN"
+            --clear-current-run
+            --last-error "GitHub Actions review workflow failed for $REVIEW_DOMAIN."
+            --last-run-id "${{ github.run_id }}"
+            --last-run-html-url "$REVIEW_RUN_URL"
+            --event-level error
+            --event-message "GitHub Actions review workflow failed for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          )
+          if [[ -n "$REVIEW_LIMIT" ]]; then
+            cmd+=(--limit "$REVIEW_LIMIT")
+          fi
+          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
+            cmd+=(--command-id "$REVIEW_COMMAND_ID")
+          fi
+          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
+            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
+          fi
+          "${cmd[@]}"

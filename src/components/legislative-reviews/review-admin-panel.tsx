@@ -52,55 +52,41 @@ function formatOptionalTimestamp(value?: string | null) {
 }
 
 function deriveWorkerStatusPresentation(adminState: ReviewAdminState) {
-	const lastHeartbeat = adminState.lastHeartbeatAt
-		? new Date(adminState.lastHeartbeatAt).getTime()
-		: null;
-	const heartbeatIsStale =
-		lastHeartbeat !== null && Date.now() - lastHeartbeat > 120_000;
-
 	if (adminState.workerStatus === "error") {
 		return {
-			description: "The worker reported an error in the most recent run.",
-			label: "Worker error",
+			description: "The most recent GitHub Actions review run reported an error.",
+			label: "Run failed",
 			tone: "danger" as const,
 		};
 	}
 
 	if (adminState.workerStatus === "running") {
 		return {
-			description: "A review batch is actively running.",
-			label: "Worker running",
+			description: "A review batch is actively running in GitHub Actions.",
+			label: "Run in progress",
 			tone: "accent" as const,
 		};
 	}
 
 	if (adminState.workerStatus === "pending") {
 		return {
-			description: "A review request is queued and waiting for the worker to claim it.",
-			label: "Request queued",
+			description: "A review request has been dispatched and is waiting for a GitHub runner to start.",
+			label: "Run queued",
 			tone: "accent" as const,
-		};
-	}
-
-	if (heartbeatIsStale) {
-		return {
-			description: "The worker heartbeat is stale. Check the daemon/service status.",
-			label: "Worker offline",
-			tone: "danger" as const,
 		};
 	}
 
 	if (adminState.workerStatus === "complete") {
 		return {
-			description: "The most recent review batch completed successfully.",
-			label: "Worker complete",
+			description: "The most recent GitHub Actions review run completed successfully.",
+			label: "Run complete",
 			tone: "muted" as const,
 		};
 	}
 
 	return {
-		description: "No active review batch is running right now.",
-		label: "Worker idle",
+		description: "No active GitHub Actions review run is in progress right now.",
+		label: "Idle",
 		tone: "muted" as const,
 	};
 }
@@ -138,13 +124,23 @@ export function ReviewAdminPanel({
 							Workflow Admin
 						</p>
 						<h2 className="mt-3 max-w-2xl text-balance font-display text-2xl tracking-[-0.06em] text-foreground sm:text-3xl">
-							Control and audit the review worker.
+							Control and audit the GitHub Actions review workflow.
 						</h2>
 					</div>
 					<div className="flex flex-wrap items-center gap-3">
 						<div className={`rounded-full border px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.24em] ${toneClasses}`}>
 							{workerStatus.label}
 						</div>
+						{adminState.lastRunHtmlUrl ? (
+							<a
+								href={adminState.lastRunHtmlUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="rounded-full border border-border bg-background px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-muted transition hover:border-accent/40 hover:text-accent-ink"
+							>
+								Open Latest Run
+							</a>
+						) : null}
 						<button
 							type="button"
 							onClick={() => {
@@ -185,7 +181,7 @@ export function ReviewAdminPanel({
 					</div>
 					<div className="min-w-0 rounded-[1.5rem] border border-border bg-background/65 px-5 py-5">
 						<p className="font-mono text-[0.62rem] uppercase tracking-[0.24em] text-muted">
-							Last Heartbeat
+							Last Status Update
 						</p>
 						<p className="mt-3 text-balance font-display text-xl tracking-[-0.05em] text-foreground sm:text-2xl">
 							{formatOptionalTimestamp(adminState.lastHeartbeatAt)}
@@ -236,7 +232,7 @@ export function ReviewAdminPanel({
 									});
 									setFeedbackTone("muted");
 									setFeedback(
-										`Review request submitted for ${formatDomainLabel(domain)}.`,
+										`GitHub Actions workflow dispatched for ${formatDomainLabel(domain)}.`,
 									);
 								} catch (error) {
 									setFeedbackTone("danger");
@@ -254,7 +250,7 @@ export function ReviewAdminPanel({
 								Request a Review Run
 							</p>
 							<h3 className="mt-2 max-w-xl text-balance font-display text-xl tracking-[-0.05em] text-foreground sm:text-2xl">
-								Start the next batch from the dashboard.
+								Dispatch the next GitHub Actions batch from the dashboard.
 							</h3>
 						</div>
 
@@ -317,7 +313,7 @@ export function ReviewAdminPanel({
 								Audit Trail
 							</p>
 							<h3 className="max-w-xl text-balance font-display text-xl tracking-[-0.05em] text-foreground sm:text-2xl">
-								Recent worker activity and operator actions.
+								Recent automation activity and operator actions.
 							</h3>
 							<p className="font-mono text-[0.58rem] uppercase tracking-[0.22em] text-muted">
 								Most recent first. Scroll for older events.
@@ -328,8 +324,8 @@ export function ReviewAdminPanel({
 							<div className="grid gap-4">
 							{adminState.recentEvents.length === 0 ? (
 								<div className="rounded-[1.25rem] border border-dashed border-border px-4 py-6 text-sm text-muted">
-									No workflow events have been recorded yet. Request a run or start
-									the worker daemon to begin collecting audit history.
+									No workflow events have been recorded yet. Dispatch a run to begin
+									collecting GitHub Actions audit history.
 								</div>
 							) : (
 								adminState.recentEvents.map((event, index) => (

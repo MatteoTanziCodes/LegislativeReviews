@@ -7,11 +7,13 @@ import type {
 import { sanitizeDashboardPayloadForPublic } from "@/components/legislative-reviews/review-data";
 import { isAdminAuthenticated, verifyAdminToken } from "@/lib/review-admin-auth";
 import {
+	dispatchReviewWorkflow,
+	ReviewWorkflowConfigError,
+} from "@/lib/review-github-actions";
+import {
 	loadReviewAdminState,
-	loadReviewControlRequest,
 	loadReviewDashboardPayload,
 	persistReviewAdminState,
-	persistReviewControlRequest,
 } from "@/lib/legislative-review-storage";
 
 export const dynamic = "force-dynamic";
@@ -117,17 +119,13 @@ export async function POST(request: NextRequest) {
 			limit = payload.limit;
 		}
 
-		const [adminState, existingRequest] = await Promise.all([
-			loadReviewAdminState(),
-			loadReviewControlRequest(),
-		]);
+		const adminState = await loadReviewAdminState();
 		const busy =
 			adminState.workerStatus === "pending" ||
-			adminState.workerStatus === "running" ||
-			existingRequest?.status === "pending";
+			adminState.workerStatus === "running";
 		if (busy) {
 			return jsonError(
-				"A review run is already pending or active. Wait for it to finish before requesting another batch.",
+				"A review workflow is already pending or active. Wait for it to finish before requesting another batch.",
 				409,
 			);
 		}
@@ -142,6 +140,39 @@ export async function POST(request: NextRequest) {
 			status: "pending",
 		};
 
+		let dispatchResult;
+		try {
+			dispatchResult = await dispatchReviewWorkflow({
+				commandId: nextRequest.commandId,
+				domain,
+				limit,
+				requestedAt: now,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: "Unable to dispatch the review workflow.";
+			const nextAdminState = appendAdminEvent(
+				{
+					...adminState,
+					lastError: message,
+					lastRequestedAt: now,
+					workerStatus: "error",
+				},
+				{
+					level: "error",
+					message: `GitHub Actions dispatch failed for ${domain}${limit ? ` (limit ${limit})` : ""}. ${message}`,
+					timestamp: now,
+				},
+			);
+			await persistReviewAdminState(nextAdminState);
+			return jsonError(
+				message,
+				error instanceof ReviewWorkflowConfigError ? 503 : 502,
+			);
+		}
+
 		const nextAdminState = appendAdminEvent(
 			{
 				...adminState,
@@ -150,19 +181,18 @@ export async function POST(request: NextRequest) {
 				lastCommand: nextRequest,
 				lastError: null,
 				lastRequestedAt: now,
+				lastRunHtmlUrl: dispatchResult.htmlUrl ?? adminState.lastRunHtmlUrl ?? null,
+				lastRunId: dispatchResult.workflowRunId ?? adminState.lastRunId ?? null,
 				workerStatus: "pending",
 			},
 			{
 				level: "info",
-				message: `Review run requested for ${domain}${limit ? ` (limit ${limit})` : ""}.`,
+				message: `GitHub Actions review workflow dispatched for ${domain}${limit ? ` (limit ${limit})` : ""}.`,
 				timestamp: now,
 			},
 		);
 
-		await Promise.all([
-			persistReviewControlRequest(nextRequest),
-			persistReviewAdminState(nextAdminState),
-		]);
+		await persistReviewAdminState(nextAdminState);
 
 		return NextResponse.json(
 			{
