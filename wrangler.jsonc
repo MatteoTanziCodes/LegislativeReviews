@@ -75,7 +75,7 @@
 			]
 		},
 		"production": {
-			"name": "legislativereviews-production",
+			"name": "legislativereviews",
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
