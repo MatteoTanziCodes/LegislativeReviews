@@ -77,105 +77,93 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
+      - name: Verify Python is available on the runner
+        shell: pwsh
+        run: |
+          python --version
+          python -m pip --version
 
       - name: Install Python dependencies
+        shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Mark workflow as running
-        shell: bash
+        shell: pwsh
         run: |
-          cmd=(python scripts/update_review_admin_state.py
-            --worker-status running
-            --domain "$REVIEW_DOMAIN"
-            --last-run-id "${{ github.run_id }}"
-            --last-run-html-url "$REVIEW_RUN_URL"
-            --event-level info
-            --event-message "GitHub Actions review workflow started for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          $cmd = @(
+            "python", "scripts/update_review_admin_state.py",
+            "--worker-status", "running",
+            "--domain", $env:REVIEW_DOMAIN,
+            "--last-run-id", "${{ github.run_id }}",
+            "--last-run-html-url", $env:REVIEW_RUN_URL,
+            "--event-level", "info",
+            "--event-message", "GitHub Actions review workflow started for $env:REVIEW_DOMAIN$(if ($env:REVIEW_LIMIT) { \" (limit $env:REVIEW_LIMIT)\" })."
           )
-          if [[ -n "$REVIEW_LIMIT" ]]; then
-            cmd+=(--limit "$REVIEW_LIMIT")
-          fi
-          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
-            cmd+=(--command-id "$REVIEW_COMMAND_ID")
-          fi
-          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
-            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
-          fi
-          "${cmd[@]}"
+          if ($env:REVIEW_LIMIT) {
+            $cmd += @("--limit", $env:REVIEW_LIMIT)
+          }
+          if ($env:REVIEW_COMMAND_ID) {
+            $cmd += @("--command-id", $env:REVIEW_COMMAND_ID)
+          }
+          if ($env:REVIEW_REQUESTED_AT) {
+            $cmd += @("--requested-at", $env:REVIEW_REQUESTED_AT)
+          }
+          & $cmd[0] $cmd[1..($cmd.Length - 1)]
 
       - name: Run legislative review pipeline
+        shell: pwsh
         run: |
-          python - <<'PY'
-          import os
-          import subprocess
-          import sys
-
-          command = [
-              sys.executable,
-              "scripts/run_review_frontend_pipeline.py",
-              "--domain",
-              os.environ["REVIEW_DOMAIN"],
-          ]
-
-          limit = os.environ.get("REVIEW_LIMIT", "").strip()
-          if limit:
-              command.extend(["--limit", limit])
-
-          raise SystemExit(subprocess.run(command, check=False).returncode)
-          PY
+          python -c "import os, subprocess, sys; command=[sys.executable, 'scripts/run_review_frontend_pipeline.py', '--domain', os.environ['REVIEW_DOMAIN']]; limit=os.environ.get('REVIEW_LIMIT', '').strip(); command.extend(['--limit', limit]) if limit else None; raise SystemExit(subprocess.run(command, check=False).returncode)"
 
       - name: Mark workflow as complete
         if: ${{ success() }}
-        shell: bash
+        shell: pwsh
         run: |
-          cmd=(python scripts/update_review_admin_state.py
-            --worker-status complete
-            --domain "$REVIEW_DOMAIN"
-            --clear-current-run
-            --last-run-id "${{ github.run_id }}"
-            --last-run-html-url "$REVIEW_RUN_URL"
-            --event-level info
-            --event-message "GitHub Actions review workflow completed for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          $cmd = @(
+            "python", "scripts/update_review_admin_state.py",
+            "--worker-status", "complete",
+            "--domain", $env:REVIEW_DOMAIN,
+            "--clear-current-run",
+            "--last-run-id", "${{ github.run_id }}",
+            "--last-run-html-url", $env:REVIEW_RUN_URL,
+            "--event-level", "info",
+            "--event-message", "GitHub Actions review workflow completed for $env:REVIEW_DOMAIN$(if ($env:REVIEW_LIMIT) { \" (limit $env:REVIEW_LIMIT)\" })."
           )
-          if [[ -n "$REVIEW_LIMIT" ]]; then
-            cmd+=(--limit "$REVIEW_LIMIT")
-          fi
-          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
-            cmd+=(--command-id "$REVIEW_COMMAND_ID")
-          fi
-          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
-            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
-          fi
-          "${cmd[@]}"
+          if ($env:REVIEW_LIMIT) {
+            $cmd += @("--limit", $env:REVIEW_LIMIT)
+          }
+          if ($env:REVIEW_COMMAND_ID) {
+            $cmd += @("--command-id", $env:REVIEW_COMMAND_ID)
+          }
+          if ($env:REVIEW_REQUESTED_AT) {
+            $cmd += @("--requested-at", $env:REVIEW_REQUESTED_AT)
+          }
+          & $cmd[0] $cmd[1..($cmd.Length - 1)]
 
       - name: Mark workflow as failed
         if: ${{ failure() || cancelled() }}
-        shell: bash
+        shell: pwsh
         run: |
-          cmd=(python scripts/update_review_admin_state.py
-            --worker-status error
-            --domain "$REVIEW_DOMAIN"
-            --clear-current-run
-            --last-error "GitHub Actions review workflow failed for $REVIEW_DOMAIN."
-            --last-run-id "${{ github.run_id }}"
-            --last-run-html-url "$REVIEW_RUN_URL"
-            --event-level error
-            --event-message "GitHub Actions review workflow failed for $REVIEW_DOMAIN${REVIEW_LIMIT:+ (limit $REVIEW_LIMIT)}."
+          $cmd = @(
+            "python", "scripts/update_review_admin_state.py",
+            "--worker-status", "error",
+            "--domain", $env:REVIEW_DOMAIN,
+            "--clear-current-run",
+            "--last-error", "GitHub Actions review workflow failed for $env:REVIEW_DOMAIN.",
+            "--last-run-id", "${{ github.run_id }}",
+            "--last-run-html-url", $env:REVIEW_RUN_URL,
+            "--event-level", "error",
+            "--event-message", "GitHub Actions review workflow failed for $env:REVIEW_DOMAIN$(if ($env:REVIEW_LIMIT) { \" (limit $env:REVIEW_LIMIT)\" })."
           )
-          if [[ -n "$REVIEW_LIMIT" ]]; then
-            cmd+=(--limit "$REVIEW_LIMIT")
-          fi
-          if [[ -n "$REVIEW_COMMAND_ID" ]]; then
-            cmd+=(--command-id "$REVIEW_COMMAND_ID")
-          fi
-          if [[ -n "$REVIEW_REQUESTED_AT" ]]; then
-            cmd+=(--requested-at "$REVIEW_REQUESTED_AT")
-          fi
-          "${cmd[@]}"
+          if ($env:REVIEW_LIMIT) {
+            $cmd += @("--limit", $env:REVIEW_LIMIT)
+          }
+          if ($env:REVIEW_COMMAND_ID) {
+            $cmd += @("--command-id", $env:REVIEW_COMMAND_ID)
+          }
+          if ($env:REVIEW_REQUESTED_AT) {
+            $cmd += @("--requested-at", $env:REVIEW_REQUESTED_AT)
+          }
+          & $cmd[0] $cmd[1..($cmd.Length - 1)]
