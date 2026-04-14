@@ -249,7 +249,7 @@ function applyReviewRollout(
 	};
 }
 
-function isMissingDashboardArtifactError(error: unknown): boolean {
+export function isMissingDashboardArtifactError(error: unknown): boolean {
 	if (!(error instanceof Error)) {
 		return false;
 	}
@@ -344,7 +344,7 @@ async function loadDashboardPayloadFromR2(
 			]);
 
 			if (!summary || !reviews) {
-				return createEmptyDashboardPayload();
+				throw new Error("Legislative review dashboard artifacts are missing from R2.");
 			}
 
 			if (summary.reviewedCount === reviews.length || attempt === READ_ATTEMPTS) {
@@ -371,22 +371,10 @@ export async function loadReviewDashboardPayload(): Promise<ReviewDashboardPaylo
 	const rolloutConfig = parseReviewRolloutConfig(bucketEnv);
 
 	if (bucketEnv?.LEGISLATIVE_REVIEW_DATA_BUCKET) {
-		try {
-			return applyReviewRollout(
-				await loadDashboardPayloadFromR2(bucketEnv),
-				rolloutConfig,
-			);
-		} catch (error) {
-			if (!isMissingDashboardArtifactError(error)) {
-				throw error;
-			}
-
-			console.warn(
-				"Legislative review dashboard artifacts are unavailable in R2; returning empty dashboard payload.",
-				error,
-			);
-			return createEmptyDashboardPayload();
-		}
+		return applyReviewRollout(
+			await loadDashboardPayloadFromR2(bucketEnv),
+			rolloutConfig,
+		);
 	}
 
 	try {

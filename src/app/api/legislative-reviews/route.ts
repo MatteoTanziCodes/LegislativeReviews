@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { sanitizeDashboardPayloadForPublic } from "@/components/legislative-reviews/review-data";
-import { loadReviewDashboardPayload } from "@/lib/legislative-review-storage";
+import {
+	isMissingDashboardArtifactError,
+	loadReviewDashboardPayload,
+} from "@/lib/legislative-review-storage";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,6 +30,9 @@ export async function GET() {
 		});
 	} catch (error) {
 		console.error("Unable to load legislative review dashboard data.", error);
+		if (isMissingDashboardArtifactError(error)) {
+			return jsonError("Legislative review dashboard artifacts are unavailable.", 503);
+		}
 		return jsonError("Unable to load legislative review dashboard data.", 500);
 	}
 }

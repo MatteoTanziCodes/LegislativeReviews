@@ -44,6 +44,12 @@
 	"env": {
 		"staging": {
 			"name": "legislativereviews-staging",
+			"routes": [
+				{
+					"pattern": "legislativereviews-staging.matteo-tanzi.dev",
+					"custom_domain": true
+				}
+			],
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
@@ -68,6 +74,12 @@
 		},
 		"production": {
 			"name": "legislativereviews",
+			"routes": [
+				{
+					"pattern": "legislativereviews.matteo-tanzi.dev",
+					"custom_domain": true
+				}
+			],
 			"vars": {
 				"LEGISLATIVE_REVIEW_SUMMARY_KEY": "review-summary.json",
 				"LEGISLATIVE_REVIEW_DETAILS_KEY": "review-details.json",
