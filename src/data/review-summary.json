@@ -1,10 +1,10 @@
 {
-  "totalCount": 5796,
+  "totalCount": 8845,
   "reviewedCount": 780,
-  "remainingCount": 5016,
-  "percentReviewed": 13.46,
+  "remainingCount": 8065,
+  "percentReviewed": 8.82,
   "dailyCapacity": 200,
-  "lastUpdated": "2026-04-04T18:02:24-04:00",
+  "lastUpdated": "2026-04-03T23:56:43-04:00",
   "pipelineStatus": "complete",
   "decisionCounts": {
     "retain": 521,

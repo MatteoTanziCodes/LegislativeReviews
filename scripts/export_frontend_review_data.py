@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
-from env_utils import load_project_env
+from env_utils import derive_total_document_count, load_project_env
 
 
 load_project_env()
@@ -17,7 +17,6 @@ load_project_env()
 
 DEFAULT_SUMMARY_OUTPUT_PATH = Path(r"src/data/review-summary.json")
 DEFAULT_DETAILS_OUTPUT_PATH = Path(r"src/data/review-details.json")
-DEFAULT_TOTAL_COUNT = 5796
 DEFAULT_DAILY_CAPACITY = 200
 DEFAULT_PIPELINE_STATUS = "complete"
 DECISION_LABELS = ("retain", "amend", "repeal_candidate", "escalate")
@@ -166,8 +165,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 	parser.add_argument(
 		"--total-count",
 		type=int,
-		default=DEFAULT_TOTAL_COUNT,
-		help="Known total corpus size for progress calculations.",
+		help=(
+			"Optional explicit total corpus size for progress calculations. "
+			"Defaults to the current documents_en.parquet row count."
+		),
 	)
 	parser.add_argument(
 		"--daily-capacity",
@@ -516,6 +517,14 @@ def export_frontend_payloads(
 	return summary_payload
 
 
+def resolve_total_count(total_count: int | None) -> int:
+	if total_count is None:
+		return derive_total_document_count()
+	if total_count <= 0:
+		raise RuntimeError("--total-count must be a positive integer.")
+	return total_count
+
+
 def main(argv: Sequence[str] | None = None) -> int:
 	if hasattr(sys.stdout, "reconfigure"):
 		sys.stdout.reconfigure(encoding="utf-8")
@@ -523,9 +532,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 		sys.stderr.reconfigure(encoding="utf-8")
 
 	args = parse_args(argv)
-	if args.total_count <= 0:
-		print("Error: --total-count must be a positive integer.", file=sys.stderr)
-		return 1
 	if args.daily_capacity <= 0:
 		print("Error: --daily-capacity must be a positive integer.", file=sys.stderr)
 		return 1
@@ -547,11 +553,17 @@ def main(argv: Sequence[str] | None = None) -> int:
 		print(f"Error: {exc}", file=sys.stderr)
 		return 1
 
+	try:
+		total_count = resolve_total_count(args.total_count)
+	except RuntimeError as exc:
+		print(f"Error: {exc}", file=sys.stderr)
+		return 1
+
 	summary_payload = export_frontend_payloads(
 		review_rows,
 		summary_output_path=args.summary_output_path,
 		details_output_path=args.details_output_path,
-		total_count=args.total_count,
+		total_count=total_count,
 		daily_capacity=args.daily_capacity,
 		last_updated=get_last_updated_iso(
 			review_output_path=review_output_path,

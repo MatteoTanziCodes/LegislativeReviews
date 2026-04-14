@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence
 
-from env_utils import get_processed_dir, load_project_env
+from env_utils import derive_total_document_count, get_processed_dir, load_project_env
 
 
 load_project_env()
@@ -82,8 +82,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 	parser.add_argument(
 		"--total-count",
 		type=int,
-		default=5796,
-		help="Known total corpus size for frontend progress metrics.",
+		help=(
+			"Optional explicit total corpus size for frontend progress metrics. "
+			"Defaults to the current documents_en.parquet row count."
+		),
 	)
 	parser.add_argument(
 		"--daily-capacity",
@@ -325,6 +327,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 		print(f"Error: {exc}", file=sys.stderr)
 		return 1
 
+	try:
+		total_count = (
+			derive_total_document_count()
+			if args.total_count is None
+			else args.total_count
+		)
+	except RuntimeError as exc:
+		print(f"Error: {exc}", file=sys.stderr)
+		return 1
+	if total_count <= 0:
+		print("Error: --total-count must be a positive integer.", file=sys.stderr)
+		return 1
+
 	python_executable = sys.executable
 
 	build_inputs_command = [
@@ -362,7 +377,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 			"--frontend-details-output-path",
 			str(args.details_output_path),
 			"--frontend-total-count",
-			str(args.total_count),
+			str(total_count),
 			"--frontend-daily-capacity",
 			str(args.daily_capacity),
 			"--frontend-export-every",
@@ -388,7 +403,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 				review_output_path=review_output_path,
 				summary_output_path=args.summary_output_path,
 				details_output_path=args.details_output_path,
-				total_count=args.total_count,
+				total_count=total_count,
 				daily_capacity=args.daily_capacity,
 			)
 			if not force_no_resume:
@@ -400,7 +415,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 					review_limit=args.limit,
 					summary_output_path=args.summary_output_path,
 					details_output_path=args.details_output_path,
-					total_count=args.total_count,
+					total_count=total_count,
 					daily_capacity=args.daily_capacity,
 				)
 		except RuntimeError as exc:
@@ -420,7 +435,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 		"--details-output-path",
 		str(args.details_output_path),
 		"--total-count",
-		str(args.total_count),
+		str(total_count),
 		"--daily-capacity",
 		str(args.daily_capacity),
 		"--pipeline-status",

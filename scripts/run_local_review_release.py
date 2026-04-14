@@ -10,6 +10,7 @@ from typing import Sequence
 
 import classify_documents as classifier
 from env_utils import (
+    derive_total_document_count,
     get_data_root,
     get_processed_dir,
     load_project_env,
@@ -98,8 +99,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--total-count",
         type=int,
-        default=5796,
-        help="Known total corpus size for dashboard progress metrics.",
+        help=(
+            "Optional explicit total corpus size for dashboard progress metrics. "
+            "Defaults to the current documents_en.parquet row count."
+        ),
     )
     parser.add_argument(
         "--daily-capacity",
@@ -229,6 +232,7 @@ def format_command(command: Sequence[str]) -> str:
 def run_domain_pipeline(
     *,
     domain: str,
+    total_count: int,
     args: argparse.Namespace,
     env: dict[str, str],
 ) -> int:
@@ -244,7 +248,7 @@ def run_domain_pipeline(
         "--frontend-export-every",
         str(args.frontend_export_every),
         "--total-count",
-        str(args.total_count),
+        str(total_count),
         "--daily-capacity",
         str(args.daily_capacity),
         "--summary-output-path",
@@ -346,9 +350,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
-    if args.total_count <= 0:
-        print("Error: --total-count must be a positive integer.", file=sys.stderr)
-        return 1
     if args.daily_capacity <= 0:
         print("Error: --daily-capacity must be a positive integer.", file=sys.stderr)
         return 1
@@ -383,6 +384,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         processed_dir=processed_dir,
     )
 
+    total_count = args.total_count
+
     print("Local review release configuration:")
     print(
         "  Domains: "
@@ -405,6 +408,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(
         "  Classification mode: "
         + ("full rebuild" if args.reclassify_all else "incremental")
+    )
+    print(
+        "  Total corpus size: "
+        + (
+            str(total_count)
+            if total_count is not None
+            else (
+                "auto (will derive after preprocess)"
+                if not args.skip_preprocess
+                else "auto"
+            )
+        )
     )
     print(
         "  R2 publish: "
@@ -433,9 +448,27 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Preprocessing complete.")
         return 0
 
+    try:
+        total_count = (
+            derive_total_document_count()
+            if total_count is None
+            else total_count
+        )
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if total_count <= 0:
+        print("Error: --total-count must be a positive integer.", file=sys.stderr)
+        return 1
+
     completed_domains: list[str] = []
     for domain in target_domains:
-        return_code = run_domain_pipeline(domain=domain, args=args, env=env)
+        return_code = run_domain_pipeline(
+            domain=domain,
+            total_count=total_count,
+            args=args,
+            env=env,
+        )
         if return_code != 0:
             print(
                 f"Error: domain {domain} failed with exit code {return_code}.",

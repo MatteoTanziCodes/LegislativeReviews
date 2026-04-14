@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
-from env_utils import load_project_env
+from env_utils import derive_total_document_count, load_project_env
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -35,7 +35,6 @@ DEFAULT_CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_REVIEW_MAX_TOKENS = 900
 REVIEW_PROGRESS_EVERY = 100
 INITIAL_RESULT_PREVIEW_COUNT = 5
-DEFAULT_FRONTEND_TOTAL_COUNT = 5796
 DEFAULT_FRONTEND_DAILY_CAPACITY = 200
 DEFAULT_FRONTEND_EXPORT_EVERY = 10
 DEFAULT_REVIEW_CHECKPOINT_EVERY = 25
@@ -265,8 +264,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--frontend-total-count",
         type=int,
-        default=DEFAULT_FRONTEND_TOTAL_COUNT,
-        help="Known total corpus size for frontend progress metrics.",
+        help=(
+            "Optional explicit total corpus size for frontend progress metrics. "
+            "Defaults to the current documents_en.parquet row count."
+        ),
     )
     parser.add_argument(
         "--frontend-daily-capacity",
@@ -776,7 +777,15 @@ def build_frontend_export_config(args: argparse.Namespace) -> FrontendExportConf
             "Both --frontend-summary-output-path and --frontend-details-output-path are required "
             "when live frontend export is enabled."
         )
-    if args.frontend_total_count <= 0:
+    try:
+        total_count = (
+            derive_total_document_count()
+            if args.frontend_total_count is None
+            else args.frontend_total_count
+        )
+    except RuntimeError as exc:
+        raise RuntimeError(str(exc)) from exc
+    if total_count <= 0:
         raise RuntimeError("--frontend-total-count must be a positive integer.")
     if args.frontend_daily_capacity <= 0:
         raise RuntimeError("--frontend-daily-capacity must be a positive integer.")
@@ -786,7 +795,7 @@ def build_frontend_export_config(args: argparse.Namespace) -> FrontendExportConf
     return FrontendExportConfig(
         summary_output_path=args.frontend_summary_output_path,
         details_output_path=args.frontend_details_output_path,
-        total_count=args.frontend_total_count,
+        total_count=total_count,
         daily_capacity=args.frontend_daily_capacity,
         export_every=args.frontend_export_every,
         r2_publish_config=frontend_export.build_r2_publish_config(),

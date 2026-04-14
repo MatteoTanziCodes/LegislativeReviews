@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type {
 	ReviewDashboardPayload,
@@ -11,12 +9,9 @@ import {
 	type ReviewSummary,
 } from "@/components/legislative-reviews/review-metrics";
 
-const SUMMARY_PATH = path.join(process.cwd(), "src", "data", "review-summary.json");
-const DETAILS_PATH = path.join(process.cwd(), "src", "data", "review-details.json");
-
 const DEFAULT_SUMMARY_OBJECT_KEY = "review-summary.json";
 const DEFAULT_DETAILS_OBJECT_KEY = "review-details.json";
-const DEFAULT_TOTAL_COUNT = 5796;
+const DEFAULT_TOTAL_COUNT = 0;
 const DEFAULT_DAILY_CAPACITY = 200;
 const DEFAULT_ROLLOUT_TIMEZONE = "America/Toronto";
 const READ_ATTEMPTS = 3;
@@ -283,7 +278,12 @@ async function getDashboardStorageEnv(): Promise<DashboardStorageEnv | null> {
 
 async function readLocalJson<T>(filePath: string): Promise<T | null> {
 	try {
-		const payload = await readFile(filePath, "utf-8");
+		const [{ readFile }, pathModule] = await Promise.all([
+			import("node:fs/promises"),
+			import("node:path"),
+		]);
+		const resolvedPath = pathModule.join(process.cwd(), "src", "data", filePath);
+		const payload = await readFile(resolvedPath, "utf-8");
 		return JSON.parse(payload) as T;
 	} catch (error) {
 		if (isMissingDashboardArtifactError(error)) {
@@ -306,8 +306,8 @@ async function readR2Json<T>(
 
 async function loadLocalDashboardPayload(): Promise<ReviewDashboardPayload> {
 	const [summary, reviews] = await Promise.all([
-		readLocalJson<ReviewSummary>(SUMMARY_PATH),
-		readLocalJson<ReviewDetail[]>(DETAILS_PATH),
+		readLocalJson<ReviewSummary>(DEFAULT_SUMMARY_OBJECT_KEY),
+		readLocalJson<ReviewDetail[]>(DEFAULT_DETAILS_OBJECT_KEY),
 	]);
 
 	if (!summary || !reviews) {

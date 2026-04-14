@@ -334,6 +334,9 @@ Build:
 npm run build
 ```
 
+Note:
+`npm run build` intentionally uses `next build --webpack` for Cloudflare/OpenNext deployment stability. Do not switch it back to the default Turbopack production build unless you have re-verified live Workers routing end to end.
+
 Preview:
 
 ```bash
